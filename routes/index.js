@@ -1,6 +1,4 @@
-var qs = require('querystring');
 var http = require('http');
-var request = require('request');
 var express = require('express');
 var curl = require('curlrequest')
 var mongoose = require('mongoose');
