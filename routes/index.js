@@ -3,7 +3,6 @@ var express = require('express');
 var curl = require('curlrequest')
 var mongoose = require('mongoose');
 var path = require('path');
-var async = require('async');
 var student = require('../models/student');
 
 var router = express.Router();

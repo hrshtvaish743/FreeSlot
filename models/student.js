@@ -1,6 +1,5 @@
 var mongoose = require('mongoose');
 
-mongoose.connect('mongodb://freeslot_write:FreeslotDataBase@ds147905.mlab.com:47905/freeslots');
 var Schema = mongoose.Schema;
 var studSchema = new Schema({
     name: String,

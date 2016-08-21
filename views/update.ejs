@@ -1,0 +1,28 @@
+<!-- views/index.ejs -->
+<!doctype html>
+<html>
+<head>
+    <title>Node Authentication</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> <!-- load bootstrap css -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"> <!-- load fontawesome -->
+    <style>
+        body        { padding-top:80px; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="jumbotron text-center">
+        <h1> Welcome!!    <% if (name.length && registerNo.length > 0) { %>
+        <div class="alert alert-danger"><%= name %> <%= registerNo%></div>
+    <% } %></h1>
+    <h2>Please Click the Refresh button below to update your TimeTable.
+    <form method="post">
+        <button type="submit" class="btn btn-warning btn-lg">Refresh</button>
+    </form>
+
+    </div>
+
+</div>
+</body>
+</html>
