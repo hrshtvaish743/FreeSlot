@@ -1,0 +1,44 @@
+<!-- views/profile.ejs -->
+<!doctype html>
+<html>
+<head>
+	<title>FreeSlot</title>
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+	<style>
+		body 		{ padding-top:80px; word-wrap:break-word; }
+	</style>
+</head>
+<body>
+<div class="container">
+
+	<div class="page-header text-center">
+		<h1><span class="fa fa-anchor"></span> Profile Page</h1>
+		<a href="/logout" class="btn btn-default btn-sm">Logout</a>
+	</div>
+
+	<div class="row">
+
+		<!-- LOCAL INFORMATION -->
+		<div class="container">
+			<div class="well">
+				<h3><span class="fa fa-user"></span>Registered</h3>
+					<p>
+						THank you! Your Club is successfully Registered.Please Verify your account by contacting our moderator <a href=mailto('hrshtvaish743@gmail.com'>Here</a>.
+						You can't access your account unless it's verified.
+						<strong>Your Email</strong>: <%= user.local.email %><br>
+						<strong>Club/Chapter Name</strong>: <%= user.local.club %><br>
+						<strong>Club/Chapter's Admin Name</strong>: <%= user.local.name %><br>
+						<strong>loginID</strong>: <%= user.local.loginID %><br>
+						<strong>Account Verified?</strong>: <%= user.local.verified %>.
+						
+					</p>
+
+			</div>
+		</div>
+
+	</div>
+
+</div>
+</body>
+</html>
