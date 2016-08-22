@@ -68,7 +68,7 @@ module.exports = function(passport) {
                 newUser.local.verified = false;
 
                 newClub.name = req.param('club');
-                newClub.loginName = req.param('loginID');
+                newClub.loginID = req.param('loginID');
 
                 // save the user
                 newUser.save(function(err) {
