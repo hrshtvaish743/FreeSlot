@@ -5,6 +5,7 @@ var LocalStrategy   = require('passport-local').Strategy;
 
 // load up the user model
 var User            = require('../models/user');
+var Club            = require('../models/club');
 
 // expose this function to our app using module.exports
 module.exports = function(passport) {
@@ -43,29 +44,39 @@ module.exports = function(passport) {
 
         // find a user whose email is the same as the forms email
         // we are checking to see if the user trying to login already exists
-        User.findOne({ 'local.email' :  email }, function(err, user) {
+        Club.findOne({ 'name' :  req.param('club') }, function(err, club) {
             // if there are any errors, return the error
             if (err)
                 return done(err);
 
             // check to see if theres already a user with that email
-            if (user) {
-                return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
+            if (club) {
+                return done(null, false, req.flash('signupMessage', 'This Club/Chapter is already Registered.'));
             } else {
 
                 // if there is no user with that email
                 // create the user
                 var newUser            = new User();
+                var newClub            = new Club();
 
                 // set the user's local credentials
-                newUser.local.email    = email;
                 newUser.local.password = newUser.generateHash(password); // use the generateHash function in our user model
+                newUser.local.email    = email;
+                newUser.local.club     = req.param('club');
+                newUser.local.name     = req.param('name');
+
+                newClub.name = req.param('club');
 
                 // save the user
                 newUser.save(function(err) {
                     if (err)
                         throw err;
                     return done(null, newUser);
+                });
+                newClub.save(function(err) {
+                    if (err)
+                        throw err;
+                    return done(null, newClub);
                 });
             }
 

@@ -26,37 +26,19 @@
     <form action="/signup" method="post">
         <div class="form-group">
             <label>Name</label>
-            <input type="text" class="form-control" name="username">
-        </div>
-        <div class="form-group">
-            <label>Club Name</label>
-            <input type="text" class="form-control" name="clubName">
-        </div>
-        <div class="dropdown">
-        <label>Select Your Club</label>
-        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-        Select Your Club
-        <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-        <li><a href="#">VIT Trekking Club</a></li>
-        <li><a href="#">ASCE</a></li>
-        <li><a href="#">Eklavya</a></li>
-        <li role="separator" class="divider"></li>
-        <li><a href="#">Separated link</a></li>
-        </ul>
+            <input type="text" class="form-control" name="name" required>
         </div>
         <div class="form-group">
             <label>Club/Chapter Name</label>
-            <input type="text" class="form-control" name="c_name">
+            <input type="text" class="form-control" name="club" required>
         </div>
         <div class="form-group">
             <label>Email</label>
-            <input type="text" class="form-control" name="email">
+            <input type="text" class="form-control" name="email" required>
         </div>
         <div class="form-group">
             <label>Password</label>
-            <input type="password" class="form-control" name="password">
+            <input type="password" class="form-control" name="password" required>
         </div>
 
         <button type="submit" class="btn btn-warning btn-lg">Signup</button>
