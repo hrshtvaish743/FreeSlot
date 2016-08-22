@@ -44,7 +44,7 @@ module.exports = function(passport) {
 
         // find a user whose email is the same as the forms email
         // we are checking to see if the user trying to login already exists
-        Club.findOne({ 'name' :  req.param('club') }, function(err, club) {
+        Club.findOne({ 'loginID' :  req.param('loginID') }, function(err, club) {
             // if there are any errors, return the error
             if (err)
                 return done(err);
@@ -64,8 +64,11 @@ module.exports = function(passport) {
                 newUser.local.email    = email;
                 newUser.local.club     = req.param('club');
                 newUser.local.name     = req.param('name');
+                newUser.local.loginID  = req.param('loginID');
+                newUser.local.verified = false;
 
                 newClub.name = req.param('club');
+                newClub.loginName = req.param('loginID');
 
                 // save the user
                 newUser.save(function(err) {
@@ -100,18 +103,22 @@ module.exports = function(passport) {
 
         // find a user whose email is the same as the forms email
         // we are checking to see if the user trying to login already exists
-        User.findOne({ 'local.email' :  email }, function(err, user) {
+        User.findOne({ 'local.loginID' :  req.param('loginID') }, function(err, user) {
             // if there are any errors, return the error before anything else
             if (err)
                 return done(err);
 
             // if no user is found, return the message
-            if (!user)
+            if (!user){
                 return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
+            }
 
             // if the user is found but the password is wrong
-            if (!user.validPassword(password))
+            if (!user.validPassword(password)){
                 return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
+            }
+            if (user.local.verified === false)
+                return done(null, false, req.flash('loginMessage', 'Your Account is not yet Verified!! Please Contact Moderator.'))
 
             // all is well, return successful user
             return done(null, user);

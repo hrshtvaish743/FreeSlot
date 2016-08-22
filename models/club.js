@@ -7,7 +7,8 @@ var bcrypt   = require('bcrypt-nodejs');
 // define the schema for our user model
 var clubSchema = mongoose.Schema({
 
-    name: String
+    name: String,
+    loginID: String
     
 });
 
