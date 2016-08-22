@@ -51,7 +51,8 @@ module.exports = function(passport) {
 
             // check to see if theres already a user with that email
             if (club) {
-                return done(null, false, req.flash('signupMessage', 'This Club/Chapter is already Registered.'));
+                if(club.verified === true)
+                    return done(null, false, req.flash('signupMessage', 'This Club/Chapter is already Registered and Verified.'));
             } else {
 
                 // if there is no user with that email
@@ -69,6 +70,7 @@ module.exports = function(passport) {
 
                 newClub.name = req.param('club');
                 newClub.loginID = req.param('loginID');
+                newClub.verified = false;
 
                 // save the user
                 newUser.save(function(err) {

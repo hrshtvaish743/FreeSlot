@@ -8,7 +8,8 @@ var bcrypt   = require('bcrypt-nodejs');
 var clubSchema = mongoose.Schema({
 
     name: String,
-    loginID: String
+    loginID: String,
+    verified: Boolean
     
 });
 
