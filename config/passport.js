@@ -44,7 +44,7 @@ module.exports = function(passport) {
 
         // find a user whose email is the same as the forms email
         // we are checking to see if the user trying to login already exists
-        Club.findOne({ 'loginID' :  req.param('loginID') }, function(err, club) {
+        Club.findOne({ 'RepRegno' :  req.param('RepRegno') }, function(err, club) {
             // if there are any errors, return the error
             if (err)
                 return done(err);
@@ -65,11 +65,13 @@ module.exports = function(passport) {
                 newUser.local.email    = email;
                 newUser.local.club     = req.param('club');
                 newUser.local.name     = req.param('name');
-                newUser.local.loginID  = req.param('loginID');
+                newUser.local.RepPhone = req.param('phone');
+                newUser.local.RepRegno = req.param('RepRegno');
+                newUser.local.loginID  = "undefined";
                 newUser.local.verified = false;
 
                 newClub.name = req.param('club');
-                newClub.loginID = req.param('loginID');
+                newClub.loginID = "undefined";
                 newClub.verified = false;
 
                 // save the user

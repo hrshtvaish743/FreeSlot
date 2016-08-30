@@ -9,6 +9,7 @@ var studSchema = new Schema({
         unique: true
     },
     freeslots: [Number],
+    clubID: String,
     created_at: Date,
     updated_at: Date
 });

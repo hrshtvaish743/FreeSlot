@@ -13,7 +13,9 @@ var userSchema = mongoose.Schema({
         club         : String,
         name         : String,
         verified     : Boolean,
-        loginID      : String
+        loginID      : String,
+        RepRegno     : String,
+        RepPhone     : String
     },
     facebook         : {
         id           : String,

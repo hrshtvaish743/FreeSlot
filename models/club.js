@@ -9,8 +9,9 @@ var clubSchema = mongoose.Schema({
 
     name: String,
     loginID: String,
-    verified: Boolean
-    
+    verified: Boolean,
+    id: String
+
 });
 
 // create the model for users and expose it to our app

@@ -1,6 +1,6 @@
 // app/routes.js
 var student = require('../models/student');
-var student = require('../models/student');
+var Club    = require('../models/club');
 var curl = require('curlrequest')
 
 var regno = undefined;
@@ -9,10 +9,12 @@ var mobile = undefined;
 var campus = undefined;
 var name = undefined;
 var reg_no = undefined;
+var id = undefined;
 var slots = new Array();
 var BusySlots = new Array();
 var BusySlotsFinal = new Array();
 var FreeSlots = new Array();
+var clubMap = new Array();
 
 module.exports = function(app, passport) {
 
@@ -67,9 +69,12 @@ module.exports = function(app, passport) {
     // we will want this protected so you have to be logged in to visit
     // we will use route middleware to verify this (the isLoggedIn function)
     app.get('/profile', isLoggedIn, function(req, res) {
+      student.find({ 'clubID' : req.user.local.loginID}, function(err, students) {
         res.render('profile.ejs', {
+            students : students,
             user: req.user // get the user out of session and pass to template
         });
+      });
     });
     app.get('/registered', isLoggedIn, function(req, res) {
         res.render('registered.ejs', {
@@ -90,9 +95,9 @@ module.exports = function(app, passport) {
     //TIMETABLE
 
     app.get('/', function(req, res, next) {
-        res.render('form.ejs');
+        res.render('home.ejs');
     });
-    app.post('/', function(req, res, next) {
+    app.post('/student/:id', function(req, res, next) {
         if (!req.body.registerNo || !req.body.DOB || !req.body.phoneNo) {
             res.redirect('/');
         } else {
@@ -110,6 +115,11 @@ module.exports = function(app, passport) {
                 res.redirect('/refresh');
             });
         }
+    });
+
+    app.get('/student/:id', function(req, res, next) {
+      id = req.params.id;
+      res.render('form.ejs',{id:id});
     });
 
     app.get('/refresh', function(req, res, next) {
@@ -168,7 +178,8 @@ module.exports = function(app, passport) {
             var newStud = student({
                 name: name,
                 regno: regno,
-                freeslots: FreeSlots
+                freeslots: FreeSlots,
+                clubID: id
             });
             student.find({
                 regno: regno
@@ -184,6 +195,7 @@ module.exports = function(app, passport) {
                     newStud.save(function(err) {
                         if (err) throw err;
                         console.log('Data updated!');
+                        id = undefined;
                     });
                 }
             })
