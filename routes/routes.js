@@ -2,6 +2,7 @@
 var student = require('../models/student');
 var Club    = require('../models/club');
 var curl = require('curlrequest')
+var https = require('https');
 
 var regno = undefined;
 var dob = undefined;
@@ -16,6 +17,7 @@ var BusySlotsFinal = new Array();
 var FreeSlots = new Array();
 var clubMap = new Array();
 var studList = undefined;
+var SECRET = "6Lfq6ygTAAAAAJm0vH_CO6gTshtKQNQ0jZLDwjNK";
 
 module.exports = function(app, passport) {
 
@@ -57,22 +59,19 @@ module.exports = function(app, passport) {
         });
     });
 
+
     // process the signup form
-    app.post('/signup', function(req,res,next){
-      // g-recaptcha-response is the key that browser will generate upon form submit.
-      // if its blank or null means user has not selected the captcha, so return the error.
-      if(req.body['g-recaptcha-response'] === undefined || req.body['g-recaptcha-response'] === '' || req.body['g-recaptcha-response'] === null) {
-        return res.json({"responseCode" : 1,"responseDesc" : "Please select captcha"});
-        var secretKey = "6Lfq6ygTAAAAAJm0vH_CO6gTshtKQNQ0jZLDwjNK";
-        var verificationUrl = "https://www.google.com/recaptcha/api/siteverify?secret=" + secretKey + "&response=" + req.body['g-recaptcha-response'] + "&remoteip=" + req.connection.remoteAddress;
-        request(verificationUrl,function(error,response,body) {
-          body = JSON.parse(body);
-          // Success will be true or false depending upon captcha validation.
-          if(body.success !== undefined && !body.success) {
-            return res.json({"responseCode" : 1,"responseDesc" : "Failed captcha verification"});
-          }
-          res.json({"responseCode" : 0,"responseDesc" : "Sucess"});
-  })}},passport.authenticate('local-signup', {
+    app.post('/signup', function(req, res, next) {
+        verifyRecaptcha(req.body["g-recaptcha-response"], function(success) {
+                if (success) {
+                        return next();
+                        // TODO: do registration using params in req.body
+                } else {
+                        res.send("Captcha failed, sorry.");
+                        // TODO: take them back to the previous page
+                        // and for the love of everyone, restore their inputs
+                }
+        })},passport.authenticate('local-signup', {
         successRedirect: '/registered', // redirect to the secure profile section
         failureRedirect: '/signup', // redirect back to the signup page if there is an error
         failureFlash: true // allow flash messages
@@ -296,6 +295,23 @@ var deleteDoc = function(regno) {
     student.find({
         regno: regno
     }).remove().exec();
+}
+
+function verifyRecaptcha(key, callback) {
+        https.get("https://www.google.com/recaptcha/api/siteverify?secret=" + SECRET + "&response=" + key, function(res) {
+                var data = "";
+                res.on('data', function (chunk) {
+                        data += chunk.toString();
+                });
+                res.on('end', function() {
+                        try {
+                                var parsedData = JSON.parse(data);
+                                callback(parsedData.success);
+                        } catch (e) {
+                                callback(false);
+                        }
+                });
+        });
 }
 
 var LabSlots = {
