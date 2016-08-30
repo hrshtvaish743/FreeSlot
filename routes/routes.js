@@ -58,7 +58,21 @@ module.exports = function(app, passport) {
     });
 
     // process the signup form
-    app.post('/signup', passport.authenticate('local-signup', {
+    app.post('/signup', function(req,res,next){
+      // g-recaptcha-response is the key that browser will generate upon form submit.
+      // if its blank or null means user has not selected the captcha, so return the error.
+      if(req.body['g-recaptcha-response'] === undefined || req.body['g-recaptcha-response'] === '' || req.body['g-recaptcha-response'] === null) {
+        return res.json({"responseCode" : 1,"responseDesc" : "Please select captcha"});
+        var secretKey = "6Lfq6ygTAAAAAJm0vH_CO6gTshtKQNQ0jZLDwjNK";
+        var verificationUrl = "https://www.google.com/recaptcha/api/siteverify?secret=" + secretKey + "&response=" + req.body['g-recaptcha-response'] + "&remoteip=" + req.connection.remoteAddress;
+        request(verificationUrl,function(error,response,body) {
+          body = JSON.parse(body);
+          // Success will be true or false depending upon captcha validation.
+          if(body.success !== undefined && !body.success) {
+            return res.json({"responseCode" : 1,"responseDesc" : "Failed captcha verification"});
+          }
+          res.json({"responseCode" : 0,"responseDesc" : "Sucess"});
+  })}},passport.authenticate('local-signup', {
         successRedirect: '/registered', // redirect to the secure profile section
         failureRedirect: '/signup', // redirect back to the signup page if there is an error
         failureFlash: true // allow flash messages
