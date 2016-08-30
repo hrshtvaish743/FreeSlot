@@ -13,7 +13,7 @@
 <div class="container">
 
 	<div class="page-header text-center">
-		<h1><span class="fa fa-anchor"></span> Profile Page</h1>
+		<h1><span class="fa fa-anchor"></span> Welcome <strong><%= user.local.name %></strong></h1>
 		<a href="/logout" class="btn btn-default btn-sm">Logout</a>
 	</div>
 
@@ -22,24 +22,26 @@
 		<!-- LOCAL INFORMATION -->
 		<div class="container">
 			<div class="well">
-				<h3><span class="fa fa-user"></span> Local</h3>
-
-					<p>
-						<strong>id</strong>: <%= user._id %><br>
-						<strong>email</strong>: <%= user.local.email %><br>
-						<strong>club</strong>: <%= user.local.club %>
-						<strong>name</strong>: <%= user.local.name %>
-						<strong>loginID</strong>: <%= user.local.loginID %>
-						<strong>Verified?</strong>: <%= user.local.verified %>
-						<strong>password</strong>: <%= user.local.password %>
-					</p>
-
-					<ul>
-    <% students.forEach(function(student) { %>
-        <li><%= student.name %></li>
-    <% }); %>
-</ul>
-
+				<h3><span class="fa fa-user"></span> Details</h3>
+					<div class="modal-body row">
+  					<div class="col-md-6">
+							<p>
+								<strong>Email </strong>: <%= user.local.email %><br>
+								<strong>Club Name </strong>: <%= user.local.club %><br>
+								<strong>ID </strong>: <%= user.local.loginID %>
+							</p>
+						</div>
+						<div class="col-md-6">
+							<p>
+								List Of Your Club/Chapter's Students Who have updated their timetable.
+							</p>
+							<ul>
+								<% students.forEach(function(student) { %>
+									<li><%= student.name %></li>
+									<% }); %>
+							</ul>
+						</div>
+					</div>
 			</div>
 		</div>
 

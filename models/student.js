@@ -5,8 +5,7 @@ var studSchema = new Schema({
     name: String,
     regno: {
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
     freeslots: [Number],
     clubID: String,

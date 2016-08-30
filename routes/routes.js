@@ -185,13 +185,15 @@ module.exports = function(app, passport) {
                 regno: regno
             }, function(err, student) {
                 if (err) throw err;
-                if (student[0] === undefined) {
+                if (!student) {
                     newStud.save(function(err) {
                         if (err) throw err;
                         console.log('Data created!');
                     });
                 } else {
-                    deleteDoc(regno);
+                    if(student.clubID === id){
+                      deleteDoc(regno);
+                    }
                     newStud.save(function(err) {
                         if (err) throw err;
                         console.log('Data updated!');
