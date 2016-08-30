@@ -1,0 +1,41 @@
+<% include header.ejs %>
+<body id="page-top" data-spy="scroll" data-target="navbar-fixed-top">
+  <% include navbar.ejs %>
+        <div class="container content-section text-center">
+            <h3>Please refer the reference TimeTable for slots</h3>
+            <hr>
+            <div class="dropdown container">
+              <label>Register No</label>
+              <input class="form-control dropdown-toggle" type="text" id="slot" name="slot" placeholder="Slot" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+              <ul id="livesearch" class="dropdown-menu container" aria-labelledby="dropdownMenu1"></ul>
+            </div>
+        </div>
+        <div class="container text-center">
+        <h3>Building Slot TimeTable:</h3>
+            <div id="TT">
+              <p class="container"><% include timetable.ejs %></p>
+            </div>
+        </div>
+        <hr>
+        <div class="container content-section text-center">
+            <h3>Reference TimeTable :</h3>
+            <div id="RTT">
+                <p>
+                  <% include reference.ejs %>
+                </p>
+            </div>
+          </div>
+            <p>&nbsp;</p>
+            <div class="container content-section">
+            <h3>Instructions</h3>
+            <ul>
+                <li>Select a Building Slot for each Building in the Building TimeTable.Selected slots are marked Red.</li>
+                <li>Type a Slot in the Search Bar for which you want to find free Students after refering the reference TimeTable.</li>
+                <li>Click on the names which appear and they will be appended on the selected slot in Building TimeTable. Only Two names allowed per slot per building.</li>
+                <li>0800-0850 Slot For SJT is Selected By Default.</li>
+            </ul>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="/javascripts/alot.js"></script>
+    </body>

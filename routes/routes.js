@@ -15,6 +15,7 @@ var BusySlots = new Array();
 var BusySlotsFinal = new Array();
 var FreeSlots = new Array();
 var clubMap = new Array();
+var studList = undefined;
 
 module.exports = function(app, passport) {
 
@@ -70,6 +71,8 @@ module.exports = function(app, passport) {
     // we will use route middleware to verify this (the isLoggedIn function)
     app.get('/profile', isLoggedIn, function(req, res) {
       student.find({ 'clubID' : req.user.local.loginID}, function(err, students) {
+        id = req.user.local.loginID;
+        studList = students;
         res.render('profile.ejs', {
             students : students,
             user: req.user // get the user out of session and pass to template
@@ -90,6 +93,34 @@ module.exports = function(app, passport) {
         res.redirect('/admin');
     });
 
+//ALLOTMENT
+    app.get('/admin/alot', isLoggedIn, function(req,res) {
+      res.render('alot.ejs', {
+        students : studList
+      });
+    })
+
+    app.post('/searching', function(req, res){
+      student.find({'clubID' : id}, function(err, list) {
+        if(list){
+          var hint = "";
+          var free = [];
+          for (var i = 0; i < list.length; i++) {
+            if(list[i].freeslots.indexOf(req.body.slot) !== -1)
+            if (hint === "") {
+                  hint = '<li><a href="#" onclick="substitute(\'' + list[i].name + '\')">' + list[i].regno + ' ' + list[i].name + '</a></li>';
+              } else {
+                  hint = hint + '<br><li><a href="#" onclick="substitute(\'' + list[i].name + '\')">' + list[i].regno + ' ' + list[i].name + '</a></li>';
+              }
+          }
+        }
+        if(hint==="")
+        res.send("No Result!");
+        else {
+          res.send(hint);
+        }
+      })
+    });
 
 
     //TIMETABLE
