@@ -182,13 +182,17 @@ module.exports = function(app, passport) {
         id = req.params.id;
         Club.findOne({ 'loginID' : id, 'verified' : true}, function(err, name) {
           if(err) throw err;
-          res.render('form.ejs', {
-              id: id,
+          if(!name)
+            res.render('notfound.ejs', {
+              message: 'No Club/Chapter Associated with this ID Found!! Please contact your Club/Chapter\'s Admin.'
+            })
+            else {
+              res.render('form.ejs', {
               name: name.name,
               message: req.flash('signupMessage')
           });
+        }
         })
-
     });
 
     app.get('/refresh', function(req, res, next) {
@@ -208,7 +212,6 @@ module.exports = function(app, passport) {
             };
             curl.request(options, function(err, buffer) {
                 var response = JSON.parse(buffer);
-                console.log(response.reg_no);
                 for (i = 0;; i++) {
                     if (response.courses[i] !== undefined) {
                         slots.push(response.courses[i].slot);
