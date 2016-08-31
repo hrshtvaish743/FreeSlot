@@ -264,17 +264,7 @@ module.exports = function(app, passport) {
                     });
                 }
             })
-
         }
-        var regno = undefined;
-        var dob = undefined;
-        var mobile = undefined;
-        var campus = undefined;
-        var id = undefined;
-        var slots = new Array();
-        var BusySlots = new Array();
-        var BusySlotsFinal = new Array();
-        var FreeSlots = new Array();
         res.render('updated.ejs', {
             name: name,
             registerNo: reg_no
