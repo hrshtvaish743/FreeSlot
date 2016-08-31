@@ -42,20 +42,21 @@ module.exports = function(passport) {
     },
     function(req, email, password, done) {
 
-        // find a user whose email is the same as the forms email
+        // find a user whose RepRegno is the same as the forms
         // we are checking to see if the user trying to login already exists
-        Club.findOne({ 'RepRegno' :  req.param('RepRegno') }, function(err, club) {
+        User.findOne({ 'local.RepRegno' :  req.param('RepRegno') }, function(err, user) {
             // if there are any errors, return the error
-            if (err)
+            if (err) {
                 return done(err);
+              }
 
-            // check to see if theres already a user with that email
-            if (club) {
-                if(club.verified === true)
-                    return done(null, false, req.flash('signupMessage', 'This Club/Chapter is already Registered and Verified.'));
+            // check to see if theres already a user with that RepRegno
+            if (user) {
+                if(user.local.verified === true)
+                    return done(null, false, req.flash('signupMessage', 'This Club/Chapter is already Registered and Verified OR You are already a Rpresentative of another Club/Chapter!'));
             } else {
 
-                // if there is no user with that email
+                // if there is no user with that RepRegno
                 // create the user
                 var newUser            = new User();
                 var newClub            = new Club();

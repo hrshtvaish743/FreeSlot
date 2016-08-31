@@ -1,17 +1,9 @@
-<!-- views/profile.ejs -->
-<!doctype html>
-<html>
-<head>
-	<title>FreeSlot</title>
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
-</head>
+<% include header.ejs %>
 <body>
 	<% include navbar.ejs %>
 <div class="container">
 	<div class="page-header text-center">
 		<h1><span class="fa fa-anchor"></span> Welcome <strong><%= user.local.name %></strong></h1>
-		<a href="/logout" class="btn btn-default btn-sm">Logout</a>
 	</div>
 </div>
 	<div class="row">
@@ -42,5 +34,6 @@
 			</div>
 		</div>
 	</div>
+	<% include footer.ejs %>
 </body>
 </html>

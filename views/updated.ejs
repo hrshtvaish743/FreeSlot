@@ -1,14 +1,4 @@
-<!-- views/index.ejs -->
-<!doctype html>
-<html>
-<head>
-    <title>FreeSlot</title>
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> <!-- load bootstrap css -->
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"> <!-- load fontawesome -->
-    <style>
-        body        { padding-top:80px; }
-    </style>
-</head>
+<% include header.ejs %>
 <body>
 <div class="container">
 
@@ -17,9 +7,9 @@
         <%= name %>!!</p> Your TimeTable is Updated.
     <% } %></h1>
     <a href="/">Go Home</a>
-
+    <a href="/" class="btn btn-default" role="button">Go Home</a>
     </div>
-
 </div>
 </body>
+<% include footer.ejs %>
 </html>

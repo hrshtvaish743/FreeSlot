@@ -1,6 +1,6 @@
 <!-- views/signup.ejs -->
 <% include header.ejs %>
-<body>
+<body id="admin">
 <div class="container">
 
 <div class="col-sm-6 col-sm-offset-3">
@@ -42,14 +42,12 @@
         <div class="g-recaptcha" data-sitekey="6Lfq6ygTAAAAACoOK48Fj8F2ScWZXlgTzvKoCFaE"></div>
         <button type="submit" class="btn btn-warning btn-lg">Signup</button>
     </form>
-
     <hr>
-
     <p>Already have an account? <a href="/login">Login</a></p>
     <p>Or go <a href="/">home</a>.</p>
-
 </div>
 </div>
+<% include footer.ejs %>
 </body>
 <script>
     $(document).ready(function() {

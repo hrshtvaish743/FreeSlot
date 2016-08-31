@@ -1,14 +1,4 @@
-<!-- views/profile.ejs -->
-<!doctype html>
-<html>
-<head>
-	<title>FreeSlot</title>
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
-	<style>
-		body 		{ padding-top:80px; word-wrap:break-word; }
-	</style>
-</head>
+<% include header.ejs %>
 <body>
 <div class="container">
 
@@ -31,14 +21,11 @@
 						<strong>Club/Chapter's Admin Name</strong>: <%= user.local.name %><br>
 						<strong>loginID</strong>: <%= user.local.loginID %><br>
 						<strong>Account Verified?</strong>: <%= user.local.verified %>.
-						
 					</p>
-
 			</div>
 		</div>
-
 	</div>
-
 </div>
+<% include footer.ejs %>
 </body>
 </html>

@@ -1,6 +1,6 @@
 // app/routes.js
 var student = require('../models/student');
-var Club    = require('../models/club');
+var Club = require('../models/club');
 var curl = require('curlrequest')
 var https = require('https');
 
@@ -15,7 +15,6 @@ var slots = new Array();
 var BusySlots = new Array();
 var BusySlotsFinal = new Array();
 var FreeSlots = new Array();
-var clubMap = new Array();
 var studList = undefined;
 var SECRET = "6Lfq6ygTAAAAAJm0vH_CO6gTshtKQNQ0jZLDwjNK";
 
@@ -63,15 +62,18 @@ module.exports = function(app, passport) {
     // process the signup form
     app.post('/signup', function(req, res, next) {
         verifyRecaptcha(req.body["g-recaptcha-response"], function(success) {
-                if (success) {
-                        return next();
-                        // TODO: do registration using params in req.body
-                } else {
-                        res.send("Captcha failed, sorry.");
-                        // TODO: take them back to the previous page
-                        // and for the love of everyone, restore their inputs
-                }
-        })},passport.authenticate('local-signup', {
+            if (success) {
+                return next();
+                // TODO: do registration using params in req.body
+            } else {
+                res.render('signup.ejs', {
+                    message: 'Please Fill Captcha!'
+                });
+                // TODO: take them back to the previous page
+                // and for the love of everyone, restore their inputs
+            }
+        })
+    }, passport.authenticate('local-signup', {
         successRedirect: '/registered', // redirect to the secure profile section
         failureRedirect: '/signup', // redirect back to the signup page if there is an error
         failureFlash: true // allow flash messages
@@ -83,14 +85,16 @@ module.exports = function(app, passport) {
     // we will want this protected so you have to be logged in to visit
     // we will use route middleware to verify this (the isLoggedIn function)
     app.get('/profile', isLoggedIn, function(req, res) {
-      student.find({ 'clubID' : req.user.local.loginID}, function(err, students) {
-        id = req.user.local.loginID;
-        studList = students;
-        res.render('profile.ejs', {
-            students : students,
-            user: req.user // get the user out of session and pass to template
+        student.find({
+            'clubID': req.user.local.loginID
+        }, function(err, students) {
+            id = req.user.local.loginID;
+            studList = students;
+            res.render('profile.ejs', {
+                students: students,
+                user: req.user // get the user out of session and pass to template
+            });
         });
-      });
     });
     app.get('/registered', isLoggedIn, function(req, res) {
         res.render('registered.ejs', {
@@ -106,33 +110,35 @@ module.exports = function(app, passport) {
         res.redirect('/admin');
     });
 
-//ALLOTMENT
-    app.get('/admin/alot', isLoggedIn, function(req,res) {
-      res.render('alot.ejs', {
-        students : studList
-      });
+    //ALLOTMENT
+    app.get('/admin/alot', isLoggedIn, function(req, res) {
+        res.render('alot.ejs', {
+            students: studList
+        });
     })
 
-    app.post('/searching', function(req, res){
-      student.find({'clubID' : id}, function(err, list) {
-        if(list){
-          var hint = "";
-          var free = [];
-          for (var i = 0; i < list.length; i++) {
-            if(list[i].freeslots.indexOf(req.body.slot) !== -1)
-            if (hint === "") {
-                  hint = '<li><a href="#" onclick="substitute(\'' + list[i].name + '\')">' + list[i].regno + ' ' + list[i].name + '</a></li>';
-              } else {
-                  hint = hint + '<br><li><a href="#" onclick="substitute(\'' + list[i].name + '\')">' + list[i].regno + ' ' + list[i].name + '</a></li>';
-              }
-          }
-        }
-        if(hint==="")
-        res.send("No Result!");
-        else {
-          res.send(hint);
-        }
-      })
+    app.post('/searching', function(req, res) {
+        student.find({
+            'clubID': id
+        }, function(err, list) {
+            if (list) {
+                var hint = "";
+                var free = [];
+                for (var i = 0; i < list.length; i++) {
+                    if (list[i].freeslots.indexOf(req.body.slot) !== -1)
+                        if (hint === "") {
+                            hint = '<li><a href="#" onclick="substitute(\'' + list[i].name + '\')">' + list[i].regno + ' ' + list[i].name + '</a></li>';
+                        } else {
+                            hint = hint + '<br><li><a href="#" onclick="substitute(\'' + list[i].name + '\')">' + list[i].regno + ' ' + list[i].name + '</a></li>';
+                        }
+                }
+            }
+            if (hint === "")
+                res.send("No Result!");
+            else {
+                res.send(hint);
+            }
+        })
     });
 
 
@@ -142,6 +148,17 @@ module.exports = function(app, passport) {
         res.render('home.ejs');
     });
     app.post('/student/:id', function(req, res, next) {
+        verifyRecaptcha(req.body["g-recaptcha-response"], function(success) {
+            if (success) {
+                return next();
+            } else {
+                res.render('form.ejs', {
+                  id: id,
+                    message: 'Please Fill Captcha!'
+                });
+              }
+        })
+    } ,function(req, res, next) {
         if (!req.body.registerNo || !req.body.DOB || !req.body.phoneNo) {
             res.redirect('/');
         } else {
@@ -162,8 +179,11 @@ module.exports = function(app, passport) {
     });
 
     app.get('/student/:id', function(req, res, next) {
-      id = req.params.id;
-      res.render('form.ejs',{id:id});
+        id = req.params.id;
+        res.render('form.ejs', {
+            id: id,
+            message: req.flash('signupMessage')
+        });
     });
 
     app.get('/refresh', function(req, res, next) {
@@ -226,18 +246,17 @@ module.exports = function(app, passport) {
                 clubID: id
             });
             student.find({
-                regno: regno
+                'regno': regno,
+                'clubID': id
             }, function(err, student) {
                 if (err) throw err;
-                if (!student) {
+                if (Object.keys(student).length === 0) {
                     newStud.save(function(err) {
                         if (err) throw err;
                         console.log('Data created!');
                     });
                 } else {
-                    if(student.clubID === id){
-                      deleteDoc(regno);
-                    }
+                    deleteDoc(regno);
                     newStud.save(function(err) {
                         if (err) throw err;
                         console.log('Data updated!');
@@ -247,6 +266,15 @@ module.exports = function(app, passport) {
             })
 
         }
+        var regno = undefined;
+        var dob = undefined;
+        var mobile = undefined;
+        var campus = undefined;
+        var id = undefined;
+        var slots = new Array();
+        var BusySlots = new Array();
+        var BusySlotsFinal = new Array();
+        var FreeSlots = new Array();
         res.render('updated.ejs', {
             name: name,
             registerNo: reg_no
@@ -298,20 +326,20 @@ var deleteDoc = function(regno) {
 }
 
 function verifyRecaptcha(key, callback) {
-        https.get("https://www.google.com/recaptcha/api/siteverify?secret=" + SECRET + "&response=" + key, function(res) {
-                var data = "";
-                res.on('data', function (chunk) {
-                        data += chunk.toString();
-                });
-                res.on('end', function() {
-                        try {
-                                var parsedData = JSON.parse(data);
-                                callback(parsedData.success);
-                        } catch (e) {
-                                callback(false);
-                        }
-                });
+    https.get("https://www.google.com/recaptcha/api/siteverify?secret=" + SECRET + "&response=" + key, function(res) {
+        var data = "";
+        res.on('data', function(chunk) {
+            data += chunk.toString();
         });
+        res.on('end', function() {
+            try {
+                var parsedData = JSON.parse(data);
+                callback(parsedData.success);
+            } catch (e) {
+                callback(false);
+            }
+        });
+    });
 }
 
 var LabSlots = {
