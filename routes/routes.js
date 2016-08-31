@@ -111,8 +111,8 @@ module.exports = function(app, passport) {
     });
 
     //ALLOTMENT
-    app.get('/admin/alot', isLoggedIn, function(req, res) {
-        res.render('alot.ejs', {
+    app.get('/admin/allot', isLoggedIn, function(req, res) {
+        res.render('allot.ejs', {
             students: studList
         });
     })
@@ -180,10 +180,15 @@ module.exports = function(app, passport) {
 
     app.get('/student/:id', function(req, res, next) {
         id = req.params.id;
-        res.render('form.ejs', {
-            id: id,
-            message: req.flash('signupMessage')
-        });
+        Club.findOne({ 'loginID' : id, 'verified' : true}, function(err, name) {
+          if(err) throw err;
+          res.render('form.ejs', {
+              id: id,
+              name: name.name,
+              message: req.flash('signupMessage')
+          });
+        })
+
     });
 
     app.get('/refresh', function(req, res, next) {
