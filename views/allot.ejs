@@ -2,13 +2,8 @@
 <body id="page-top" data-spy="scroll" data-target="navbar-fixed-top">
   <% include navbar.ejs %>
         <div class="container content-section text-center">
-            <h3>Please refer the reference TimeTable for slots</h3>
+            <h3><a href="#" data-toggle="modal" data-target=".instructions">Read Instructions on How to Use</a></h3>
             <hr>
-            <!--<div class="dropdown container">
-              <label>Slot</label>
-              <input class="form-control dropdown-toggle" type="text" id="slot" name="slot" placeholder="Slot" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-              <ul id="livesearch" class="dropdown-menu container" aria-labelledby="dropdownMenu1"></ul>
-            </div>-->
           </div>
           <div class=" dropdown container">
             <p>
@@ -26,33 +21,38 @@
               <li><a id="Friday" onclick="SelectDay(this.id)" href="#">Friday</a></li>
             </ul><strong><span id="Selected"></span></strong>
           </div>
-          <div class="container text-center"><p id="livesearch">
-
-          </p></div>
+          <div class="container"><ul id="livesearch" class="container"><h2>Result Will Appear Here</h2></ul></div>
         <div class="container text-center">
         <h3>Building Slot TimeTable:</h3>
             <div id="TT">
               <p class="container"><% include timetable.ejs %></p>
             </div>
         </div>
-        <hr>
-        <div class="container content-section text-center">
-            <h3>Reference TimeTable :</h3>
-            <div id="RTT">
+        <div class="modal fade instructions" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+          <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Instructions</h4>
+              </div>
+              <div class="modal-body">
                 <p>
-                  <% include reference.ejs %>
+                  <ol>
+                    <li>Select The Day of The Week From the DropDown Menu.</li>
+                    <li>Click on The Required Slot in Building Timetable.</li>
+                    <li>If Any student is free in that slot, Then their name will appear in a list.</li>
+                    <li>Click on the Name and The name will get Appended to the Selected slot in Timetable.</li>
+                    <li>You can add maximum of 2 students in a slot.</li>
+                    <li>If you want to delete the current Allotment then Click on that slot again.</li>
+                  </ol>
                 </p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
             </div>
           </div>
-            <p>&nbsp;</p>
-            <div class="container content-section">
-            <h3>Instructions</h3>
-            <ul>
-                <li>Select a Building Slot for each Building in the Building TimeTable.Selected slots are marked Red.</li>
-                <li>Type a Slot in the Search Bar for which you want to find free Students after refering the reference TimeTable.</li>
-                <li>Click on the names which appear and they will be appended on the selected slot in Building TimeTable. Only Two names allowed per slot per building.</li>
-                <li>0800-0850 Slot For SJT is Selected By Default.</li>
-            </ul>
         </div>
+        <hr>
         <% include footer.ejs %>
     </body>

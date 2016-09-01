@@ -4,10 +4,10 @@ var day = undefined;
 //document.getElementById(slot).style.backgroundColor = 'red';
 var prevSlot = undefined;
 //Function for clearing or selecting the slot
-function block(Boxslot,value) {
+function block(Boxslot) {
     if (document.getElementById(Boxslot).innerHTML != "") {
         document.getElementById(Boxslot).innerHTML = "";
-        document.getElementById(Boxslot).style.backgroundColor = '#F5F5F5';
+        document.getElementById(Boxslot).style.backgroundColor = 'red';
     } else {
         if (document.getElementById(Boxslot).style.backgroundColor == 'red') {
             document.getElementById(Boxslot).style.backgroundColor = '#F5F5F5';
@@ -19,6 +19,9 @@ function block(Boxslot,value) {
         }
         prevSlot = Boxslot;
     }
+    slot = Boxslot;
+    document.getElementById('livesearch').innerHTML = "<h3>Loading...</h3>";
+    var value = document.getElementById(Boxslot).getAttribute('value');
     console.log(value);
     var data = {};
     data.slot = value;
@@ -30,7 +33,7 @@ function block(Boxslot,value) {
       contentType: 'application/json',
       url: '/searching',
       success: function(data) {
-          document.getElementById("livesearch").innerHTML = JSON.stringify(data);
+          document.getElementById("livesearch").innerHTML = data;
       }
     });}
     else {

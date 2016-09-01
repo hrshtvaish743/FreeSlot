@@ -124,16 +124,16 @@ module.exports = function(app, passport) {
                 }, function(err, list) {
                     if (err) throw err;
                     if (list) {
-                        var hint = "";
+                        var hint = '';
                         var free = [];
                         for (var i = 0; i < list.length; i++) {
                           var reqSlot = ParseDay(req.body.slot,req.body.day);
                           if(reqSlot !== false){
                             if (list[i].freeslots.indexOf(reqSlot) !== -1) {
-                                    if (hint === "") {
-                                        hint = '<li><a href="#" onclick="substitute(\'' + list[i].name + '\')">' + list[i].regno + ' ' + list[i].name + '</a></li>';
+                                    if (hint === '') {
+                                        hint = "<li><a href=\"#\" onclick=\"substitute('" + list[i].name + "')\">" + list[i].regno + " " + list[i].name + "</a></li>";
                                     } else {
-                                        hint = hint + '<br><li><a href="#" onclick="substitute(\'' + list[i].name + '\')">' + list[i].regno + ' ' + list[i].name + '</a></li>';
+                                        hint = hint + "<li><a href=\"#\" onclick=\"substitute('" + list[i].name + "')\">" + list[i].regno + " " + list[i].name + "</a></li>";
                                     }
                                 }
                             }
@@ -141,7 +141,7 @@ module.exports = function(app, passport) {
                               hint = "Wrong Slot";
                             }
                         }
-                        if (hint === "")
+                        if (hint === '')
                             res.send("No Result!");
                         else {
                             res.send(hint);
