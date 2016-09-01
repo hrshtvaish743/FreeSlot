@@ -16,11 +16,14 @@ mongoose.connect(configDB.url);
 var app = express();
 app.use(morgan('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(bodyParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(session({ secret: 'iamharshitvaish', cookie: { maxAge: 60000000 }})); // session secret
+app.use(session({
+  secret: 'iamharshitvaish',
+  cookie: { maxAge: 60000000 },
+  resave: true,
+  saveUninitialized: true})); // session secret
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
