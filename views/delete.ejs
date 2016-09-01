@@ -1,0 +1,37 @@
+<% include header.ejs %>
+<body>
+	<% include navbar.ejs %>
+<div class="container">
+	<div class="page-header text-center">
+		<h1><span class="fa fa-anchor"></span> Welcome <strong><%= user.local.name %></strong></h1>
+	</div>
+</div>
+	<div class="row">
+		<div class="container">
+				<h3><span class="fa fa-user"></span> Delete</h3>
+					<div class="modal-body row">
+						<div class="container">
+							<p>
+								List Of Your Club/Chapter's Students Who have updated their timetable.
+							</p>
+              <table>
+                <tbody>
+                    <% students.forEach(function(student) { %>
+                    <tr>
+                    <td class="col-md-3"><%= student.name %></td>
+                    <td class="col-md-3" id="<%= student.regno %>" regno="<%= student.regno %>">
+                        <button type="button" class="btn btn-default" onclick="deleteData(this.parentNode.id)" aria-label="Left Align">
+                          <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                        </button>
+                  </td>
+                    </tr>
+                    <% }); %>
+                </tbody>
+              </table>
+						</div>
+					</div>
+		</div>
+	</div>
+	<% include footer.ejs %>
+</body>
+</html>

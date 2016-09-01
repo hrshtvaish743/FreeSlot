@@ -61,3 +61,23 @@ function substitute(name) {
         }
     }
 }
+
+
+//Function for a delete request to the Server
+function deleteData(id) {
+  var confirmDelete = confirm("Are You Sure You Want to Delete Timetable Data For this Student?")
+  if(confirmDelete == true){
+  var data = {};
+  data.regno = document.getElementById(id).getAttribute('regno');
+  console.log(data);
+  $.ajax({
+    type: 'POST',
+    data: JSON.stringify(data),
+    contentType: 'application/json',
+    url: '/admin/delete',
+    success: function(data) {
+      document.getElementById(id).innerHTML = data;
+    }
+  });
+}
+}

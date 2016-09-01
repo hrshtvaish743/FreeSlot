@@ -17,6 +17,7 @@ var BusySlotsFinal = new Array();
 var FreeSlots = new Array();
 var studList = undefined;
 var clubName = undefined;
+var studListForDelete = undefined;
 var SECRET = "6Lfq6ygTAAAAAJm0vH_CO6gTshtKQNQ0jZLDwjNK";
 
 module.exports = function(app, passport) {
@@ -42,7 +43,7 @@ module.exports = function(app, passport) {
 
     // process the login form
     app.post('/login', passport.authenticate('local-login', {
-        successRedirect: '/profile', // redirect to the secure profile section
+        successRedirect: '/admin/profile', // redirect to the secure profile section
         failureRedirect: '/login', // redirect back to the signup page if there is an error
         failureFlash: true // allow flash messages
     }));
@@ -65,12 +66,12 @@ module.exports = function(app, passport) {
         verifyRecaptcha(req.body["g-recaptcha-response"], function(success) {
             if (success) {
                 return next();
-                // TODO: do registration using params in req.body
+                // do registration using params in req.body
             } else {
                 res.render('signup.ejs', {
                     message: 'Please Fill Captcha!'
                 });
-                // TODO: take them back to the previous page
+                //  take them back to the previous page
                 // and for the love of everyone, restore their inputs
             }
         })
@@ -85,7 +86,7 @@ module.exports = function(app, passport) {
     // =====================================
     // we will want this protected so you have to be logged in to visit
     // we will use route middleware to verify this (the isLoggedIn function)
-    app.get('/profile', isLoggedIn, function(req, res) {
+    app.get('/admin/profile', isLoggedIn, function(req, res) {
         student.find({
             'clubID': req.user.local.loginID
         }, function(err, students) {
@@ -102,6 +103,35 @@ module.exports = function(app, passport) {
             user: req.user // get the user out of session and pass to template
         });
     });
+    //Deleting Timetable data for a user
+    app.get('/admin/delete', isLoggedIn, function(req, res) {
+      student.find({
+          'clubID': req.session.clubID
+      }, function(err, students) {
+        if(err) throw err;
+          studListForDelete = students;
+          res.render('delete.ejs', {
+              students: students,
+              user: req.user // get the user out of session and pass to template
+          });
+      });
+    })
+
+    app.post('/admin/delete', isLoggedIn, function(req, res) {
+      student.findOne({
+          'clubID': req.session.clubID,
+          'regno'  : req.body.regno
+      }, function(err, student) {
+        if (err) throw err;
+        if(!student){
+          res.send('Data Not Found!!')
+        } else {
+          deleteDoc(student.regno,student.clubID);
+          res.send('Deleted!!');
+        }
+      });
+    })
+
 
     // =====================================
     // LOGOUT ==============================
@@ -190,7 +220,7 @@ app.post('/student/:id', function(req, res, next) {
             });
         }
     })
-}, function(req, res, next) {
+}, function(req, res) {
     if (!req.body.registerNo || !req.body.DOB || !req.body.phoneNo || !clubName) {
         res.redirect('/');
     } else {
@@ -333,7 +363,7 @@ app.get('/update', function(req, res, next) {
                     console.log('Data created!');
                 });
             } else {
-                deleteDoc(regno);
+                deleteDoc(regno,id);
                 newStud.save(function(err) {
                     if (err) throw err;
                     console.log('Data updated!');
@@ -386,9 +416,10 @@ function split_slots(slot) {
     BusySlots.push(slot.substr(index));
 }
 
-var deleteDoc = function(regno) {
+var deleteDoc = function(regno,id) {
     student.find({
-        regno: regno
+        'regno' : regno,
+        'clubID': id
     }).remove().exec();
 }
 
