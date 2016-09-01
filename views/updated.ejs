@@ -1,15 +1,12 @@
 <% include header.ejs %>
-<body>
-<div class="container">
-
+<body id="admin">
+  <div class="container">
     <div class="jumbotron text-center">
-        <h1><span class="fa fa-lock"></span><p class="alert alert-danger"> Thank You <% if (name.length && registerNo.length > 0) { %>
+      <h1><span class="fa fa-lock"></span><p class="alert alert-danger"> Thank You <% if (name.length && registerNo.length > 0) { %>
         <%= name %>!!</p> Your TimeTable is updated.
-    <% } %></h1>
-    <!--<a href="/" class="btn btn-default" role="button">Go Home</a>-->
-      <a href="#" class="btn btn-default" onclick="close_window();return false;" role="button">Close</a>
+        <% } %></h1>
     </div>
-</div>
+  </div>
 </body>
 <% include footer.ejs %>
 </html>

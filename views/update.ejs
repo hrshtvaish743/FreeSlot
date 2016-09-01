@@ -1,16 +1,17 @@
 <% include header.ejs %>
 <body id="admin">
-<div class="container">
+  <div class="container">
     <div class="jumbotron text-center">
-        <h1> Welcome!!    <% if (name.length && registerNo.length > 0) { %>
-        <div class="alert alert-danger"><%= name %> <%= registerNo%></div>
-    <% } %></h1>
-    <h2>Please hit the Refresh button below to update your TimeTable.
-    <form method="post">
-        <button type="submit" class="btn btn-warning btn-lg">Refresh</button>
-    </form>
+      <h1> Welcome!!    <% if (name.length && registerNo.length > 0) { %>
+        <div class="alert alert-danger"><%= name %> <%= registerNo%>
+        </div>
+        <% } %></h1>
+        <h2>Please hit the Refresh button below to update your TimeTable.</h2>
+        <form method="post">
+          <button type="submit" class="btn btn-warning btn-lg">Refresh</button>
+        </form>
     </div>
-</div>
+  </div>
 </body>
 <% include footer.ejs %>
 </html>
