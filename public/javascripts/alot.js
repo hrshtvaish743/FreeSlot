@@ -1,9 +1,9 @@
-var building;
 var slot;
 var day = undefined;
-//document.getElementById(slot).style.backgroundColor = 'red';
 var prevSlot = undefined;
+
 //Function for clearing or selecting the slot
+//and sending request to the server for getting list of students who are free in that Slot
 function block(Boxslot) {
     if (document.getElementById(Boxslot).innerHTML != "") {
         document.getElementById(Boxslot).innerHTML = "";
@@ -13,7 +13,7 @@ function block(Boxslot) {
             document.getElementById(Boxslot).style.backgroundColor = '#F5F5F5';
         } else {
             document.getElementById(Boxslot).style.backgroundColor = 'red';
-            if (prevSlot != undefined && prevSlot!=Boxslot && document.getElementById(prevSlot).style.backgroundColor == 'red') {
+            if (prevSlot != undefined && prevSlot != Boxslot && document.getElementById(prevSlot).style.backgroundColor == 'red') {
                 document.getElementById(prevSlot).style.backgroundColor = '#F5F5F5';
             }
         }
@@ -25,26 +25,29 @@ function block(Boxslot) {
     console.log(value);
     var data = {};
     data.slot = value;
-    if(day != undefined){
-    data.day = day;
-    $.ajax({
-      type: 'POST',
-      data: JSON.stringify(data),
-      contentType: 'application/json',
-      url: '/searching',
-      success: function(data) {
-          document.getElementById("livesearch").innerHTML = data;
-      }
-    });}
-    else {
-      document.getElementById("livesearch").innerHTML = "Please Select a Day";
+    if (day != undefined) {
+        data.day = day;
+        $.ajax({
+            type: 'POST',
+            data: JSON.stringify(data),
+            contentType: 'application/json',
+            url: '/searching',
+            success: function(data) {
+                document.getElementById("livesearch").innerHTML = data;
+            }
+        });
+    } else {
+        document.getElementById("livesearch").innerHTML = "Please Select a Day";
     }
 }
+
+//Function To select the week day
 function SelectDay(Day) {
-  day = Day;
-  console.log(day);
-  document.getElementById('Selected').innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + day;
+    day = Day;
+    console.log(day);
+    document.getElementById('Selected').innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + day;
 }
+
 //function for substituting the slots with names
 function substitute(name) {
     if (slot.length > 0) {
@@ -65,19 +68,25 @@ function substitute(name) {
 
 //Function for a delete request to the Server
 function deleteData(id) {
-  var confirmDelete = confirm("Are You Sure You Want to Delete Timetable Data For this Student?")
-  if(confirmDelete == true){
-  var data = {};
-  data.regno = document.getElementById(id).getAttribute('regno');
-  console.log(data);
-  $.ajax({
-    type: 'POST',
-    data: JSON.stringify(data),
-    contentType: 'application/json',
-    url: '/admin/delete',
-    success: function(data) {
-      document.getElementById(id).innerHTML = data;
+    var confirmDelete = confirm("Are You Sure You Want to Delete Timetable Data For this Student?")
+    if (confirmDelete == true) {
+        var data = {};
+        data.regno = document.getElementById(id).getAttribute('regno');
+        console.log(data);
+        $.ajax({
+            type: 'POST',
+            data: JSON.stringify(data),
+            contentType: 'application/json',
+            url: '/admin/delete',
+            success: function(data) {
+                document.getElementById(id).innerHTML = data;
+            }
+        });
     }
-  });
 }
+
+function close_window() {
+  if (confirm("Close Window?")) {
+    close();
+  }
 }
