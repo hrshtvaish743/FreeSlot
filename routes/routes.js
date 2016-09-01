@@ -17,7 +17,6 @@ var BusySlotsFinal = new Array();
 var FreeSlots = new Array();
 var studList = undefined;
 var clubName = undefined;
-var studListForDelete = undefined;
 var SECRET = "6Lfq6ygTAAAAAJm0vH_CO6gTshtKQNQ0jZLDwjNK";
 
 module.exports = function(app, passport) {
@@ -91,7 +90,6 @@ module.exports = function(app, passport) {
             'clubID': req.user.local.loginID
         }, function(err, students) {
             req.session.clubID = req.user.local.loginID;
-            studList = students;
             res.render('profile.ejs', {
                 students: students,
                 user: req.user // get the user out of session and pass to template
@@ -109,7 +107,6 @@ module.exports = function(app, passport) {
           'clubID': req.session.clubID
       }, function(err, students) {
         if(err) throw err;
-          studListForDelete = students;
           res.render('delete.ejs', {
               students: students,
               user: req.user // get the user out of session and pass to template
@@ -148,7 +145,7 @@ module.exports = function(app, passport) {
         });
     })
 
-    app.post('/searching', function(req, res) {
+    app.post('/searching', isLoggedIn, function(req, res) {
             student.find({
                     'clubID': req.session.clubID
                 }, function(err, list) {
