@@ -89,7 +89,7 @@ module.exports = function(app, passport) {
         student.find({
             'clubID': req.user.local.loginID
         }, function(err, students) {
-            id = req.user.local.loginID;
+            req.session.clubID = req.user.local.loginID;
             studList = students;
             res.render('profile.ejs', {
                 students: students,
@@ -120,7 +120,7 @@ module.exports = function(app, passport) {
 
     app.post('/searching', function(req, res) {
             student.find({
-                    'clubID': id
+                    'clubID': req.session.clubID
                 }, function(err, list) {
                     if (err) throw err;
                     if (list) {
@@ -157,6 +157,28 @@ module.exports = function(app, passport) {
 app.get('/', function(req, res, next) {
     res.render('home.ejs');
 });
+
+app.get('/student/:id', function(req, res, next) {
+    id = req.params.id;
+    Club.findOne({
+        'loginID': id,
+        'verified': true
+    }, function(err, name) {
+        if (err) throw err;
+        if (!name)
+            res.render('notfound.ejs', {
+                message: 'No Club/Chapter Associated with this ID Found!! Please contact your Club/Chapter\'s Admin.'
+            })
+        else {
+            clubName = name.name;
+            res.render('form.ejs', {
+                name: clubName,
+                message: req.flash('signupMessage')
+            });
+        }
+    })
+});
+
 app.post('/student/:id', function(req, res, next) {
     verifyRecaptcha(req.body["g-recaptcha-response"], function(success) {
         if (success) {
@@ -212,27 +234,6 @@ app.post('/student/:id', function(req, res, next) {
             }
         });
     }
-});
-
-app.get('/student/:id', function(req, res, next) {
-    id = req.params.id;
-    Club.findOne({
-        'loginID': id,
-        'verified': true
-    }, function(err, name) {
-        if (err) throw err;
-        if (!name)
-            res.render('notfound.ejs', {
-                message: 'No Club/Chapter Associated with this ID Found!! Please contact your Club/Chapter\'s Admin.'
-            })
-        else {
-            clubName = name.name;
-            res.render('form.ejs', {
-                name: clubName,
-                message: req.flash('signupMessage')
-            });
-        }
-    })
 });
 
 app.get('/refresh', function(req, res, next) {
