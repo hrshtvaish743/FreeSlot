@@ -19,7 +19,7 @@
 9 verbose stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:211:5)
 10 verbose pkgid freeslot@0.0.0
 11 verbose cwd /home/harshit/freeslot
-12 error Linux 4.4.0-34-generic
+12 error Linux 4.4.0-36-generic
 13 error argv "/usr/bin/nodejs" "/usr/bin/npm" "start"
 14 error node v4.4.7
 15 error npm  v2.15.8

@@ -16,6 +16,7 @@ var BusySlots = new Array();
 var BusySlotsFinal = new Array();
 var FreeSlots = new Array();
 var studList = undefined;
+var clubName = undefined;
 var SECRET = "6Lfq6ygTAAAAAJm0vH_CO6gTshtKQNQ0jZLDwjNK";
 
 module.exports = function(app, passport) {
@@ -154,12 +155,12 @@ module.exports = function(app, passport) {
             } else {
                 res.render('form.ejs', {
                   id: id,
-                    message: 'Please Fill Captcha!'
+                  message: 'Please Fill Captcha!'
                 });
               }
         })
     } ,function(req, res, next) {
-        if (!req.body.registerNo || !req.body.DOB || !req.body.phoneNo) {
+        if (!req.body.registerNo || !req.body.DOB || !req.body.phoneNo || !clubName) {
             res.redirect('/');
         } else {
             regno = req.body.registerNo;
@@ -171,9 +172,38 @@ module.exports = function(app, passport) {
                 data: 'regno=' + regno + '&dob=' + dob + '&mobile=' + mobile
             };
             curl.request(options, function(err, file) {
+                if(err) {
+                  throw err;
+                }
                 name = JSON.parse(file).name;
                 reg_no = JSON.parse(file).reg_no;
-                res.redirect('/refresh');
+                var status = JSON.parse(file).status.code;
+                if(status !== 0){
+                  if(status === 12){
+                  res.render('form.ejs', {
+                    name: clubName,
+                    id: id,
+                    message: 'Invalid Credentials! Please Try Again!'
+                  });
+                }
+                else if(status === 11) {
+                  res.render('form.ejs', {
+                    name: clubName,
+                    id: id,
+                    message: 'Session Timed Out!!'
+                  });
+                }
+                else if(status === 89) {
+                  res.render('form.ejs', {
+                    name: clubName,
+                    id: id,
+                    message: 'VIT Servers are Down. Please Try After some Time!!'
+                  });
+                }
+              }
+                else {
+                  res.redirect('/refresh');
+                }
             });
         }
     });
@@ -187,8 +217,9 @@ module.exports = function(app, passport) {
               message: 'No Club/Chapter Associated with this ID Found!! Please contact your Club/Chapter\'s Admin.'
             })
             else {
+              clubName = name.name;
               res.render('form.ejs', {
-              name: name.name,
+              name: clubName,
               message: req.flash('signupMessage')
           });
         }
@@ -196,6 +227,9 @@ module.exports = function(app, passport) {
     });
 
     app.get('/refresh', function(req, res, next) {
+        if(!regno || !dob || !mobile || !clubName) {
+          res.redirect('/');
+        }
         res.render('update', {
             name: name,
             registerNo: reg_no
@@ -203,7 +237,7 @@ module.exports = function(app, passport) {
     });
 
     app.post('/refresh', function(req, res, next) {
-        if (!regno || !dob || !mobile) {
+        if (!regno || !dob || !mobile || !clubName) {
             res.redirect('/');
         } else {
             var options = {
@@ -211,6 +245,32 @@ module.exports = function(app, passport) {
                 data: 'regno=' + regno + '&dob=' + dob + '&mobile=' + mobile
             };
             curl.request(options, function(err, buffer) {
+              if(err) {
+                throw err;
+              }
+              if(status !== 0){
+                if(status === 12){
+                res.render('form.ejs', {
+                  name: clubName,
+                  id: id,
+                  message: 'Invalid Credentials! Please Try Again!'
+                });
+              }
+              else if(status === 11) {
+                res.render('form.ejs', {
+                  name: clubName,
+                  id: id,
+                  message: 'Session Timed Out!!'
+                });
+              }
+              else if(status === 89) {
+                res.render('form.ejs', {
+                  name: clubName,
+                  id: id,
+                  message: 'VIT Servers are Down. Please Try After some Time!!'
+                });
+              }
+            } else {
                 var response = JSON.parse(buffer);
                 for (i = 0;; i++) {
                     if (response.courses[i] !== undefined) {
@@ -220,11 +280,11 @@ module.exports = function(app, passport) {
                     }
                 }
                 res.redirect('/update');
+              }
             });
+
         }
     });
-
-
     app.get('/update', function(req, res, next) {
         if (regno === undefined) {
             res.redirect('/');
