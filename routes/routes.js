@@ -363,6 +363,7 @@ module.exports = function(app, passport) {
                     newStud.save(function(err) {
                         if (err) throw err;
                         console.log('Data created!');
+                        return next();
                     });
                 } else {
                     console.log(id.get(regno));
