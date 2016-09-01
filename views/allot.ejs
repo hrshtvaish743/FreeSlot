@@ -1,15 +1,34 @@
-<% include header.ejs %>
+  <% include header.ejs %>
 <body id="page-top" data-spy="scroll" data-target="navbar-fixed-top">
   <% include navbar.ejs %>
         <div class="container content-section text-center">
             <h3>Please refer the reference TimeTable for slots</h3>
             <hr>
-            <div class="dropdown container">
-              <label>Register No</label>
+            <!--<div class="dropdown container">
+              <label>Slot</label>
               <input class="form-control dropdown-toggle" type="text" id="slot" name="slot" placeholder="Slot" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
               <ul id="livesearch" class="dropdown-menu container" aria-labelledby="dropdownMenu1"></ul>
-            </div>
-        </div>
+            </div>-->
+          </div>
+          <div class=" dropdown container">
+            <p>
+              Select Day of the week:
+            </p>
+            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+              Select Day
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu container" aria-labelledby="dropdownMenu1">
+              <li><a id="Monday" onclick="SelectDay(this.id)" href="#">Monday</a></li>
+              <li><a id="Tuesday" onclick="SelectDay(this.id)" href="#">Tuesday</a></li>
+              <li><a id="Wednesday" onclick="SelectDay(this.id)" href="#">Wedensday</a></li>
+              <li><a id="Thursday" onclick="SelectDay(this.id)" href="#">Thursday</a></li>
+              <li><a id="Friday" onclick="SelectDay(this.id)" href="#">Friday</a></li>
+            </ul><strong><span id="Selected"></span></strong>
+          </div>
+          <div class="container text-center"><p id="livesearch">
+
+          </p></div>
         <div class="container text-center">
         <h3>Building Slot TimeTable:</h3>
             <div id="TT">

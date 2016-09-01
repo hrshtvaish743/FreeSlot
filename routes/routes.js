@@ -119,157 +119,165 @@ module.exports = function(app, passport) {
     })
 
     app.post('/searching', function(req, res) {
-        student.find({
-            'clubID': id
-        }, function(err, list) {
-            if (list) {
-                var hint = "";
-                var free = [];
-                for (var i = 0; i < list.length; i++) {
-                    if (list[i].freeslots.indexOf(req.body.slot) !== -1)
-                        if (hint === "") {
-                            hint = '<li><a href="#" onclick="substitute(\'' + list[i].name + '\')">' + list[i].regno + ' ' + list[i].name + '</a></li>';
-                        } else {
-                            hint = hint + '<br><li><a href="#" onclick="substitute(\'' + list[i].name + '\')">' + list[i].regno + ' ' + list[i].name + '</a></li>';
+            student.find({
+                    'clubID': id
+                }, function(err, list) {
+                    if (err) throw err;
+                    if (list) {
+                        var hint = "";
+                        var free = [];
+                        for (var i = 0; i < list.length; i++) {
+                          var reqSlot = ParseDay(req.body.slot,req.body.day);
+                          if(reqSlot !== false){
+                            if (list[i].freeslots.indexOf(reqSlot) !== -1) {
+                                    if (hint === "") {
+                                        hint = '<li><a href="#" onclick="substitute(\'' + list[i].name + '\')">' + list[i].regno + ' ' + list[i].name + '</a></li>';
+                                    } else {
+                                        hint = hint + '<br><li><a href="#" onclick="substitute(\'' + list[i].name + '\')">' + list[i].regno + ' ' + list[i].name + '</a></li>';
+                                    }
+                                }
+                            }
+                            else {
+                              hint = "Wrong Slot";
+                            }
                         }
-                }
-            }
-            if (hint === "")
-                res.send("No Result!");
-            else {
-                res.send(hint);
-            }
-        })
+                        if (hint === "")
+                            res.send("No Result!");
+                        else {
+                            res.send(hint);
+                        }
+                    } else
+                        res.send("No Res!");
+                })
     });
 
 
-    //TIMETABLE
+//TIMETABLE
 
-    app.get('/', function(req, res, next) {
-        res.render('home.ejs');
-    });
-    app.post('/student/:id', function(req, res, next) {
-        verifyRecaptcha(req.body["g-recaptcha-response"], function(success) {
-            if (success) {
-                return next();
-            } else {
-                res.render('form.ejs', {
-                  id: id,
-                  message: 'Please Fill Captcha!'
-                });
-              }
-        })
-    } ,function(req, res, next) {
-        if (!req.body.registerNo || !req.body.DOB || !req.body.phoneNo || !clubName) {
-            res.redirect('/');
+app.get('/', function(req, res, next) {
+    res.render('home.ejs');
+});
+app.post('/student/:id', function(req, res, next) {
+    verifyRecaptcha(req.body["g-recaptcha-response"], function(success) {
+        if (success) {
+            return next();
         } else {
-            regno = req.body.registerNo;
-            dob = req.body.DOB;
-            mobile = req.body.phoneNo;
-            campus = req.body.campus;
-            var options = {
-                url: 'https://vitacademics-rel.herokuapp.com/api/v2/vellore/login',
-                data: 'regno=' + regno + '&dob=' + dob + '&mobile=' + mobile
-            };
-            curl.request(options, function(err, file) {
-                if(err) {
-                  throw err;
-                }
-                name = JSON.parse(file).name;
-                reg_no = JSON.parse(file).reg_no;
-                var status = JSON.parse(file).status.code;
-                if(status !== 0){
-                  if(status === 12){
-                  res.render('form.ejs', {
-                    name: clubName,
-                    id: id,
-                    message: 'Invalid Credentials! Please Try Again!'
-                  });
-                }
-                else if(status === 11) {
-                  res.render('form.ejs', {
-                    name: clubName,
-                    id: id,
-                    message: 'Session Timed Out!!'
-                  });
-                }
-                else if(status === 89) {
-                  res.render('form.ejs', {
-                    name: clubName,
-                    id: id,
-                    message: 'VIT Servers are Down. Please Try After some Time!!'
-                  });
-                }
-              }
-                else {
-                  res.redirect('/refresh');
-                }
+            res.render('form.ejs', {
+                id: id,
+                message: 'Please Fill Captcha!'
             });
         }
-    });
-
-    app.get('/student/:id', function(req, res, next) {
-        id = req.params.id;
-        Club.findOne({ 'loginID' : id, 'verified' : true}, function(err, name) {
-          if(err) throw err;
-          if(!name)
-            res.render('notfound.ejs', {
-              message: 'No Club/Chapter Associated with this ID Found!! Please contact your Club/Chapter\'s Admin.'
-            })
-            else {
-              clubName = name.name;
-              res.render('form.ejs', {
-              name: clubName,
-              message: req.flash('signupMessage')
-          });
-        }
-        })
-    });
-
-    app.get('/refresh', function(req, res, next) {
-        if(!regno || !dob || !mobile || !clubName) {
-          res.redirect('/');
-        }
-        res.render('update', {
-            name: name,
-            registerNo: reg_no
-        });
-    });
-
-    app.post('/refresh', function(req, res, next) {
-        if (!regno || !dob || !mobile || !clubName) {
-            res.redirect('/');
-        } else {
-            var options = {
-                url: 'https://vitacademics-rel.herokuapp.com/api/v2/vellore/refresh',
-                data: 'regno=' + regno + '&dob=' + dob + '&mobile=' + mobile
-            };
-            curl.request(options, function(err, buffer) {
-              if(err) {
+    })
+}, function(req, res, next) {
+    if (!req.body.registerNo || !req.body.DOB || !req.body.phoneNo || !clubName) {
+        res.redirect('/');
+    } else {
+        regno = req.body.registerNo;
+        dob = req.body.DOB;
+        mobile = req.body.phoneNo;
+        campus = req.body.campus;
+        var options = {
+            url: 'https://vitacademics-rel.herokuapp.com/api/v2/vellore/login',
+            data: 'regno=' + regno + '&dob=' + dob + '&mobile=' + mobile
+        };
+        curl.request(options, function(err, file) {
+            if (err) {
                 throw err;
-              }
-              if(status !== 0){
-                if(status === 12){
-                res.render('form.ejs', {
-                  name: clubName,
-                  id: id,
-                  message: 'Invalid Credentials! Please Try Again!'
-                });
-              }
-              else if(status === 11) {
-                res.render('form.ejs', {
-                  name: clubName,
-                  id: id,
-                  message: 'Session Timed Out!!'
-                });
-              }
-              else if(status === 89) {
-                res.render('form.ejs', {
-                  name: clubName,
-                  id: id,
-                  message: 'VIT Servers are Down. Please Try After some Time!!'
-                });
-              }
+            }
+            name = JSON.parse(file).name;
+            reg_no = JSON.parse(file).reg_no;
+            var status = JSON.parse(file).status.code;
+            if (status !== 0) {
+                if (status === 12) {
+                    res.render('form.ejs', {
+                        name: clubName,
+                        id: id,
+                        message: 'Invalid Credentials! Please Try Again!'
+                    });
+                } else if (status === 11) {
+                    res.render('form.ejs', {
+                        name: clubName,
+                        id: id,
+                        message: 'Session Timed Out!!'
+                    });
+                } else if (status === 89) {
+                    res.render('form.ejs', {
+                        name: clubName,
+                        id: id,
+                        message: 'VIT Servers are Down. Please Try After some Time!!'
+                    });
+                }
+            } else {
+                res.redirect('/refresh');
+            }
+        });
+    }
+});
+
+app.get('/student/:id', function(req, res, next) {
+    id = req.params.id;
+    Club.findOne({
+        'loginID': id,
+        'verified': true
+    }, function(err, name) {
+        if (err) throw err;
+        if (!name)
+            res.render('notfound.ejs', {
+                message: 'No Club/Chapter Associated with this ID Found!! Please contact your Club/Chapter\'s Admin.'
+            })
+        else {
+            clubName = name.name;
+            res.render('form.ejs', {
+                name: clubName,
+                message: req.flash('signupMessage')
+            });
+        }
+    })
+});
+
+app.get('/refresh', function(req, res, next) {
+    if (!regno || !dob || !mobile || !clubName) {
+        res.redirect('/');
+    }
+    res.render('update', {
+        name: name,
+        registerNo: reg_no
+    });
+});
+
+app.post('/refresh', function(req, res, next) {
+    if (!regno || !dob || !mobile || !clubName) {
+        res.redirect('/');
+    } else {
+        var options = {
+            url: 'https://vitacademics-rel.herokuapp.com/api/v2/vellore/refresh',
+            data: 'regno=' + regno + '&dob=' + dob + '&mobile=' + mobile
+        };
+        curl.request(options, function(err, buffer) {
+            if (err) {
+                throw err;
+            }
+            var status = JSON.parse(buffer).status.code;
+            if (status !== 0) {
+                if (status === 12) {
+                    res.render('form.ejs', {
+                        name: clubName,
+                        id: id,
+                        message: 'Invalid Credentials! Please Try Again!'
+                    });
+                } else if (status === 11) {
+                    res.render('form.ejs', {
+                        name: clubName,
+                        id: id,
+                        message: 'Session Timed Out!!'
+                    });
+                } else if (status === 89) {
+                    res.render('form.ejs', {
+                        name: clubName,
+                        id: id,
+                        message: 'VIT Servers are Down. Please Try After some Time!!'
+                    });
+                }
             } else {
                 var response = JSON.parse(buffer);
                 for (i = 0;; i++) {
@@ -280,64 +288,64 @@ module.exports = function(app, passport) {
                     }
                 }
                 res.redirect('/update');
-              }
-            });
-
-        }
-    });
-    app.get('/update', function(req, res, next) {
-        if (regno === undefined) {
-            res.redirect('/');
-        } else {
-            for (var value of slots) {
-                if (value !== null) {
-                    split_slots(value);
-                }
             }
-            for (var value of BusySlots) {
-                if (value[0] === 'L') {
-                    BusySlotsFinal.push(LabSlots[value]);
-                } else if (value[0] === 'T') {
-                    BusySlotsFinal.push(Tslots[value]);
-                } else {
-                    BusySlotsFinal.push(TheorySlots[value][0]);
-                    BusySlotsFinal.push(TheorySlots[value][1]);
-                }
-            }
-            FreeSlots = AllSlots.filter(function(x) {
-                return BusySlotsFinal.indexOf(x) < 0
-            });
-            var newStud = student({
-                name: name,
-                regno: regno,
-                freeslots: FreeSlots,
-                clubID: id
-            });
-            student.find({
-                'regno': regno,
-                'clubID': id
-            }, function(err, student) {
-                if (err) throw err;
-                if (Object.keys(student).length === 0) {
-                    newStud.save(function(err) {
-                        if (err) throw err;
-                        console.log('Data created!');
-                    });
-                } else {
-                    deleteDoc(regno);
-                    newStud.save(function(err) {
-                        if (err) throw err;
-                        console.log('Data updated!');
-                        id = undefined;
-                    });
-                }
-            })
-        }
-        res.render('updated.ejs', {
-            name: name,
-            registerNo: reg_no
         });
+
+    }
+});
+app.get('/update', function(req, res, next) {
+    if (regno === undefined) {
+        res.redirect('/');
+    } else {
+        for (var value of slots) {
+            if (value !== null) {
+                split_slots(value);
+            }
+        }
+        for (var value of BusySlots) {
+            if (value[0] === 'L') {
+                BusySlotsFinal.push(LabSlots[value]);
+            } else if (value[0] === 'T') {
+                BusySlotsFinal.push(Tslots[value]);
+            } else {
+                BusySlotsFinal.push(TheorySlots[value][0]);
+                BusySlotsFinal.push(TheorySlots[value][1]);
+            }
+        }
+        FreeSlots = AllSlots.filter(function(x) {
+            return BusySlotsFinal.indexOf(x) < 0
+        });
+        var newStud = student({
+            name: name,
+            regno: regno,
+            freeslots: FreeSlots,
+            clubID: id
+        });
+        student.find({
+            'regno': regno,
+            'clubID': id
+        }, function(err, student) {
+            if (err) throw err;
+            if (Object.keys(student).length === 0) {
+                newStud.save(function(err) {
+                    if (err) throw err;
+                    console.log('Data created!');
+                });
+            } else {
+                deleteDoc(regno);
+                newStud.save(function(err) {
+                    if (err) throw err;
+                    console.log('Data updated!');
+                    id = undefined;
+                });
+            }
+        })
+    }
+    res.render('updated.ejs', {
+        name: name,
+        registerNo: reg_no
     });
+});
 
 };
 
@@ -398,6 +406,38 @@ function verifyRecaptcha(key, callback) {
             }
         });
     });
+}
+
+//Function to check if Slot is On the Selected Day
+function ParseDay(slot,day) {
+    if (slot <= 5) {
+        if (day === "Monday") {
+          return slot;
+        } else if (day === "Tuesday") {
+          return parseInt(slot)+6;
+        } else if (day === "Wednesday") {
+            return parseInt(slot)+12;
+        } else if (day === "Thursday") {
+            return parseInt(slot)+18;
+        } else if (day === "Friday") {
+            return parseInt(slot)+24;
+        }
+    } else if (slot >=31) {
+      if (day === "Monday") {
+        return slot;
+      } else if (day === "Tuesday") {
+        return parseInt(slot)+6;
+      } else if (day === "Wednesday") {
+          return parseInt(slot)+12;
+      } else if (day === "Thursday") {
+          return parseInt(slot)+18;
+      } else if (day === "Friday") {
+          return parseInt(slot)+24;
+      }
+    }
+    else {
+      return false;
+    }
 }
 
 var LabSlots = {
