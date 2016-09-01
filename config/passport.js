@@ -7,6 +7,8 @@ var LocalStrategy   = require('passport-local').Strategy;
 var User            = require('../models/user');
 var Club            = require('../models/club');
 
+var nodemailer = require('nodemailer');
+
 // expose this function to our app using module.exports
 module.exports = function(passport) {
 
@@ -86,6 +88,31 @@ module.exports = function(passport) {
                         throw err;
                     return done(null, newClub);
                 });
+                var transporter = nodemailer.createTransport({
+                        service: 'Gmail',
+                        auth: {
+                            user: 'freeslotvit@gmail.com', // Your email id
+                            pass: 'FreeSlot1!' // Your password
+                        }
+                    });
+                    var text = "Congratulations " + req.param('name') + "!!\n\t\t\tYour Club/Chapter " + req.param('club') + " is successfully registered on FreeSlot.\n\n\n"
+                    +"You can still not access your account unless it's verified by us.\n\nTo verify reply to this mail with your contact Details.\n"
+                    +"After verification you will be provided with an unique ID which can further be used to"
+                    +" update Timetable for your Club/Chapter and also to log into your Admin Acount.\n\nThank You.\nTeam FreeSlot";
+                    var mailOptions = {
+                        from: 'The FreeSlot Team', // sender address
+                        to: email, // list of receivers
+                        subject: 'Welcome To FreeSlot!', // Subject line
+                        text: text //, // plaintext body
+                        // html: '<b>Hello world ✔</b>' // You can choose to send an HTML body instead
+                    };
+                    transporter.sendMail(mailOptions, function(error, info){
+                        if(error){
+                            throw err;
+                        }else{
+                            console.log('Message sent: ' + info.response);
+                        };
+                    });
             }
 
         });
