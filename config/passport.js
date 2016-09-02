@@ -46,7 +46,7 @@ module.exports = function(passport) {
 
         // find a user whose RepRegno is the same as the forms
         // we are checking to see if the user trying to login already exists
-        User.findOne({ 'local.RepRegno' :  req.param('RepRegno') }, function(err, user) {
+        User.findOne({ 'local.RepRegno' :  req.param('RepRegno'), 'local.email' : email }, function(err, user) {
             // if there are any errors, return the error
             if (err) {
                 return done(err);
@@ -96,7 +96,8 @@ module.exports = function(passport) {
                         }
                     });
                     var text = "Congratulations " + req.param('name') + "!!\n\t\t\tYour Club/Chapter " + req.param('club') + " is successfully registered on FreeSlot.\n\n\n"
-                    +"You can still not access your account unless it's verified by us.\n\nTo verify reply to this mail with your contact Details.\n"
+                    +"You can still not access your account unless it's verified by us."+
+                    "\n\nTo verify reply to this mail with your contact Details.\n "
                     +"After verification you will be provided with an unique ID which can further be used to"
                     +" update Timetable for your Club/Chapter and also to log into your Admin Acount.\n\nThank You.\nTeam FreeSlot";
                     var mailOptions = {

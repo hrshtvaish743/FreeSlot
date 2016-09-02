@@ -25,15 +25,20 @@ var userSchema = mongoose.Schema({
             required: true
         },
         verified     : Boolean,
-        loginID      : String,
+        loginID      : {
+            type: String,
+            unique: true
+        },
         RepRegno     : {
             type: String,
-            required: true,
+            required: true
         },
         RepPhone     : {
             type: String,
             required: true
-        }
+        },
+        resetPasswordToken: String,
+        resetPasswordExpires: Date
     },
     facebook         : {
         id           : String,

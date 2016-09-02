@@ -1,0 +1,29 @@
+<% include header.ejs %>
+<body id="admin">
+<div class="container">
+<div class="col-sm-6 col-sm-offset-3">
+    <h1><span class="fa fa-sign-in"></span> Reset Password</h1>
+    <!-- show any messages that come back with authentication -->
+    <% if (message.length > 0) { %>
+        <div class="alert alert-danger"><%= message %></div>
+    <% } %>
+    <!-- LOGIN FORM -->
+    <form method="post">
+        <div class="form-group">
+            <label>Club/Chapter's Unique LoginID</label>
+            <input type="text" class="form-control" name="loginID">
+        </div>
+        <div class="form-group">
+            <label>Registered E-mail</label>
+            <input type="email" class="form-control" name="email">
+        </div>
+        <button type="submit" class="btn btn-warning btn-lg">Reset Password</button>
+    </form>
+    <hr>
+    <p>Remember your Password? <a href="/login">Login</a></p>
+    <p>Or go <a href="/">home</a>.</p>
+</div>
+</div>
+<% include footer.ejs %>
+</body>
+</html>
