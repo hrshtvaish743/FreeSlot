@@ -26,7 +26,7 @@ module.exports = function(app, passport) {
     // =====================================
     app.get('/admin', function(req, res) {
         res.render('index.ejs',{
-          message : ""
+          message : req.flash('message')
         }); // load the index.ejs file
     });
 
@@ -257,9 +257,8 @@ module.exports = function(app, passport) {
     // =====================================
     app.get('/logout', function(req, res) {
         req.logout();
-        res.redirect('/admin',{
-          message : "You're Logged out Successfully!!"
-        });
+        req.flash('message', "You're logged out Successfully!");
+        res.redirect('/admin');
     });
 
     //ALLOTMENT
