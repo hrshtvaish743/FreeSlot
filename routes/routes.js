@@ -131,7 +131,7 @@ module.exports = function(app, passport) {
               return res.redirect('/admin');
             }
 
-            user.local.password = User.generateHash(password);
+            user.local.password = User.generateHash(req.body.password);
             user.local.resetPasswordToken = undefined;
             user.local.resetPasswordExpires = undefined;
 
