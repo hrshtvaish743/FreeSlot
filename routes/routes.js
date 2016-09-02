@@ -25,9 +25,9 @@ module.exports = function(app, passport) {
     // HOME PAGE (with login links) ========
     // =====================================
     app.get('/admin', function(req, res) {
-        res.render('index.ejs',{
+        res.render('admin.ejs',{
           message : req.flash('message')
-        }); // load the index.ejs file
+        }); // load the admin.ejs file
     });
 
     // =====================================
@@ -44,7 +44,7 @@ module.exports = function(app, passport) {
 
     // process the login form
     app.post('/login', passport.authenticate('local-login', {
-        successRedirect: '/admin/profile', // redirect to the secure profile section
+        successRedirect: '/admin/home', // redirect to the secure home section
         failureRedirect: '/login', // redirect back to the signup page if there is an error
         failureFlash: true // allow flash messages
     }));
@@ -196,7 +196,7 @@ module.exports = function(app, passport) {
             }
         })
     }, passport.authenticate('local-signup', {
-        successRedirect: '/registered', // redirect to the secure profile section
+        successRedirect: '/registered', // redirect to the secure registered section
         failureRedirect: '/signup', // redirect back to the signup page if there is an error
         failureFlash: true // allow flash messages
     }));
@@ -206,17 +206,26 @@ module.exports = function(app, passport) {
     // =====================================
     // we will want this protected so you have to be logged in to visit
     // we will use route middleware to verify this (the isLoggedIn function)
-    app.get('/admin/profile', isLoggedIn, function(req, res) {
+    app.get('/admin/home', isLoggedIn, function(req, res) {
         student.find({
             'clubID': req.user.local.loginID
         }, function(err, students) {
             req.session.clubID = req.user.local.loginID;
-            res.render('profile.ejs', {
+            res.render('home.ejs', {
                 students: students,
                 user: req.user // get the user out of session and pass to template
             });
         });
     });
+
+    app.get('/admin/view-profile', isLoggedIn, function(req, res) {
+      res.send('<h1>Under Development</h1><br><a href="/admin/home">GO BACK</a>');
+    });
+
+    app.get('/admin/change-password', isLoggedIn, function(req, res) {
+      res.send('<h1>Under Development</h1><a href="/admin/home">GO BACK</a>');
+    })
+
     app.get('/registered', isLoggedIn, function(req, res) {
 
         res.render('registered.ejs', {
@@ -308,7 +317,7 @@ module.exports = function(app, passport) {
     //TIMETABLE
 
     app.get('/', function(req, res, next) {
-        res.render('home.ejs');
+        res.render('index.ejs');
     });
 
     app.get('/student/:id', function(req, res, next) {

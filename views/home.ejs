@@ -1,28 +1,42 @@
 <% include header.ejs %>
 <body>
+	<% include navbar.ejs %>
 <div class="container">
-<div class="text-center">
-    <h1><span class="fa fa-sign-in"></span> Hello VITian!!</h1>
-    <h2>Welcome To FreeSlot Web Application.</h2>
-    <h3>This Application is developed exclusively for Clubs/Chapters/Teams of Vellore Institute of technology.<hr>
-    Here Core Members of Clubs/Chapters/Teams can update their TimeTable using their Parent's Login Detail. <strong>Don't Worry Your Password Will Not Be Saved.</strong>
-    </h3>
-    <h3>A Representative of Each Club/Chapter/Team Can register Their Club here and access the Timetable data of their members.</h3>
+	<div class="page-header text-center">
+		<h1><span class="fa fa-anchor"></span> Welcome <strong><%= user.local.name %></strong></h1>
+	</div>
 </div>
-<div>
-    <h1>Features Include:</h1>
-    <ul>
-      <li><h3>Automatic Updation of TimeTable when a student Logs in</h3></li>
-      <li><h3>Admins of Each club can See who has uploaded the TimeTable in from their Club</h3></li>
-      <li><h3>Admins Can alot FreeSlots on a TimeTable for all the academic Block</h3></li>
-    </ul>
-    <hr>
-</div>
-<div class="text-center">
-<h1>Register or Log into Your Club Here.</h1>
-<a href="/admin" class="btn btn-default" role="button">Register</a>
-</div>
-</div>
-<% include footer.ejs %>
+	<div class="row">
+		<div class="container">
+			<div class="well">
+				<h3><span class="fa fa-user"></span> Details</h3>
+					<div class="modal-body row">
+  					<div class="col-md-6">
+							<p>
+								<strong>Email </strong>: <%= user.local.email %><br>
+								<strong>Club/Chapter Name </strong>: <%= user.local.club %><br>
+								<strong>ID </strong>: <%= user.local.loginID %>
+							</p>
+							<hr>
+							<a href="/admin/allot" class="btn btn-default" role="button">Allot FreeSlots</a>
+						</div>
+						<div class="col-md-6">
+							<p>
+								List of your Club/Chapter's students who have updated their Timetable.
+							</p>
+							<ul>
+								<% students.forEach(function(student) { %>
+									<li><%= student.name %></li>
+									<% }); %>
+							</ul>
+							<p>
+								<a href="/admin/delete" class="btn btn-default" role="button">Delete Data</a>
+							</p>
+						</div>
+					</div>
+			</div>
+		</div>
+	</div>
+	<% include footer.ejs %>
 </body>
 </html>
