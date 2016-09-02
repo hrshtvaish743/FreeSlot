@@ -84,6 +84,7 @@ function ClearAll() {
 //Function To select the week day
 function SelectDay(Day) {
     day = Day;
+    ClearAll();
     document.getElementById('Selected').innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + day;
 }
 
