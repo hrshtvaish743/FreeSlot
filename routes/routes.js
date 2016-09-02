@@ -113,6 +113,7 @@ module.exports = function(app, passport) {
           return res.redirect('/admin/forgot-password');
         }
         res.render('reset.ejs', {
+          message : "",
           user: req.user
         });
       });
