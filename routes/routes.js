@@ -107,7 +107,7 @@ module.exports = function(app, passport) {
 
 
     app.get('/reset/:token', function(req, res) {
-      User.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
+      User.findOne({ 'local.resetPasswordToken': req.params.token, 'local.resetPasswordExpires': { $gt: Date.now() } }, function(err, user) {
         if (!user) {
           req.flash('forgotMessage', 'Password reset token is invalid or has expired.');
           return res.redirect('/admin/forgot-password');
