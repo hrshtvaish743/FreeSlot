@@ -9,3 +9,6 @@
 #admin {
   padding-top: 50px;
 }
+.TimeTable {
+  cursor: pointer;
+}

@@ -13,11 +13,11 @@
               <span class="caret"></span>
             </button>
             <ul class="dropdown-menu container" aria-labelledby="dropdownMenu1">
-              <li><a id="Monday" onclick="SelectDay(this.id)" href="#">Monday</a></li>
-              <li><a id="Tuesday" onclick="SelectDay(this.id)" href="#">Tuesday</a></li>
-              <li><a id="Wednesday" onclick="SelectDay(this.id)" href="#">Wedensday</a></li>
-              <li><a id="Thursday" onclick="SelectDay(this.id)" href="#">Thursday</a></li>
-              <li><a id="Friday" onclick="SelectDay(this.id)" href="#">Friday</a></li>
+              <li><a id="Monday" onclick="SelectDay(this.id)" style="cursor:pointer;">Monday</a></li>
+              <li><a id="Tuesday" onclick="SelectDay(this.id)" style="cursor:pointer;">Tuesday</a></li>
+              <li><a id="Wednesday" onclick="SelectDay(this.id)" style="cursor:pointer;">Wedensday</a></li>
+              <li><a id="Thursday" onclick="SelectDay(this.id)" style="cursor:pointer;">Thursday</a></li>
+              <li><a id="Friday" onclick="SelectDay(this.id)" style="cursor:pointer;">Friday</a></li>
             </ul><strong><span id="Selected"></span></strong>
           </div>
           <div class="col-md-6">
@@ -29,9 +29,11 @@
           <div class="container"><ul id="livesearch" class="container"><h2>Result Will Appear Here</h2></ul></div>
         <div class="container text-center">
         <h3>Building Slot TimeTable:</h3>
+            <h3 id="selectedSlot"></h3>
             <div id="TT">
               <p class="container"><% include timetable.ejs %></p>
             </div>
+            <button type="button" class="btn btn-default" onclick="ClearAll();" name="button">Clear All</button>
         </div>
         <div class="modal fade instructions" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
           <div class="modal-dialog modal-lg" role="document">
