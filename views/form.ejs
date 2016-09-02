@@ -3,7 +3,6 @@
 <div class="container">
 
 <div class="col-sm-6 col-sm-offset-3">
-
     <h1><span class="fa fa-sign-in"></span> Hello VITian!!</h1>
     <% if (name.length > 0) { %>
     <h2>You are Updating your TimeTable data for <span class="alert-danger"><%= name %></span></h2>
@@ -13,13 +12,13 @@
     <% if (message.length > 0) { %>
         <div class="alert alert-danger"><%= message %></div>
     <% } %>
-    <form method="post">
+    <form id="Form" method="post" onsubmit="return(check());">
         <div class="form-group">
             <label>Register No</label>
-            <input type="text" class="form-control" name="registerNo"  maxlength="10" data-error="Invalid Register No." required>
+            <input type="text" id="regno" class="form-control" name="registerNo" data-fv-regexp-message="Invalid Register No." onkeyup="check(this.id)" required>
         </div>
         <div class="form-group">
-            <label>Date of Birth</label>
+            <label>Date of Birth (ddmmyyyy)</label>
             <input type="password" class="form-control" name="DOB" required>
         </div>
         <div class="form-group">
@@ -27,7 +26,7 @@
             <input type="password" class="form-control" name="phoneNo" required>
         </div>
         <div class="g-recaptcha" data-sitekey="6Lfq6ygTAAAAACoOK48Fj8F2ScWZXlgTzvKoCFaE"></div>
-        <button type="submit" class="btn btn-warning btn-lg">Login</button>
+        <button type="submit"  class="btn btn-warning btn-lg">Login</button>
     </form>
     <hr>
 </div>

@@ -1,10 +1,12 @@
 var slot;
 var day = undefined;
 var prevSlot = undefined;
+var ck_email = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+var ck_regno = /^1[123456][bmBM][abceimnpsvABCEIMNPSV][abcdefihlmtsABCDEFIHLMTS]\d{4}$/;
 
 //Function for clearing or selecting the slot
 //and sending request to the server for getting list of students who are free in that Slot
-function block(Boxslot) {
+/*function block(Boxslot) {
     if (document.getElementById(Boxslot).innerHTML != "") {
         document.getElementById(Boxslot).innerHTML = "";
         document.getElementById(Boxslot).style.backgroundColor = 'red';
@@ -64,7 +66,7 @@ function substitute(name) {
         }
     }
 }
-
+*/
 
 //Function for a delete request to the Server
 function deleteData(id) {
@@ -83,4 +85,13 @@ function deleteData(id) {
             }
         });
     }
+}
+
+//Function to check validity
+function check() {
+    if(!document.getElementById('regno').value.match(ck_regno)) {
+      console.log('wrong');
+      return false;
+    }
+    return true;
 }

@@ -5,10 +5,9 @@
             <h3><a href="#" data-toggle="modal" data-target=".instructions">Read Instructions on How to Use</a></h3>
             <hr>
           </div>
-          <div class=" dropdown container">
-            <p>
-              Select Day of the week:
-            </p>
+          <div class="container">
+          <div class=" dropdown col-md-6">
+            <h4>Select day of the Week : </h4>
             <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
               Select Day
               <span class="caret"></span>
@@ -21,6 +20,12 @@
               <li><a id="Friday" onclick="SelectDay(this.id)" href="#">Friday</a></li>
             </ul><strong><span id="Selected"></span></strong>
           </div>
+          <div class="col-md-6">
+              <h4>Enter Number of people to be alloted per slot :</h4>
+            <input id="number" type="text" class="form-control" name="number" onkeyup="selectNumber(this.id)">
+            <strong><span id="Selected"></span></strong>
+          </div>
+        </div>
           <div class="container"><ul id="livesearch" class="container"><h2>Result Will Appear Here</h2></ul></div>
         <div class="container text-center">
         <h3>Building Slot TimeTable:</h3>
@@ -55,4 +60,5 @@
         </div>
         <hr>
         <% include footer.ejs %>
+        <script type="text/javascript" src="/javascripts/allot.js"></script>
     </body>

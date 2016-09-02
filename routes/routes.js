@@ -279,9 +279,9 @@ module.exports = function(app, passport) {
                     if (reqSlot !== false) {
                         if (list[i].freeslots.indexOf(reqSlot) !== -1) {
                             if (hint === '') {
-                                hint = "<li><a href=\"#\" onclick=\"substitute('" + list[i].name + "')\">" + list[i].regno + " " + list[i].name + "</a></li>";
+                                hint = "<li><a onclick=\"substitute('" + list[i].name + "')\" style=\"cursor:pointer;\">" + list[i].regno + " " + list[i].name + "</a></li>";
                             } else {
-                                hint = hint + "<li><a href=\"#\" onclick=\"substitute('" + list[i].name + "')\">" + list[i].regno + " " + list[i].name + "</a></li>";
+                                hint = hint + "<li><a onclick=\"substitute('" + list[i].name + "')\" style=\"cursor:pointer;\">" + list[i].regno + " " + list[i].name + "</a></li>";
                             }
                         }
                     } else {
@@ -297,6 +297,12 @@ module.exports = function(app, passport) {
                 res.send("No Res!");
         })
     });
+
+    app.get('/get-data', isLoggedIn, function(req, res) {
+      student.find({'clubID' : req.session.clubID}, function (err, list) {
+        res.json(list);
+      })
+    })
 
 
     //TIMETABLE
