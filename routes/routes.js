@@ -25,7 +25,9 @@ module.exports = function(app, passport) {
     // HOME PAGE (with login links) ========
     // =====================================
     app.get('/admin', function(req, res) {
-        res.render('index.ejs'); // load the index.ejs file
+        res.render('index.ejs',{
+          message : "";
+        }); // load the index.ejs file
     });
 
     // =====================================
@@ -255,7 +257,9 @@ module.exports = function(app, passport) {
     // =====================================
     app.get('/logout', function(req, res) {
         req.logout();
-        res.redirect('/admin');
+        res.redirect('/admin',{
+          message : "You're Logged out Successfully!!"
+        });
     });
 
     //ALLOTMENT
