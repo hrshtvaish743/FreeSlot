@@ -584,6 +584,9 @@ function verifyRecaptcha(key, callback) {
     });
 }
 
+//Function to check the entries posted in form
+
+
 //Function to check if Slot is On the Selected Day
 function ParseDay(slot, day) {
     if (slot <= 5) {
