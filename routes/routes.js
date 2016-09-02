@@ -26,7 +26,7 @@ module.exports = function(app, passport) {
     // =====================================
     app.get('/admin', function(req, res) {
         res.render('index.ejs',{
-          message : "";
+          message : ""
         }); // load the index.ejs file
     });
 
