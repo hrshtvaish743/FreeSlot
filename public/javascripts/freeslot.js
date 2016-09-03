@@ -23,6 +23,8 @@ function deleteData(id) {
     }
 }
 
+
+
 //Function to check validity
 function check() {
     if(!document.getElementById('regno').value.match(ck_regno)) {
@@ -31,3 +33,13 @@ function check() {
     }
     return true;
 }
+
+$(function() {
+    $('a.page-scroll').bind('click', function(event) {
+        var $anchor = $(this);
+        $('html, body').stop().animate({
+            scrollTop: $($anchor.attr('href')).offset().top
+        }, 1500, 'easeInOutExpo');
+        event.preventDefault();
+    });
+});

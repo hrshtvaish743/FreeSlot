@@ -7,6 +7,7 @@ var nodemailer = require('nodemailer');
 var async = require('async');
 var crypto = require('crypto');
 var User = require('../models/user');
+var superUser       = require('../models/superUser');
 
 
 var name = new Map;
@@ -35,7 +36,6 @@ module.exports = function(app, passport) {
     // =====================================
     // show the login form
     app.get('/login', function(req, res) {
-
         // render the page and pass in any flash data if it exists
         res.render('login.ejs', {
             message: req.flash('loginMessage')
@@ -48,6 +48,24 @@ module.exports = function(app, passport) {
         failureRedirect: '/login', // redirect back to the signup page if there is an error
         failureFlash: true // allow flash messages
     }));
+
+    app.get('/superuser/login', function(req, res) {
+      res.render('superUserLogin.ejs', {
+        message: req.flash('loginMessage')
+      });
+    });
+
+    app.post('/superuser/login', passport.authenticate('super-login', {
+      successRedirect : '/superuser/home',
+      failureRedirect : '/superuser/login',
+      failureFlash    : true
+    }));
+
+    app.get('/superuser/home', function (req, res) {
+      res.send("logged");
+    })
+
+
 
     app.get('/admin/forgot-password', function(req, res) {
       res.render('forgot.ejs', {
@@ -219,20 +237,23 @@ module.exports = function(app, passport) {
     });
 
     app.get('/admin/view-profile', isLoggedIn, function(req, res) {
-      res.send('<h1>Under Development</h1><br><a href="/admin/home">GO BACK</a>');
+      res.render('profile.ejs',{
+        user : req.user
+      })
     });
 
     app.get('/admin/change-password', isLoggedIn, function(req, res) {
       res.send('<h1>Under Development</h1><a href="/admin/home">GO BACK</a>');
     })
 
+    //Page to land after Registration
     app.get('/registered', isLoggedIn, function(req, res) {
-
         res.render('registered.ejs', {
             user: req.user // get the user out of session and pass to template
         });
     });
-    //Deleting Timetable data for a user
+
+    //get page for Deleting Timetable data for a user
     app.get('/admin/delete', isLoggedIn, function(req, res) {
         student.find({
             'clubID': req.session.clubID
@@ -245,6 +266,7 @@ module.exports = function(app, passport) {
         });
     })
 
+    //post request To Delete a Timetable Record of a student
     app.post('/admin/delete', isLoggedIn, function(req, res) {
         student.findOne({
             'clubID': req.session.clubID,
@@ -275,37 +297,6 @@ module.exports = function(app, passport) {
         res.render('allot.ejs');
     })
 
-    app.post('/searching', isLoggedIn, function(req, res) {
-        student.find({
-            'clubID': req.session.clubID
-        }, function(err, list) {
-            if (err) throw err;
-            if (list) {
-                var hint = '';
-                var free = [];
-                for (var i = 0; i < list.length; i++) {
-                    var reqSlot = ParseDay(req.body.slot, req.body.day);
-                    if (reqSlot !== false) {
-                        if (list[i].freeslots.indexOf(reqSlot) !== -1) {
-                            if (hint === '') {
-                                hint = "<li><a onclick=\"substitute('" + list[i].name + "')\" style=\"cursor:pointer;\">" + list[i].regno + " " + list[i].name + "</a></li>";
-                            } else {
-                                hint = hint + "<li><a onclick=\"substitute('" + list[i].name + "')\" style=\"cursor:pointer;\">" + list[i].regno + " " + list[i].name + "</a></li>";
-                            }
-                        }
-                    } else {
-                        hint = "Wrong Slot";
-                    }
-                }
-                if (hint === '')
-                    res.send("No Result!");
-                else {
-                    res.send(hint);
-                }
-            } else
-                res.send("No Res!");
-        })
-    });
 
     app.get('/get-data', isLoggedIn, function(req, res) {
       student.find({'clubID' : req.session.clubID}, function (err, list) {
