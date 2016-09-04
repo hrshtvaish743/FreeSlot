@@ -47,7 +47,7 @@ module.exports = function(passport) {
 
         // find a user whose RepRegno is the same as the forms
         // we are checking to see if the user trying to login already exists
-        User.findOne({ 'local.RepRegno' :  req.param('RepRegno'), 'local.email' : email }, function(err, user) {
+        User.findOne({$or:[{ 'local.RepRegno' :  req.param('RepRegno')},{ 'local.email' : email },{'local.club' : req.param('club')}]}, function(err, user) {
             // if there are any errors, return the error
             if (err) {
                 return done(err);
@@ -55,8 +55,9 @@ module.exports = function(passport) {
 
             // check to see if theres already a user with that RepRegno
             if (user) {
+              console.log(user);
                 if(user.local.verified === true)
-                    return done(null, false, req.flash('signupMessage', 'This Club/Chapter is already Registered and Verified OR You are already a Rpresentative of another Club/Chapter!'));
+                    return done(null, false, req.flash('signupMessage', 'This Club/Chapter is already registered and verified OR You are already a representative of another Club/Chapter!'));
             } else {
 
                 // if there is no user with that RepRegno
@@ -79,15 +80,14 @@ module.exports = function(passport) {
                 newClub.verified = false;
 
                 // save the user
+                newClub.save(function(err) {
+                    if (err)
+                        throw err;
+                });
                 newUser.save(function(err) {
                     if (err)
                         throw err;
                     return done(null, newUser);
-                });
-                newClub.save(function(err) {
-                    if (err)
-                        throw err;
-                    return done(null, newClub);
                 });
                 var transporter = nodemailer.createTransport({
                         service: 'Gmail',
@@ -112,13 +112,26 @@ module.exports = function(passport) {
                         if(error){
                             throw err;
                         }else{
-                            console.log('Message sent: ' + info.response);
+                            console.log('Message sent to user: ' + info.response);
+                        };
+                    });
+                    text = req.param('club') + " was just registered on FreeSlot by " + req.param('name') + " " + req.param('RepRegno') + " using " + email;
+                    var mailOptions = {
+                        from: 'The FreeSlot App', // sender address
+                        to: 'freeslotvit@gmail.com', // list of receivers
+                        subject: 'New Registration!', // Subject line
+                        text: text //, // plaintext body
+                        // html: '<b>Hello world ✔</b>' // You can choose to send an HTML body instead
+                    };
+                    transporter.sendMail(mailOptions, function(error, info){
+                        if(error){
+                            throw err;
+                        }else{
+                            console.log('Message sent to admin: ' + info.response);
                         };
                     });
             }
-
         });
-
     }));
 
     // =========================================================================
@@ -144,7 +157,7 @@ module.exports = function(passport) {
 
             // if no user is found, return the message
             if (!user){
-                return done(null, false, req.flash('loginMessage', 'No user found!! Check Your LoginID or Email address.')); // req.flash is the way to set flashdata using connect-flash
+                return done(null, false, req.flash('loginMessage', 'No user found!! Check your LoginID or Email address.')); // req.flash is the way to set flashdata using connect-flash
             }
 
             // if the user is found but the password is wrong
@@ -152,7 +165,7 @@ module.exports = function(passport) {
                 return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
             }
             if (user.local.verified === false)
-                return done(null, false, req.flash('loginMessage', 'Your Account is not yet Verified!! Please Contact Moderator.'))
+                return done(null, false, req.flash('loginMessage', 'Your account is not yet verified!! Please contact moderator.'))
 
             // all is well, return successful user
             console.log(user);
