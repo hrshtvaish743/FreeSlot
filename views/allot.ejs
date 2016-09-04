@@ -1,4 +1,4 @@
-  <% include header.ejs %>
+<% include header.ejs %>
 <body id="page-top" data-spy="scroll" data-target="navbar-fixed-top">
   <% include navbar.ejs %>
         <div class="container content-section text-center">
@@ -12,7 +12,7 @@
               Select Day
               <span class="caret"></span>
             </button>
-            <ul class="dropdown-menu container" aria-labelledby="dropdownMenu1">
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
               <li><a id="Monday" onclick="SelectDay(this.id)" style="cursor:pointer;">Monday</a></li>
               <li><a id="Tuesday" onclick="SelectDay(this.id)" style="cursor:pointer;">Tuesday</a></li>
               <li><a id="Wednesday" onclick="SelectDay(this.id)" style="cursor:pointer;">Wednesday</a></li>
@@ -31,9 +31,10 @@
         <h3>Building Slot TimeTable:</h3>
             <h3 id="selectedSlot"></h3>
             <div id="TT">
-              <p class="container"><% include timetable.ejs %></p>
+              <p class=""><% include timetable.ejs %></p>
             </div>
             <button type="button" class="btn btn-default" onclick="ClearAll();" name="button">Clear All</button>
+            <button type="button" class="btn btn-default" onclick="autoAssign();" name="button">Allot Automatically</button>
         </div>
         <div class="modal fade instructions" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
           <div class="modal-dialog modal-lg" role="document">
@@ -66,3 +67,4 @@
         <% include footer.ejs %>
         <script type="text/javascript" src="/javascripts/allot.js"></script>
     </body>
+</html>
