@@ -3,6 +3,8 @@ var day = undefined;
 var prevSlot = undefined;
 var ck_email = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
 var ck_regno = /^1[123456][bmBM][abceimnpsvABCEIMNPSV][abcdefihlmtsABCDEFIHLMTS]\d{4}$/;
+var ck_phone = /^\d{10}$/;
+var ck_password = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
 
 //Function for a delete request to the Server
 function deleteData(id) {
@@ -28,18 +30,66 @@ function deleteData(id) {
 //Function to check validity
 function check() {
     if(!document.getElementById('regno').value.match(ck_regno)) {
-      console.log('wrong');
       return false;
     }
     return true;
 }
 
-$(function() {
-    $('a.page-scroll').bind('click', function(event) {
-        var $anchor = $(this);
-        $('html, body').stop().animate({
-            scrollTop: $($anchor.attr('href')).offset().top
-        }, 1500, 'easeInOutExpo');
-        event.preventDefault();
-    });
-});
+
+$(document).ready(function(){
+  $.validator.addMethod(
+          "regex",
+          function(value, element, regexp) {
+              var re = new RegExp(regexp);
+              return this.optional(element) || re.test(value);
+          },"Your password must be at least 8 characters long containing atleast one letter and a number"
+  );
+$('#signupForm').validate({
+	    rules: {
+	       club: {
+	        required: true
+	      },
+		 name: {
+	        required: true
+	      },
+		  password: {
+				required: true,
+				minlength: 8,
+        regex: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
+			},
+			confirmPassword: {
+				required: true,
+				minlength: 8,
+				equalTo: "#password"
+			},
+	      email: {
+	        required: true,
+	        email: true
+
+	      },
+        RepRegno: {
+          required : true,
+          regex: /^1[123456][bmBM][abceimnpsvABCEIMNPSV][abcdefihlmtsABCDEFIHLMTS]\d{4}$/
+        },
+        phone: {
+          required:true,
+          regex : /^\d{10}$/
+        }
+	    },
+      messages: {
+      name: "Please enter your name",
+      club: "Please enter your Club's name",
+      password: {
+        required: "Please provide a password",
+        minlength: "Your password must be at least 8 characters long containing atleast one letter and a number"
+      },
+      email: "Please Enter correct email address",
+      confirmPassword : "Your passwords doesn't match",
+      RepRegno : "Please enter correct register number",
+      phone: "Please enter correct phone number of length 10"
+    },
+    submitHandler: function(form) {
+    form.submit();
+  }
+	  });
+}); // end document.ready

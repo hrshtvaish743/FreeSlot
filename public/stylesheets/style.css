@@ -6,11 +6,30 @@
   height: 60px;
   background-color: #f5f5f5;
 }
+label.valid {
+	width: 24px;
+	height: 24px;
+	background: url(/img/valid.png) center center no-repeat;
+	display: inline-block;
+	text-indent: -9999px;
+}
+label.error {
+	font-weight: bold;
+	color: red;
+	padding: 2px 8px;
+	margin-top: 2px;
+}
 #admin {
   padding-top: 50px;
 }
-.TimeTable {
+.TimeTable1 {
   cursor: pointer;
+  padding-bottom: 4px;
+}
+
+.TimeTable2 {
+  cursor: pointer;
+  padding-top: 4px;
 }
 
 /*
@@ -117,13 +136,16 @@ h6 {
 
 .content-section-a {
     padding: 50px 0;
-    background-color: #f8f8f8;
+    /*background-color: #f8f8f8;*/
+    background-color: #aeb1c4;
+
 }
 
 .content-section-b {
     padding: 50px 0;
     border-top: 1px solid #e7e7e7;
     border-bottom: 1px solid #e7e7e7;
+
 }
 
 .section-heading {
