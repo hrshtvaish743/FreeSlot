@@ -26,8 +26,7 @@ var userSchema = mongoose.Schema({
         },
         verified     : Boolean,
         loginID      : {
-            type: String,
-            unique: true
+            type: String
         },
         RepRegno     : {
             type: String,
