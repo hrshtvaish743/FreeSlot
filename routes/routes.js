@@ -114,7 +114,7 @@ module.exports = function(app, passport) {
                 'If you did not request this, please ignore this email and your password will remain unchanged.\n\nThank you.\nTeam FreeSlot.'
             };
             smtpTransport.sendMail(mailOptions, function(err, info) {
-              //console.log('Reset Message sent: ' + info.response);
+              console.log('Reset Message sent: ' + info.response);
               req.flash('forgotMessage', 'An e-mail has been sent to ' + user.local.email + ' with further instructions.');
               done(err, 'done');
             });
@@ -236,15 +236,91 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/admin/view-profile', isLoggedIn, function(req, res) {
+    app.get('/admin/profile', isLoggedIn, function(req, res) {
       res.render('profile.ejs',{
-        user : req.user
-      })
+        user : req.user,
+        message : req.flash('updateProfile')
+      });
+    });
+
+    app.post('/admin/profile', isLoggedIn, function(req, res) {
+      async.waterfall([
+        function(done) {
+          User.findOne({ 'local.loginID' : req.session.clubID }, function(err, user) {
+            if (!user) {
+              req.flash('updateProfile', 'User Not Found.');
+              return res.redirect('/admin/profile');
+            }
+              user.local.name = req.body.name;
+              user.local.email = req.body.email;
+              user.local.RepPhone = req.body.phone;
+              user.save(function(err) {
+                req.logIn(user, function(err) {
+                  req.flash('updateProfile', 'Success! Your profile has been updated.');
+                  done(err, user);
+                });
+
+              });
+
+          });
+        }
+      ], function(err) {
+        res.redirect('/admin/profile');
+      });
     });
 
     app.get('/admin/change-password', isLoggedIn, function(req, res) {
-      res.send('<h1>Under Development</h1><a href="/admin/home">GO BACK</a>');
-    })
+      res.render('change-password.ejs', {
+        user : req.user,
+        message : req.flash('changePassMessage')
+      });
+    });
+
+    app.post('/admin/change-password', isLoggedIn, function(req, res) {
+      async.waterfall([
+        function(done) {
+          User.findOne({ 'local.loginID' : req.session.clubID }, function(err, user) {
+            if (!user) {
+              req.flash('changePassMessage', 'User Not Found.');
+              return res.redirect('/admin/change-password');
+            }
+            if(!user.validPassword(req.body.current)) {
+              req.flash('changePassMessage', 'Wrong Password!')
+              return res.redirect('/admin/change-password');
+            } else {
+              user.local.password = user.generateHash(req.body.new);
+              user.save(function(err) {
+                req.logIn(user, function(err) {
+                  done(err, user);
+                });
+              });
+            }
+          });
+        },
+        function(user, done) {
+          var smtpTransport = nodemailer.createTransport({
+                  service: 'Gmail',
+                  auth: {
+                      user: 'freeslotvit@gmail.com', // Your email id
+                      pass: 'FreeSlot1!' // Your password
+                  }
+              });
+          var mailOptions = {
+            to: user.local.email,
+            from: 'freeslotvit@gmail.com',
+            subject: 'Your password has been changed',
+            text: 'Hello,\n\n' +
+              'This is a confirmation that the password for your account ' + user.local.email + ' on FreeSlot has just been changed.\n\nThank you.\nTeam FreeSlot.'
+          };
+          smtpTransport.sendMail(mailOptions, function(err) {
+            req.flash('changePassMessage', 'Success! Your password has been changed.');
+            done(err);
+          });
+        }
+      ], function(err) {
+        res.redirect('/admin/change-password');
+      });
+    });
 
     //Page to land after Registration
     app.get('/registered', isLoggedIn, function(req, res) {
@@ -347,10 +423,8 @@ module.exports = function(app, passport) {
         })
     }, function(req, res) {
         if (!req.body.registerNo || !req.body.DOB || !req.body.phoneNo || clubName.get(req.params.id) == undefined) {
-            console.log(clubName.get(req.params.id));
             res.redirect('/');
         } else {
-            console.log(clubName.get(req.params.id));
             req.session.regno = req.body.registerNo;
             req.session.dob = req.body.DOB;
             req.session.mobile = req.body.phoneNo;
@@ -363,11 +437,8 @@ module.exports = function(app, passport) {
                 if (err) {
                     throw err;
                 }
-                //  name = JSON.parse(file).name;
-                //  reg_no = JSON.parse(file).reg_no;
                 name.set(req.body.registerNo, JSON.parse(file).name);
                 reg_no.set(req.body.registerNo, JSON.parse(file).reg_no)
-                console.log(clubName.get(id.get(req.body.registerNo)));
                 var status = JSON.parse(file).status.code;
                 if (status !== 0) {
                     if (status === 12) {
@@ -498,7 +569,6 @@ module.exports = function(app, passport) {
                         return next();
                     });
                 } else {
-                    console.log(id.get(regno));
                     deleteDoc(regno, id.get(regno));
                     newStud.save(function(err) {
                         if (err) throw err;
@@ -510,7 +580,6 @@ module.exports = function(app, passport) {
         }
     }, function(req, res) {
         var regno = req.session.regno;
-        console.log('Here it is');
         var renderName = name.get(regno);
         var renderReg = reg_no.get(regno);
         name.delete(regno);
@@ -589,9 +658,6 @@ function verifyRecaptcha(key, callback) {
         });
     });
 }
-
-//Function to check the entries posted in form
-
 
 //Function to check if Slot is On the Selected Day
 function ParseDay(slot, day) {

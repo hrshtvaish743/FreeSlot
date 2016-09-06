@@ -91,5 +91,59 @@ $('#signupForm').validate({
     submitHandler: function(form) {
     form.submit();
   }
-	  });
+});
+
+$('#changepassForm').validate({
+	    rules: {
+        current: {
+          required: true
+        },
+        new: {
+          required: true,
+				  minlength: 8,
+          regex: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
+        },
+			  confirm: {
+				  required: true,
+				  minlength: 8,
+				  equalTo: "#new"
+			  }
+      },
+      messages: {
+      new: {
+        required: "Please provide a password",
+        minlength: "Your password must be at least 8 characters long containing atleast one letter and a number"
+      },
+      confirm : "Your passwords doesn't match"
+    },
+    submitHandler: function(form) {
+    form.submit();
+  }
+});
+
+$('#updateProfile').validate({
+	    rules: {
+        name: {
+	        required: true
+	      },
+	      email: {
+	        required: true,
+	        email: true
+
+	      },
+        phone: {
+          required:true,
+          regex : /^\d{10}$/
+        }
+	    },
+      messages: {
+      name: "Please enter your name",
+      email: "Please Enter correct email address",
+      phone: "Please enter correct phone number of length 10"
+    },
+    submitHandler: function(form) {
+    form.submit();
+  }
+});
+
 }); // end document.ready

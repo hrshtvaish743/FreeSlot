@@ -7,18 +7,74 @@
 		<h1><span class="glyphicon glyphicon-user"></span>  Profile</strong></h1>
 	</div>
 </div>
-	<div class="row">
-		<div class="container">
+	<div class="container">
+		<div class="row">
 			<div class="well">
-						<div class="col-md-8">
-              <h1>UNDER DEVELOPMENT!!</h1>
+				<div class="modal-body row">
+						<div class="container">
+						    <h1>Edit Profile</h1>
+							<div class="row">
+						      <div class="col-md-9 personal-info">
+										<% if (message.length > 0) { %>
+						        <div class="alert alert-info alert-dismissable">
+						          <a class="panel-close close" data-dismiss="alert">×</a>
+						          <i class="fa fa-coffee"></i>
+						          <%= message %>
+						        </div>
+										<% } %>
+						        <h3>Personal info</h3>
+
+						        <form id="updateProfile" class="form-horizontal" role="form" method="post">
+						          <div class="form-group">
+						            <label class="col-lg-3 control-label">Representative Name:</label>
+						            <div class="col-lg-8">
+						              <input class="form-control" name="name" type="text" value="<%= user.local.name %>">
+						            </div>
+						          </div>
+						          <div class="form-group">
+						            <label class="col-lg-3 control-label">Email:</label>
+						            <div class="col-lg-8">
+						              <input class="form-control" name="email" type="text" value="<%= user.local.email %>">
+						            </div>
+						          </div>
+											<div class="form-group">
+												<label class="col-md-3 control-label">Club Name:</label>
+												<div class="col-md-8">
+													<input class="form-control" type="text" value="<%= user.local.club %>" disabled>
+												</div>
+											</div>
+						          <div class="form-group">
+						            <label class="col-md-3 control-label">Unique ID:</label>
+						            <div class="col-md-8">
+						              <input class="form-control" type="text" value="<%= user.local.loginID %>" disabled>
+						            </div>
+						          </div>
+											<div class="form-group">
+						            <label class="col-md-3 control-label">Register Number:</label>
+						            <div class="col-md-8">
+						              <input class="form-control" type="text" value="<%= user.local.RepRegno %>" disabled>
+						            </div>
+						          </div>
+											<div class="form-group">
+						            <label class="col-lg-3 control-label">Phone:</label>
+						            <div class="col-lg-8">
+						              <input class="form-control" name="phone" type="text" value="<%= user.local.RepPhone %>">
+						            </div>
+						          </div>
+						          <div class="form-group">
+						            <label class="col-md-3 control-label"></label>
+						            <div class="col-md-8">
+						              <input type="submit" class="btn btn-primary" value="Save Changes">
+						              <span></span>
+						              <input type="reset" class="btn btn-default" value="Cancel">
+						            </div>
+						          </div>
+						        </form>
+						      </div>
+						  </div>
 						</div>
-  					<div class="col-md-4">
-								<h3><span class="glyphicon glyphicon-wrench"></span> Actions</h3>
-								<p>
-									<a class="btn btn-default" role="button" onclick="changeDetails();">Change Details</a>
-							</p>
-						</div>
+						<hr>
+					</div>
 			</div>
 		</div>
 	</div>

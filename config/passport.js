@@ -55,7 +55,6 @@ module.exports = function(passport) {
 
             // check to see if theres already a user with that RepRegno
             if (user) {
-              console.log(user);
                 if(user.local.verified === true)
                     return done(null, false, req.flash('signupMessage', 'This Club/Chapter is already registered and verified OR You are already a representative of another Club/Chapter!'));
             } else {
@@ -168,7 +167,6 @@ module.exports = function(passport) {
                 return done(null, false, req.flash('loginMessage', 'Your account is not yet verified!! Please contact moderator.'))
 
             // all is well, return successful user
-            console.log(user);
             return done(null, user);
         });
 
@@ -206,7 +204,6 @@ module.exports = function(passport) {
               user.name = 'Harshit Vaish';
               user.loginID = 'SuperUser';
               user.id = '57c6d202cf576c11009cf494';
-              console.log(user);
               return done(null, user);
             }
             else return done(null, false, req.flash('loginMessage', 'Wrong'));
