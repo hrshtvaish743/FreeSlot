@@ -9,8 +9,7 @@ var clubSchema = mongoose.Schema({
 
     name: String,
     loginID: String,
-    verified: Boolean,
-    id: String
+    verified: Boolean
 
 });
 

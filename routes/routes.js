@@ -92,8 +92,54 @@ module.exports = function(app, passport) {
     });
 
     app.post('/superuser/verify', isLoggedIn, function(req, res) {
-      res.send('VERIFIED!!');
-    })
+      User.findOne({'local.RepRegno' : req.body.regno }, function(err, user) {
+        if(err) throw err;
+        if(!user) {
+          res.send('No user Found with this register number!');
+        } else {
+          Club.findOne({'name' : user.local.club}, function(err, club) {
+            if(err) throw err;
+            if(!club) {
+              res.send('No club found!');
+            } else {
+              club.verified = true;
+              club.loginID = req.body.clubID;
+              club.save(function (err) {
+                if(err) throw err;
+              });
+            }
+          });
+          user.local.verified = true;
+          user.local.loginID = req.body.clubID;
+          user.save(function(err) {
+            if(err) throw err;
+          });
+          var smtpTransport = nodemailer.createTransport({
+                  service: 'Gmail',
+                  auth: {
+                      user: 'freeslotvit@gmail.com', // Your email id
+                      pass: 'FreeSlot1!' // Your password
+                  }
+              });
+          var mailOptions = {
+            to: user.local.email,
+            from: 'FreeSlot',
+            subject: 'Your account has been verified and activated!',
+            text: 'Congratulations ' + user.local.name + '!!\n\nYour Club/Chapter/Team account on FreeSlot has been verified and activated.'
+            + '\n\nYou can access your admin panel at https://freeslot.herokuapp.com/admin.\nYour username is ' + req.body.clubID
+            + '\nUse the password you provided at the time of signup.'
+            +'\n\nYour club/chapter/team\'s unique timetable update link is https://freeslot.herokuapp.com/student/' + req.body.clubID
+            +'\n\nYour club/chapter/team members can update their timetable at this link.'
+            +'Remember that they should use this link only to store their timetable under your account.'
+            +'\n\nThank you.\n\nTeam FreeSlot.\n\nFor any queries you can reply to this mail.'
+          };
+          smtpTransport.sendMail(mailOptions, function(err, info) {
+            console.log('Activation Message sent: ' + info.response);
+          });
+          res.send('VERIFIED!');
+        }
+      });
+    });
 
 
     app.get('/admin/forgot-password', function(req, res) {
