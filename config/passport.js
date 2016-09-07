@@ -165,7 +165,6 @@ module.exports = function(passport) {
             }
             if (user.local.verified === false)
                 return done(null, false, req.flash('loginMessage', 'Your account is not yet verified!! Please contact moderator.'))
-
             // all is well, return successful user
             return done(null, user);
         });
@@ -179,35 +178,23 @@ module.exports = function(passport) {
         passReqToCallback : true // allows us to pass back the entire request to the callback
     },
     function(req, email, password, done) { // callback with email and password from our form
+      User.findOne({ 'local.loginID' :  req.param('loginID'), 'local.email': email, 'local.superadmin': true }, function(err, user) {
+          // if there are any errors, return the error before anything else
+          if (err)
+              return done(err);
 
-        // find a user whose email is the same as the forms email
-        // we are checking to see if the user trying to login already exists
-        /*superUser.findOne({ 'loginID' :  req.params('loginID'), 'email': email }, function(err, user) {
-            // if there are any errors, return the error before anything else
-            if (err)
-                return done(err);
+          // if no user is found, return the message
+          if (!user){
+              return done(null, false, req.flash('superMessage', 'No user found!! Check your LoginID or Email address.')); // req.flash is the way to set flashdata using connect-flash
+          }
 
-            // if no user is found, return the message
-            if (!user) {
-                return done(null, false, req.flash('loginMessage', 'No user found!!')); // req.flash is the way to set flashdata using connect-flash
-            }
-
-            // if the user is found but the password is wrong
-            if (!superUser.validPassword(password)){
-                return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
-            }
-            return done(null, user);*/
-            user = {};
-            if(email == 'hrshtvaish743@gmail.com' && req.param('loginID') == 'SuperUser'
-            && password == 'SuperUser99525525261!' ) {
-              user.email = email;
-              user.name = 'Harshit Vaish';
-              user.loginID = 'SuperUser';
-              user.id = '57c6d202cf576c11009cf494';
-              return done(null, user);
-            }
-            else return done(null, false, req.flash('loginMessage', 'Wrong'));
-
+          // if the user is found but the password is wrong
+          if (!user.validPassword(password)){
+              return done(null, false, req.flash('superMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
+          }
+          // all is well, return successful user
+          return done(null, user);
+      });
     }));
 
 };

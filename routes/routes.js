@@ -51,7 +51,7 @@ module.exports = function(app, passport) {
 
     app.get('/superuser/login', function(req, res) {
       res.render('superUserLogin.ejs', {
-        message: req.flash('loginMessage')
+        message: req.flash('superMessage')
       });
     });
 
@@ -61,10 +61,39 @@ module.exports = function(app, passport) {
       failureFlash    : true
     }));
 
-    app.get('/superuser/home', function (req, res) {
-      res.send("logged");
-    })
+    app.get('/superuser/home', isLoggedIn, function (req, res) {
+      Club.find({}, function(err,club) {
+        if(err) throw err;
+        res.render('superhome.ejs', {
+          user: req.user,
+          reg: club
+        });
+      });
+    });
 
+    app.get('/superuser/verify', isLoggedIn, function(req, res) {
+      User.find({'local.verified' : false}, function(err,club) {
+        if(err) throw err;
+        if(!club || club[0] == undefined) {
+          res.render('verify.ejs', {
+            user: req.user,
+            message: 'All accounts are verified!',
+            users: null
+          });
+        } else {
+          console.log(club);
+          res.render('verify.ejs', {
+            user: req.user,
+            message: 'These Users have pending verification: ',
+            users: club
+          });
+        }
+      });
+    });
+
+    app.post('/superuser/verify', isLoggedIn, function(req, res) {
+      res.send('VERIFIED!!');
+    })
 
 
     app.get('/admin/forgot-password', function(req, res) {

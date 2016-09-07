@@ -28,7 +28,8 @@ app.use(session({
   secret: 'iamharshitvaish',
   cookie: { maxAge: 60000000 },
   resave: true,
-  saveUninitialized: true})); // session secret
+  saveUninitialized: true
+  }));
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
@@ -45,7 +46,7 @@ app.set('view engine', 'ejs');
 app.use(favicon(path.join(__dirname, 'public', 'favicon.jpg')));
 
 // catch 404 and forward to error handler
-/*app.use(function(req, res, next) {
+app.use(function(req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
@@ -74,5 +75,5 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
-*/
+
 module.exports = app;

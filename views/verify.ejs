@@ -1,0 +1,67 @@
+<% include header.ejs %>
+<body>
+  <% include navbar.ejs %>
+  <div class="container">
+    <div class="page-header text-center">
+      <h1><span class="fa fa-anchor"></span> Welcome <strong><%= user.local.name %></strong></h1>
+    </div>
+  </div>
+  <div class="row">
+    <div class="container">
+      <h3><span class="fa fa-user"></span> Delete</h3>
+      <div class="modal-body row">
+        <div class="container">
+          <% if (message.length > 0) { %>
+              <p>
+                <%= message %>
+              </p>
+          <% } %>
+          <table>
+            <tbody>
+              <% if(users) { users.forEach(function(user) { %>
+                <tr>
+                  <td class="col-md-4"><%= user.local.club %> registered by <%= user.local.name %></td>
+                  <td class="col-md-4">
+                    <input id="clubID" class="form-control" type="text" name="clubID">
+                  </td>
+                  <td class="col-md-4" id="<%= user.local.RepRegno %>" regno="<%= user.local.RepRegno %>">
+                    <button type="button" class="btn btn-default" onclick="verify(this.parentNode.id)" aria-label="Left Align">
+                      <i class="fa fa-check" aria-hidden="true"></i>
+                    </button>
+                  </td>
+                </tr>
+                <% });} %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript">
+    function verify(regno) {
+      if(document.getElementById('clubID').value != ""){
+        var confirmDelete = confirm("Are you sure you want to verify this user?")
+        if (confirmDelete == true) {
+            var data = {};
+            data.regno = regno;
+            data.clubID = document.getElementById('clubID').value;
+            console.log(data);
+            $.ajax({
+                type: 'POST',
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                url: '/superuser/verify',
+                success: function(data) {
+                    document.getElementById(regno).innerHTML = data;
+                }
+            });
+        }
+      } else {
+        alert('Please enter club/chapter ID')
+      }
+    }
+  </script>
+    <% include footer.ejs %>
+</body>
+</html>
