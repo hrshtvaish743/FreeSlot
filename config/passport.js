@@ -97,7 +97,7 @@ module.exports = function(passport) {
                     });
                     var text = "Congratulations " + req.param('name') + "!!\n\t\t\tYour Club/Chapter " + req.param('club') + " is successfully registered on FreeSlot.\n\n\n"
                     +"You can still not access your account unless it's verified by us."+
-                    "\n\nTo verify reply to this mail with your contact Details.\n "
+                    "\n\nTo verify please reply to this mail with your contact Details(Phone Number).\n "
                     +"After verification you will be provided with an unique ID which can further be used to"
                     +" update Timetable for your Club/Chapter and also to log into your Admin Acount.\n\nThank You.\nTeam FreeSlot";
                     var mailOptions = {
