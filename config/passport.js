@@ -192,6 +192,7 @@ module.exports = function(passport) {
           if (!user.validPassword(password)){
               return done(null, false, req.flash('superMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
           }
+          req.session.name = 'SuperUser';
           // all is well, return successful user
           return done(null, user);
       });

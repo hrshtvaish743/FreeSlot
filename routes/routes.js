@@ -61,7 +61,7 @@ module.exports = function(app, passport) {
       failureFlash    : true
     }));
 
-    app.get('/superuser/home', isLoggedIn, function (req, res) {
+    app.get('/superuser/home', isSuperLoggedIn, function (req, res) {
       Club.find({}, function(err,club) {
         if(err) throw err;
         res.render('superhome.ejs', {
@@ -71,7 +71,7 @@ module.exports = function(app, passport) {
       });
     });
 
-    app.get('/superuser/verify', isLoggedIn, function(req, res) {
+    app.get('/superuser/verify', isSuperLoggedIn, function(req, res) {
       User.find({'local.verified' : false}, function(err,club) {
         if(err) throw err;
         if(!club || club[0] == undefined) {
@@ -91,7 +91,7 @@ module.exports = function(app, passport) {
       });
     });
 
-    app.post('/superuser/verify', isLoggedIn, function(req, res) {
+    app.post('/superuser/verify', isSuperLoggedIn, function(req, res) {
       User.findOne({'local.RepRegno' : req.body.regno }, function(err, user) {
         if(err) throw err;
         if(!user) {
@@ -443,6 +443,13 @@ module.exports = function(app, passport) {
         res.redirect('/admin');
     });
 
+    app.get('/superlogout', function(req, res) {
+        req.logout();
+        req.session.name = undefined;
+        req.flash('message', "You're logged out Successfully!");
+        res.redirect('/admin');
+    });
+
     //ALLOTMENT
     app.get('/admin/allot', isLoggedIn, function(req, res) {
         res.render('allot.ejs');
@@ -682,6 +689,13 @@ function isLoggedIn(req, res, next) {
 
     // if they aren't redirect them to the home page
     res.redirect('/admin');
+}
+
+function isSuperLoggedIn(req, res, next) {
+  if(req.session.name == 'SuperUser')
+  return next();
+
+  res.redirect('/admin');
 }
 
 function find_length(slt, index) {
