@@ -104,8 +104,7 @@ module.exports = function(passport) {
                         from: 'The FreeSlot Team', // sender address
                         to: email, // list of receivers
                         subject: 'Welcome To FreeSlot!', // Subject line
-                        text: text //, // plaintext body
-                        // html: '<b>Hello world ✔</b>' // You can choose to send an HTML body instead
+                        text: text
                     };
                     transporter.sendMail(mailOptions, function(error, info){
                         if(error){
@@ -119,8 +118,7 @@ module.exports = function(passport) {
                         from: 'The FreeSlot App', // sender address
                         to: 'freeslotvit@gmail.com', // list of receivers
                         subject: 'New Registration!', // Subject line
-                        text: text //, // plaintext body
-                        // html: '<b>Hello world ✔</b>' // You can choose to send an HTML body instead
+                        text: text 
                     };
                     transporter.sendMail(mailOptions, function(error, info){
                         if(error){

@@ -29,16 +29,13 @@
     	}
     	if (document.getElementById(Boxslot).innerHTML == "") {
     		document.getElementById(Boxslot).style.backgroundColor = 'red';
-    		console.log("changed to red of boxslot " + Boxslot);
     	} else if (document.getElementById(Boxslot).innerHTML != "") {
     		document.getElementById(Boxslot).style.backgroundColor = 'red';
     		document.getElementById(Boxslot).innerHTML = "";
     		allotedSlot.set(Boxslot, NumberofStudents);
-    		console.log("changed to red and data cleared");
     	}
     	if (prevSlot && prevSlot != Boxslot && document.getElementById(prevSlot).innerHTML == "") {
     		document.getElementById(prevSlot).style.backgroundColor = '#F5F5F5';
-    		console.log("changed to normal by prevSlot " + prevSlot);
     	}
     	prevSlot = Boxslot;
     	document.getElementById('livesearch').innerHTML = "<h3>Loading...</h3>";
@@ -133,47 +130,36 @@
     //function for substituting the slots with names
     function substitute(regno) {
     	if (slot) {
-    		console.log('condition 1');
     		if (allotedSlot.get(slot) == NumberofStudents && document.getElementById(slot).innerHTML == "") {
-    			console.log('condition 2');
     			old_html = document.getElementById(slot).innerHTML = Free[regno];
     			delete Free[regno];
     			$('#' + regno).parent().remove();
     			document.getElementById(slot).style.backgroundColor = 'grey';
     			var current = allotedSlot.get(slot) - 1;
     			allotedSlot.set(slot, current);
-    			console.log("name added and color changed to grey");
     		} else {
-    			console.log('condition 3');
     			if (allotedSlot.get(slot) < NumberofStudents && allotedSlot.get(slot) > 0) {
-    				console.log('condition 4');
     				old_html = document.getElementById(slot).innerHTML = old_html + ' - ' + Free[regno];
     				delete Free[regno];
     				$('#' + regno).parent().remove();
     				var current = allotedSlot.get(slot) - 1;
     				allotedSlot.set(slot, current);
-    				console.log('name added 1 ');
     			} else if (allotedSlot.get(slot) == 1) {
-    				console.log('condotion 5');
     				old_html = document.getElementById(slot).innerHTML = old_html + ' - ' + Free[regno];
     				delete Free[regno];
     				$('#' + regno).parent().remove();
     				var current = allotedSlot.get(slot) - 1;
     				allotedSlot.set(slot, current);
     				old_html = "";
-    				console.log('name added 2');
     			} else {
-    				console.log('condition 6');
     				old_html = document.getElementById(slot).innerHTML = Free[regno];
     				delete Free[regno];
     				$('#' + regno).parent().remove();
     				var current = NumberofStudents - 1;
     				document.getElementById(slot).style.backgroundColor = 'grey';
     				allotedSlot.set(slot, current);
-    				console.log('data cleared name added');
     			}
     		}
-    	} else console.log('condition fail');
     }
 
 
@@ -191,12 +177,6 @@
     var allotedStudent = new Map();
     var minimum = 0;
 
-
-
-    /*function count(count, reg, map) {
-    	if (parseInt(count) < minimum)
-    		minimum = parseInt(count);
-    }*/
 
     function autoSubstitute (BoxId,Free) {
       if (allotedSlot.get(BoxId) == NumberofStudents) {
@@ -229,13 +209,11 @@
         }
       }
     }
-    var loop =0;
 
     function randomize(BoxId, Free) {
       count = 0;
       tries = 0
       while(count < NumberofStudents) {
-        loop += 1;
         random = pickRandom(Free);
         if(Free[random])
           autoSubstitute(BoxId,Free);
@@ -261,25 +239,20 @@
         alert('Number of students per slot can not be more  than 2 when alloting automatically');
         NumberofStudents = 2;
       }
-      loop = 0;
     	allotedStudent = new Map;
       for (var k = 0; k < list.length; k++) {
-        loop += 1;
           allotedStudent.set(list[k].regno,0);
       }
     	for (var i = 1; i < DaySlot; i++) {
-        loop += 1;
         slot = ParseDay(i, day);
         Free = {};
         for (var k = 0; k < list.length; k++) {
-          loop += 1;
           if (list[k].freeslots.indexOf(slot) !== -1) {
             regno = list[k].regno;
             Free[regno] = list[k].name;
           }
         }
     		for (var j = i; j <= 29;) {
-          loop += 1;
           allotedSlot.set(j,NumberofStudents);
     			if (!jQuery.isEmptyObject(Free)) {
     				randomize(j, Free);
@@ -288,18 +261,15 @@
     		}
     	}
       for (var i = 31; i < 35; i++) {
-        loop += 1;
         slot = ParseDay(i, day);
         Free = {};
         for (var k = 0; k < list.length; k++) {
-          loop += 1;
           if (list[k].freeslots.indexOf(slot) !== -1) {
             regno = list[k].regno;
             Free[regno] = list[k].name;
           }
         }
     		for (var j = i; j <= 59;) {
-          loop += 1;
           allotedSlot.set(j,NumberofStudents);
     			if (!jQuery.isEmptyObject(Free)) {
     				randomize(j, Free);
@@ -307,5 +277,4 @@
     			j = j + 6;
     		}
     	}
-      console.log(loop);
     }
