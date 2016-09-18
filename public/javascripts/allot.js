@@ -22,23 +22,19 @@
     //Functin To Find Free People in the selected Slot
     function FindFree(Boxslot) {
     	Free = {};
-    	document.getElementById('selectedSlot').innerHTML = 'Selected Slot : ' + Boxslot;
     	slot = Boxslot;
     	if (allotedSlot.get(Boxslot) == undefined) {
     		allotedSlot.set(Boxslot, NumberofStudents);
     	}
     	if (document.getElementById(Boxslot).innerHTML == "") {
     		document.getElementById(Boxslot).style.backgroundColor = 'red';
-    		console.log("changed to red of boxslot " + Boxslot);
     	} else if (document.getElementById(Boxslot).innerHTML != "") {
     		document.getElementById(Boxslot).style.backgroundColor = 'red';
     		document.getElementById(Boxslot).innerHTML = "";
     		allotedSlot.set(Boxslot, NumberofStudents);
-    		console.log("changed to red and data cleared");
     	}
     	if (prevSlot && prevSlot != Boxslot && document.getElementById(prevSlot).innerHTML == "") {
     		document.getElementById(prevSlot).style.backgroundColor = '#F5F5F5';
-    		console.log("changed to normal by prevSlot " + prevSlot);
     	}
     	prevSlot = Boxslot;
     	document.getElementById('livesearch').innerHTML = "<h3>Loading...</h3>";
@@ -46,6 +42,7 @@
     	if (day != undefined) {
     		for (var i = 0; i < list.length; i++) {
     			var reqSlot = ParseDay(value, day);
+          document.getElementById('selectedSlot').innerHTML = 'Selected Slot : ' + reqSlot;
     			if (reqSlot !== false) {
     				if (list[i].freeslots.indexOf(reqSlot) !== -1) {
     					regno = list[i].regno;
@@ -133,47 +130,37 @@
     //function for substituting the slots with names
     function substitute(regno) {
     	if (slot) {
-    		console.log('condition 1');
     		if (allotedSlot.get(slot) == NumberofStudents && document.getElementById(slot).innerHTML == "") {
-    			console.log('condition 2');
     			old_html = document.getElementById(slot).innerHTML = Free[regno];
     			delete Free[regno];
     			$('#' + regno).parent().remove();
     			document.getElementById(slot).style.backgroundColor = 'grey';
     			var current = allotedSlot.get(slot) - 1;
     			allotedSlot.set(slot, current);
-    			console.log("name added and color changed to grey");
     		} else {
-    			console.log('condition 3');
     			if (allotedSlot.get(slot) < NumberofStudents && allotedSlot.get(slot) > 0) {
-    				console.log('condition 4');
     				old_html = document.getElementById(slot).innerHTML = old_html + ' - ' + Free[regno];
     				delete Free[regno];
     				$('#' + regno).parent().remove();
     				var current = allotedSlot.get(slot) - 1;
     				allotedSlot.set(slot, current);
-    				console.log('name added 1 ');
     			} else if (allotedSlot.get(slot) == 1) {
-    				console.log('condotion 5');
     				old_html = document.getElementById(slot).innerHTML = old_html + ' - ' + Free[regno];
     				delete Free[regno];
     				$('#' + regno).parent().remove();
     				var current = allotedSlot.get(slot) - 1;
     				allotedSlot.set(slot, current);
     				old_html = "";
-    				console.log('name added 2');
     			} else {
-    				console.log('condition 6');
     				old_html = document.getElementById(slot).innerHTML = Free[regno];
     				delete Free[regno];
     				$('#' + regno).parent().remove();
     				var current = NumberofStudents - 1;
     				document.getElementById(slot).style.backgroundColor = 'grey';
     				allotedSlot.set(slot, current);
-    				console.log('data cleared name added');
     			}
     		}
-    	} else console.log('condition fail');
+    	}
     }
 
 
@@ -192,11 +179,6 @@
     var minimum = 0;
 
 
-
-    /*function count(count, reg, map) {
-    	if (parseInt(count) < minimum)
-    		minimum = parseInt(count);
-    }*/
 
     function autoSubstitute (BoxId,Free) {
       if (allotedSlot.get(BoxId) == NumberofStudents) {
@@ -307,5 +289,4 @@
     			j = j + 6;
     		}
     	}
-      console.log(loop);
     }
