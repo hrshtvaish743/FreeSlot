@@ -42,7 +42,7 @@
     	if (day != undefined) {
     		for (var i = 0; i < list.length; i++) {
     			var reqSlot = ParseDay(value, day);
-          document.getElementById('selectedSlot').innerHTML = 'Selected Slot : ' + reqSlot;
+          document.getElementById('selectedSlot').innerHTML = 'Selected Slot : L' + reqSlot;
     			if (reqSlot !== false) {
     				if (list[i].freeslots.indexOf(reqSlot) !== -1) {
     					regno = list[i].regno;
