@@ -179,7 +179,6 @@
     var minimum = 0;
 
 
-
     function autoSubstitute (BoxId,Free) {
       if (allotedSlot.get(BoxId) == NumberofStudents) {
         old_html = document.getElementById(BoxId).innerHTML = Free[random];
@@ -211,13 +210,11 @@
         }
       }
     }
-    var loop =0;
 
     function randomize(BoxId, Free) {
       count = 0;
       tries = 0
       while(count < NumberofStudents) {
-        loop += 1;
         random = pickRandom(Free);
         if(Free[random])
           autoSubstitute(BoxId,Free);
@@ -243,25 +240,20 @@
         alert('Number of students per slot can not be more  than 2 when alloting automatically');
         NumberofStudents = 2;
       }
-      loop = 0;
     	allotedStudent = new Map;
       for (var k = 0; k < list.length; k++) {
-        loop += 1;
           allotedStudent.set(list[k].regno,0);
       }
     	for (var i = 1; i < DaySlot; i++) {
-        loop += 1;
         slot = ParseDay(i, day);
         Free = {};
         for (var k = 0; k < list.length; k++) {
-          loop += 1;
           if (list[k].freeslots.indexOf(slot) !== -1) {
             regno = list[k].regno;
             Free[regno] = list[k].name;
           }
         }
     		for (var j = i; j <= 29;) {
-          loop += 1;
           allotedSlot.set(j,NumberofStudents);
     			if (!jQuery.isEmptyObject(Free)) {
     				randomize(j, Free);
@@ -270,18 +262,15 @@
     		}
     	}
       for (var i = 31; i < 35; i++) {
-        loop += 1;
         slot = ParseDay(i, day);
         Free = {};
         for (var k = 0; k < list.length; k++) {
-          loop += 1;
           if (list[k].freeslots.indexOf(slot) !== -1) {
             regno = list[k].regno;
             Free[regno] = list[k].name;
           }
         }
     		for (var j = i; j <= 59;) {
-          loop += 1;
           allotedSlot.set(j,NumberofStudents);
     			if (!jQuery.isEmptyObject(Free)) {
     				randomize(j, Free);
