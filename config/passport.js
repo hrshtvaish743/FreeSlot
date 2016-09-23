@@ -71,7 +71,6 @@ module.exports = function(passport) {
                 newUser.local.name     = req.param('name');
                 newUser.local.RepPhone = req.param('phone');
                 newUser.local.RepRegno = req.param('RepRegno');
-                newUser.local.loginID  = "undefined";
                 newUser.local.verified = false;
 
                 newClub.name = req.param('club');
@@ -118,7 +117,7 @@ module.exports = function(passport) {
                         from: 'The FreeSlot App', // sender address
                         to: 'freeslotvit@gmail.com', // list of receivers
                         subject: 'New Registration!', // Subject line
-                        text: text 
+                        text: text
                     };
                     transporter.sendMail(mailOptions, function(error, info){
                         if(error){
