@@ -411,6 +411,11 @@ module.exports = function(app, passport) {
                     });
                 }
             });
+        } else if (req.params.action == 'change-password') {
+            res.render('super-change-password.ejs', {
+              user: req.user,
+              message: req.flash('changePassMessage')
+            });
         } else {
             res.redirect('/superuser/home');
         }
