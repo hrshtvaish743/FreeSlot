@@ -7,6 +7,7 @@ var nodemailer = require('nodemailer');
 var async = require('async');
 var crypto = require('crypto');
 var User = require('../models/user');
+var superUser = require('../models/superuser');
 
 
 var name = new Map;
@@ -474,7 +475,7 @@ module.exports = function(app, passport) {
                     res.send('VERIFIED!');
                 }
             });
-        } else if (req.params.action = 'delete') {
+        } else if (req.params.action == 'delete') {
             User.findOneAndRemove({
                 'local.RepRegno': req.body.regno
             }, function(err, user) {
@@ -490,6 +491,38 @@ module.exports = function(app, passport) {
                     res.send('Club and user Deleted!');
                 }
             });
+        } else if (req.params.action == 'change-password') {
+          async.waterfall([
+              function(done) {
+                  superUser.findOne({
+                      'local.role': 'superadmin'
+                  }, function(err, user) {
+                      if (!user) {
+                          req.flash('changePassMessage', 'User Not Found.');
+                          return res.redirect('/superuser/change-password');
+                      }
+                      if (!user.validPassword(req.body.current)) {
+                          req.flash('changePassMessage', 'Wrong Password!')
+                          return res.redirect('/superuser/change-password');
+                      } else {
+                          user.local.password = user.generateHash(req.body.new);
+                          user.save(function(err) {
+                            if(err) throw err;
+                            console.log('user saved');
+                              req.logIn(user, function(err) {
+                                  done(err, user);
+                              });
+                          });
+                      }
+                  });
+              },
+              function(user, done) {
+                      req.flash('changePassMessage', 'Success! Your password has been changed.');
+                      done();
+              }
+          ], function(err) {
+              res.redirect('/superuser/change-password');
+          });
         }
     });
 
@@ -754,7 +787,7 @@ function isLoggedIn(req, res, next) {
 }
 
 function isSuperLoggedIn(req, res, next) {
-    if (req.session.role == 'superadmin' && req.isAuthenticated())
+    if (req.session.role == 'superadmin')
         return next();
     res.redirect('/admin');
 }

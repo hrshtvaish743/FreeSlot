@@ -6,6 +6,7 @@ var LocalStrategy   = require('passport-local').Strategy;
 // load up the user model
 var User            = require('../models/user');
 var Club            = require('../models/club');
+var superUser = require('../models/superuser');
 
 var nodemailer = require('nodemailer');
 
@@ -175,7 +176,7 @@ module.exports = function(passport) {
         passReqToCallback : true // allows us to pass back the entire request to the callback
     },
     function(req, email, password, done) { // callback with email and password from our form
-      User.findOne({ 'local.loginID' :  req.param('loginID'), 'local.email': email, 'local.role': 'superadmin' }, function(err, user) {
+      superUser.findOne({ 'local.loginID' :  req.param('loginID'), 'local.email': email, 'local.role': 'superadmin' }, function(err, user) {
           // if there are any errors, return the error before anything else
           if (err)
               return done(err);
