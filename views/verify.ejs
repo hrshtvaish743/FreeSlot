@@ -1,101 +1,132 @@
 <% include header.ejs %>
-<body>
-  <nav class="navbar navbar-inverse">
-    <div class="container-fluid">
-      <!-- Brand and toggle get grouped for better mobile display -->
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+
+    <body>
+        <nav class="navbar navbar-inverse">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
           <span class="sr-only">Toggle navigation</span>
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="/superuser/home">FreeSlot</a>
-      </div>
+                    <a class="navbar-brand" href="/superuser/home">FreeSlot</a>
+                </div>
 
-      <!-- Collect the nav links, forms, and other content for toggling -->
-      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-        <ul class="nav navbar-nav">
-          <li><a href="/superuser/home">Home</a></li>
-          <li><a href="/superuser/verify">Verify</a></li>
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Account <span class="caret"></span></a>
-            <ul class="dropdown-menu">
-              <li><a href="/superuser/change-password">Change Password</a></li>
-              <li role="separator" class="divider"></li>
-              <li><a href="/superlogout">Logout</a></li>
-            </ul>
-          </li>
-        </ul>
-      </div><!-- /.navbar-collapse -->
-    </div><!-- /.container-fluid -->
-  </nav>
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li><a href="/superuser/home">Home</a></li>
+                        <li><a href="/superuser/verify">Verify</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Account <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="/superuser/change-password">Change Password</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="/superlogout">Logout</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <!-- /.navbar-collapse -->
+            </div>
+            <!-- /.container-fluid -->
+        </nav>
 
-  <div class="container">
-    <div class="page-header text-center">
-      <h1><span class="fa fa-anchor"></span> Welcome <strong><%= user.local.name %></strong></h1>
-    </div>
-  </div>
-  <div class="container">
-    <div class="row">
-      <h3><span class="fa fa-user"></span> Verify</h3>
-      <div class="modal-body row">
         <div class="container">
-          <% if (message.length > 0) { %>
-              <p>
-                <%= message %>
-              </p>
-          <% } %>
-          <table>
-            <tbody>
-              <% if(users) { users.forEach(function(user) { %>
-                <tr>
-                  <td><%= user.local.club %> registered by <%= user.local.name %></td>
-                  <td>&nbsp;&nbsp;&nbsp;<%= user.local.RepPhone %></td>
-                  <td>&nbsp;&nbsp;&nbsp;<%= user.local.RepRegno %></td>
-                  <td class="col-md-4">
-                    <input id="clubID" class="form-control" type="text" name="clubID">
-                  </td>
-                  <td id="<%= user.local.RepRegno %>" regno="<%= user.local.RepRegno %>">
-                    <button type="button" class="btn btn-default" onclick="verify(this.parentNode.id)" aria-label="Left Align">
+            <div class="page-header text-center">
+                <h1><span class="fa fa-anchor"></span> Welcome <strong><%= user.local.name %></strong></h1>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <h3><span class="fa fa-user"></span> Verify</h3>
+                <div class="modal-body row">
+                    <div class="container">
+                        <% if (message.length > 0) { %>
+                            <p>
+                                <%= message %>
+                            </p>
+                            <% } %>
+                                <table>
+                                    <tbody>
+                                        <% if(users) { users.forEach(function(user) { %>
+                                            <tr>
+                                                <td>
+                                                    <%= user.local.club %> registered by
+                                                        <%= user.local.name %>
+                                                </td>
+                                                <td>&nbsp;&nbsp;&nbsp;
+                                                    <%= user.local.RepPhone %>
+                                                </td>
+                                                <td>&nbsp;&nbsp;&nbsp;
+                                                    <%= user.local.RepRegno %>
+                                                </td>
+                                                <td class="col-md-4">
+                                                    <input id="input_<%= user.local.RepRegno %>" class="form-control" type="text" name="clubID">
+                                                </td>
+                                                <td id="<%= user.local.RepRegno %>">
+                                                    <button type="button" class="btn btn-default" onclick="verify(this.parentNode.id)" aria-label="Left Align">
                       <i class="fa fa-check" aria-hidden="true"></i>
                     </button>
-                  </td>
-                </tr>
-                <% });} %>
-              </tbody>
-            </table>
-          </div>
+                                                    <button type="button" class="btn btn-default" onclick="delete_user(this.parentNode.id)" aria-label="Left Align">
+                      <i class="fa fa-trash-o" aria-hidden="true"></i>
+                    </button>
+                                                </td>
+                                            </tr>
+                                            <% });} %>
+                                    </tbody>
+                                </table>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
-  <script type="text/javascript">
-    function verify(regno) {
-      if(document.getElementById('clubID').value != ""){
-        var confirmDelete = confirm("Are you sure you want to verify this user?")
-        if (confirmDelete == true) {
-            var data = {};
-            data.regno = regno;
-            data.clubID = document.getElementById('clubID').value;
-            console.log(data);
-            $.ajax({
-                type: 'POST',
-                data: JSON.stringify(data),
-                contentType: 'application/json',
-                url: '/superuser/verify',
-                success: function(data) {
-                    document.getElementById(regno).innerHTML = data;
+        </div>
+        <script type="text/javascript">
+            function verify(regno) {
+                if (document.getElementById('input_' + regno).value != "") {
+                    var confirmDelete = confirm("Are you sure you want to verify this user?")
+                    if (confirmDelete == true) {
+                        var data = {};
+                        data.regno = regno;
+                        data.clubID = document.getElementById('input_' + regno).value;
+                        $.ajax({
+                            type: 'POST',
+                            data: JSON.stringify(data),
+                            contentType: 'application/json',
+                            url: '/superuser/verify',
+                            success: function(data) {
+                                document.getElementById(regno).innerHTML = data;
+                            }
+                        });
+                    }
+                } else {
+                    alert('Please enter club/chapter ID')
                 }
-            });
-        }
-      } else {
-        alert('Please enter club/chapter ID')
-      }
-    }
-  </script>
-    <% include footer.ejs %>
-</body>
-</html>
+            }
+
+            function delete_user(regno) {
+                console.log(regno);
+                var confirmDelete = confirm("Are you sure you want to delete this user?")
+                if (confirmDelete == true) {
+                    var data = {};
+                    data.regno = regno;
+                    $.ajax({
+                        type: 'POST',
+                        data: JSON.stringify(data),
+                        contentType: 'application/json',
+                        url: '/superuser/delete',
+                        success: function(data) {
+                            document.getElementById(regno).innerHTML = data;
+                        }
+                    });
+                }
+            }
+        </script>
+        <% include footer.ejs %>
+    </body>
+
+    </html>

@@ -7,257 +7,35 @@ var nodemailer = require('nodemailer');
 var async = require('async');
 var crypto = require('crypto');
 var User = require('../models/user');
-var superUser       = require('../models/superUser');
 
 
 var name = new Map;
 var reg_no = new Map;
 var id = new Map;
 var clubName = new Map;
-var slots = new Array();
-var BusySlots = new Array();
-var BusySlotsFinal = new Array();
-var FreeSlots = new Array();
+var slots = new Map;
+var BusySlotsFinal = new Map;
+var FreeSlots = new Map;
 var SECRET = "6Lfq6ygTAAAAAJm0vH_CO6gTshtKQNQ0jZLDwjNK";
 
 module.exports = function(app, passport) {
 
     // =====================================
-    // HOME PAGE (with login links) ========
+    // HOME PAGE ===========================
     // =====================================
+
+    app.get('/', function(req, res, next) {
+        res.render('index.ejs');
+    });
+
+    // =====================================
+    // Admin login signup page =============
+    // =====================================
+
     app.get('/admin', function(req, res) {
-        res.render('admin.ejs',{
-          message : req.flash('message')
+        res.render('admin.ejs', {
+            message: req.flash('message')
         }); // load the admin.ejs file
-    });
-
-    // =====================================
-    // LOGIN ===============================
-    // =====================================
-    // show the login form
-    app.get('/login', function(req, res) {
-        // render the page and pass in any flash data if it exists
-        res.render('login.ejs', {
-            message: req.flash('loginMessage')
-        });
-    });
-
-    // process the login form
-    app.post('/login', passport.authenticate('local-login', {
-        successRedirect: '/admin/home', // redirect to the secure home section
-        failureRedirect: '/login', // redirect back to the signup page if there is an error
-        failureFlash: true // allow flash messages
-    }));
-
-    app.get('/superuser/login', function(req, res) {
-      res.render('superUserLogin.ejs', {
-        message: req.flash('superMessage')
-      });
-    });
-
-    app.post('/superuser/login', passport.authenticate('super-login', {
-      successRedirect : '/superuser/home',
-      failureRedirect : '/superuser/login',
-      failureFlash    : true
-    }));
-
-    app.get('/superuser/home', isSuperLoggedIn, function (req, res) {
-      Club.find({}, function(err,club) {
-        if(err) throw err;
-        res.render('superhome.ejs', {
-          user: req.user,
-          reg: club
-        });
-      });
-    });
-
-    app.get('/superuser/verify', isSuperLoggedIn, function(req, res) {
-      User.find({'local.verified' : false}, function(err,club) {
-        if(err) throw err;
-        if(!club || club[0] == undefined) {
-          res.render('verify.ejs', {
-            user: req.user,
-            message: 'All accounts are verified!',
-            users: null
-          });
-        } else {
-          console.log(club);
-          res.render('verify.ejs', {
-            user: req.user,
-            message: 'These Users have pending verification: ',
-            users: club
-          });
-        }
-      });
-    });
-
-    app.post('/superuser/verify', isSuperLoggedIn, function(req, res) {
-      User.findOne({'local.RepRegno' : req.body.regno }, function(err, user) {
-        if(err) throw err;
-        if(!user) {
-          res.send('No user Found with this register number!');
-        } else {
-          Club.findOne({'name' : user.local.club}, function(err, club) {
-            if(err) throw err;
-            if(!club) {
-              res.send('No club found!');
-            } else {
-              club.verified = true;
-              club.loginID = req.body.clubID;
-              club.save(function (err) {
-                if(err) throw err;
-              });
-            }
-          });
-          user.local.verified = true;
-          user.local.loginID = req.body.clubID;
-          user.save(function(err) {
-            if(err) throw err;
-          });
-          var smtpTransport = nodemailer.createTransport({
-                  service: 'Gmail',
-                  auth: {
-                      user: 'freeslotvit@gmail.com', // Your email id
-                      pass: 'FreeSlot1!' // Your password
-                  }
-              });
-          var mailOptions = {
-            to: user.local.email,
-            from: 'FreeSlot',
-            subject: 'Your account has been verified and activated!',
-            text: 'Congratulations ' + user.local.name + '!!\n\nYour Club/Chapter/Team account on FreeSlot has been verified and activated.'
-            + '\n\nYou can access your admin panel at https://freeslot.herokuapp.com/admin.\nYour username is ' + req.body.clubID
-            + '\nUse the password you provided at the time of signup.'
-            +'\n\nYour club/chapter/team\'s unique timetable update link is https://freeslot.herokuapp.com/student/' + req.body.clubID
-            +'\n\nYour club/chapter/team members can update their timetable at this link.'
-            +'Remember that they should use this link only to store their timetable under your account.'
-            +'\n\nThank you.\n\nTeam FreeSlot.\n\nFor any queries you can reply to this mail.'
-          };
-          smtpTransport.sendMail(mailOptions, function(err, info) {
-            console.log('Activation Message sent: ' + info.response);
-          });
-          res.send('VERIFIED!');
-        }
-      });
-    });
-
-
-    app.get('/admin/forgot-password', function(req, res) {
-      res.render('forgot.ejs', {
-        user: req.user,
-        message: req.flash('forgotMessage')
-      });
-    });
-
-    app.post('/admin/forgot-password', function(req, res, next) {
-      async.waterfall([
-          function(done) {
-            crypto.randomBytes(20, function(err, buf) {
-              var token = buf.toString('hex');
-              done(err, token);
-            });
-          },
-          function(token, done) {
-            User.findOne({ 'local.email': req.body.email, 'local.loginID' : req.body.loginID }, function(err, user) {
-              if (!user) {
-                req.flash('forgotMessage', 'No account with that email address or LoginID Found.');
-                return res.redirect('/admin/forgot-password');
-              }
-              user.local.resetPasswordToken = token;
-              user.local.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-              user.save(function(err) {
-                done(err, token, user);
-              });
-            });
-          },
-          function(token, user, done) {
-            var smtpTransport = nodemailer.createTransport({
-                    service: 'Gmail',
-                    auth: {
-                        user: 'freeslotvit@gmail.com', // Your email id
-                        pass: 'FreeSlot1!' // Your password
-                    }
-                });
-            var mailOptions = {
-              to: user.local.email,
-              from: 'FreeSlot',
-              subject: 'Request for Password Reset',
-              text: 'You are receiving this mail because you (or someone else) have requested to reset password for your FreeSlot account.\n\n' +
-                'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-                'https://freeslot.herokuapp.com/reset/' + token + '\n\n' +
-                'This link is valid only for 1 hour.'+
-                'If you did not request this, please ignore this email and your password will remain unchanged.\n\nThank you.\nTeam FreeSlot.'
-            };
-            smtpTransport.sendMail(mailOptions, function(err, info) {
-              console.log('Reset Message sent: ' + info.response);
-              req.flash('forgotMessage', 'An e-mail has been sent to ' + user.local.email + ' with further instructions.');
-              done(err, 'done');
-            });
-          }
-        ], function(err) {
-          if (err) return next(err);
-          res.redirect('/admin/forgot-password');
-        });
-    })
-
-
-    app.get('/reset/:token', function(req, res) {
-      User.findOne({ 'local.resetPasswordToken': req.params.token, 'local.resetPasswordExpires': { $gt: Date.now() } }, function(err, user) {
-        if (!user) {
-          req.flash('forgotMessage', 'Password reset token is invalid or has expired.');
-          return res.redirect('/admin/forgot-password');
-        }
-        res.render('reset.ejs', {
-          message : "",
-          user: req.user
-        });
-      });
-    });
-
-
-    app.post('/reset/:token', function(req, res) {
-      async.waterfall([
-        function(done) {
-          User.findOne({ 'local.resetPasswordToken': req.params.token, 'local.resetPasswordExpires': { $gt: Date.now() } }, function(err, user) {
-            if (!user) {
-              req.flash('message', 'Password reset token is invalid or has expired.');
-              return res.redirect('/admin');
-            }
-
-            user.local.password = user.generateHash(req.body.password);
-            user.local.resetPasswordToken = undefined;
-            user.local.resetPasswordExpires = undefined;
-
-            user.save(function(err) {
-              req.logIn(user, function(err) {
-                done(err, user);
-              });
-            });
-          });
-        },
-        function(user, done) {
-          var smtpTransport = nodemailer.createTransport({
-                  service: 'Gmail',
-                  auth: {
-                      user: 'freeslotvit@gmail.com', // Your email id
-                      pass: 'FreeSlot1!' // Your password
-                  }
-              });
-          var mailOptions = {
-            to: user.local.email,
-            from: 'freeslotvit@gmail.com',
-            subject: 'Your password has been changed',
-            text: 'Hello,\n\n' +
-              'This is a confirmation that the password for your account ' + user.local.email + ' on FreeSlot has just been changed.\n\nThank you.\nTeam FreeSlot.'
-          };
-          smtpTransport.sendMail(mailOptions, function(err) {
-            req.flash('message', 'Success! Your password has been changed.');
-            done(err);
-          });
-        }
-      ], function(err) {
-        res.redirect('/admin');
-      });
     });
 
 
@@ -287,115 +65,13 @@ module.exports = function(app, passport) {
                 //  take them back to the previous page
                 // and for the love of everyone, restore their inputs
             }
-        })
+        });
     }, passport.authenticate('local-signup', {
         successRedirect: '/registered', // redirect to the secure registered section
         failureRedirect: '/signup', // redirect back to the signup page if there is an error
         failureFlash: true // allow flash messages
     }));
 
-    // =====================================
-    // PROFILE SECTION =========================
-    // =====================================
-    // we will want this protected so you have to be logged in to visit
-    // we will use route middleware to verify this (the isLoggedIn function)
-    app.get('/admin/home', isLoggedIn, function(req, res) {
-        student.find({
-            'clubID': req.user.local.loginID
-        }, function(err, students) {
-            req.session.clubID = req.user.local.loginID;
-            res.render('home.ejs', {
-                students: students,
-                user: req.user // get the user out of session and pass to template
-            });
-        });
-    });
-
-    app.get('/admin/profile', isLoggedIn, function(req, res) {
-      res.render('profile.ejs',{
-        user : req.user,
-        message : req.flash('updateProfile')
-      });
-    });
-
-    app.post('/admin/profile', isLoggedIn, function(req, res) {
-      async.waterfall([
-        function(done) {
-          User.findOne({ 'local.loginID' : req.session.clubID }, function(err, user) {
-            if (!user) {
-              req.flash('updateProfile', 'User Not Found.');
-              return res.redirect('/admin/profile');
-            }
-              user.local.name = req.body.name;
-              user.local.email = req.body.email;
-              user.local.RepPhone = req.body.phone;
-              user.save(function(err) {
-                req.logIn(user, function(err) {
-                  req.flash('updateProfile', 'Success! Your profile has been updated.');
-                  done(err, user);
-                });
-
-              });
-
-          });
-        }
-      ], function(err) {
-        res.redirect('/admin/profile');
-      });
-    });
-
-    app.get('/admin/change-password', isLoggedIn, function(req, res) {
-      res.render('change-password.ejs', {
-        user : req.user,
-        message : req.flash('changePassMessage')
-      });
-    });
-
-    app.post('/admin/change-password', isLoggedIn, function(req, res) {
-      async.waterfall([
-        function(done) {
-          User.findOne({ 'local.loginID' : req.session.clubID }, function(err, user) {
-            if (!user) {
-              req.flash('changePassMessage', 'User Not Found.');
-              return res.redirect('/admin/change-password');
-            }
-            if(!user.validPassword(req.body.current)) {
-              req.flash('changePassMessage', 'Wrong Password!')
-              return res.redirect('/admin/change-password');
-            } else {
-              user.local.password = user.generateHash(req.body.new);
-              user.save(function(err) {
-                req.logIn(user, function(err) {
-                  done(err, user);
-                });
-              });
-            }
-          });
-        },
-        function(user, done) {
-          var smtpTransport = nodemailer.createTransport({
-                  service: 'Gmail',
-                  auth: {
-                      user: 'freeslotvit@gmail.com', // Your email id
-                      pass: 'FreeSlot1!' // Your password
-                  }
-              });
-          var mailOptions = {
-            to: user.local.email,
-            from: 'freeslotvit@gmail.com',
-            subject: 'Your password has been changed',
-            text: 'Hello,\n\n' +
-              'This is a confirmation that the password for your account ' + user.local.email + ' on FreeSlot has just been changed.\n\nThank you.\nTeam FreeSlot.'
-          };
-          smtpTransport.sendMail(mailOptions, function(err) {
-            req.flash('changePassMessage', 'Success! Your password has been changed.');
-            done(err);
-          });
-        }
-      ], function(err) {
-        res.redirect('/admin/change-password');
-      });
-    });
 
     //Page to land after Registration
     app.get('/registered', isLoggedIn, function(req, res) {
@@ -404,34 +80,414 @@ module.exports = function(app, passport) {
         });
     });
 
-    //get page for Deleting Timetable data for a user
-    app.get('/admin/delete', isLoggedIn, function(req, res) {
-        student.find({
-            'clubID': req.session.clubID
-        }, function(err, students) {
-            if (err) throw err;
-            res.render('delete.ejs', {
-                students: students,
-                user: req.user // get the user out of session and pass to template
+    // =====================================
+    // LOGIN ===============================
+    // =====================================
+    // show the login form
+    app.get('/login', function(req, res) {
+        // render the page and pass in any flash data if it exists
+        res.render('login.ejs', {
+            message: req.flash('loginMessage')
+        });
+    });
+
+    // process the login form
+    app.post('/login', passport.authenticate('local-login', {
+        successRedirect: '/admin/home', // redirect to the secure home section
+        failureRedirect: '/login', // redirect back to the signup page if there is an error
+        failureFlash: true // allow flash messages
+    }));
+
+
+
+
+    app.get('/admin/forgot-password', function(req, res) {
+        res.render('forgot.ejs', {
+            user: req.user,
+            message: req.flash('forgotMessage')
+        });
+    });
+
+    app.post('/admin/forgot-password', function(req, res, next) {
+        async.waterfall([
+            function(done) {
+                crypto.randomBytes(20, function(err, buf) {
+                    var token = buf.toString('hex');
+                    done(err, token);
+                });
+            },
+            function(token, done) {
+                User.findOne({
+                    'local.email': req.body.email,
+                    'local.loginID': req.body.loginID
+                }, function(err, user) {
+                    if (!user) {
+                        req.flash('forgotMessage', 'No account with that email address or LoginID Found.');
+                        return res.redirect('/admin/forgot-password');
+                    }
+                    user.local.resetPasswordToken = token;
+                    user.local.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+                    user.save(function(err) {
+                        done(err, token, user);
+                    });
+                });
+            },
+            function(token, user, done) {
+                var smtpTransport = nodemailer.createTransport({
+                    service: 'Gmail',
+                    auth: {
+                        user: 'freeslotvit@gmail.com', // Your email id
+                        pass: 'FreeSlot1!' // Your password
+                    }
+                });
+                var mailOptions = {
+                    to: user.local.email,
+                    from: 'FreeSlot',
+                    subject: 'Request for Password Reset',
+                    text: 'You are receiving this mail because you (or someone else) have requested to reset password for your FreeSlot account.\n\n' +
+                        'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+                        'https://freeslot.herokuapp.com/reset/' + token + '\n\n' +
+                        'This link is valid only for 1 hour.' +
+                        'If you did not request this, please ignore this email and your password will remain unchanged.\n\nThank you.\nTeam FreeSlot.'
+                };
+                smtpTransport.sendMail(mailOptions, function(err, info) {
+                    console.log('Reset Message sent: ' + info.response);
+                    req.flash('forgotMessage', 'An e-mail has been sent to ' + user.local.email + ' with further instructions.');
+                    done(err, 'done');
+                });
+            }
+        ], function(err) {
+            if (err) return next(err);
+            res.redirect('/admin/forgot-password');
+        });
+    });
+
+
+    app.get('/reset/:token', function(req, res) {
+        User.findOne({
+            'local.resetPasswordToken': req.params.token,
+            'local.resetPasswordExpires': {
+                $gt: Date.now()
+            }
+        }, function(err, user) {
+            if (!user) {
+                req.flash('forgotMessage', 'Password reset token is invalid or has expired.');
+                return res.redirect('/admin/forgot-password');
+            }
+            res.render('reset.ejs', {
+                message: "",
+                user: req.user
             });
         });
-    })
+    });
 
-    //post request To Delete a Timetable Record of a student
-    app.post('/admin/delete', isLoggedIn, function(req, res) {
-        student.findOne({
-            'clubID': req.session.clubID,
-            'regno': req.body.regno
-        }, function(err, student) {
-            if (err) throw err;
-            if (!student) {
-                res.send('Data Not Found!!')
-            } else {
-                deleteDoc(student.regno, student.clubID);
-                res.send('Deleted!!');
+    app.post('/reset/:token', function(req, res) {
+        async.waterfall([
+            function(done) {
+                User.findOne({
+                    'local.resetPasswordToken': req.params.token,
+                    'local.resetPasswordExpires': {
+                        $gt: Date.now()
+                    }
+                }, function(err, user) {
+                    if (!user) {
+                        req.flash('message', 'Password reset token is invalid or has expired.');
+                        return res.redirect('/admin');
+                    }
+                    user.local.password = user.generateHash(req.body.password);
+                    user.local.resetPasswordToken = undefined;
+                    user.local.resetPasswordExpires = undefined;
+                    user.save(function(err) {
+                        req.logIn(user, function(err) {
+                            done(err, user);
+                        });
+                    });
+                });
+            },
+            function(user, done) {
+                var smtpTransport = nodemailer.createTransport({
+                    service: 'Gmail',
+                    auth: {
+                        user: 'freeslotvit@gmail.com', // Your email id
+                        pass: 'FreeSlot1!' // Your password
+                    }
+                });
+                var mailOptions = {
+                    to: user.local.email,
+                    from: 'freeslotvit@gmail.com',
+                    subject: 'Your password has been changed',
+                    text: 'Hello,\n\n' +
+                        'This is a confirmation that the password for your account ' + user.local.email + ' on FreeSlot has just been changed.\n\nThank you.\nTeam FreeSlot.'
+                };
+                smtpTransport.sendMail(mailOptions, function(err) {
+                    req.flash('message', 'Success! Your password has been changed.');
+                    done(err);
+                });
             }
+        ], function(err) {
+            res.redirect('/admin');
         });
-    })
+    });
+
+
+
+    // =====================================
+    // Admin SECTION =======================
+    // =====================================
+
+    app.get('/get-data', isLoggedIn, function(req, res) {
+        student.find({
+            'clubID': req.session.clubID
+        }, function(err, list) {
+            res.json(list);
+        });
+    });
+
+    app.get('/admin/:action', isLoggedIn, function(req, res) {
+        if (req.params.action == 'home') {
+            student.find({
+                'clubID': req.user.local.loginID
+            }, function(err, students) {
+                req.session.clubID = req.user.local.loginID;
+                res.render('home.ejs', {
+                    students: students,
+                    user: req.user // get the user out of session and pass to template
+                });
+            });
+        } else if (req.params.action == 'profile') {
+            res.render('profile.ejs', {
+                user: req.user,
+                message: req.flash('updateProfile')
+            });
+        } else if (req.params.action == 'change-password') {
+            res.render('change-password.ejs', {
+                user: req.user,
+                message: req.flash('changePassMessage')
+            });
+        } else if (req.params.action == 'delete') {
+            student.find({
+                'clubID': req.session.clubID
+            }, function(err, students) {
+                if (err) throw err;
+                res.render('delete.ejs', {
+                    students: students,
+                    user: req.user // get the user out of session and pass to template
+                });
+            });
+        } else if (req.params.action == 'allot') {
+            res.render('allot.ejs');
+        } else res.redirect('/admin/home');
+    });
+
+    app.post('/admin/:action', isLoggedIn, function(req, res) {
+        if (req.params.action == 'profile') {
+            async.waterfall([
+                function(done) {
+                    User.findOne({
+                        'local.loginID': req.session.clubID
+                    }, function(err, user) {
+                        if (!user) {
+                            req.flash('updateProfile', 'User Not Found.');
+                            return res.redirect('/admin/profile');
+                        }
+                        user.local.name = req.body.name;
+                        user.local.email = req.body.email;
+                        user.local.RepPhone = req.body.phone;
+                        user.save(function(err) {
+                            req.logIn(user, function(err) {
+                                req.flash('updateProfile', 'Success! Your profile has been updated.');
+                                done(err, user);
+                            });
+                        });
+                    });
+                }
+            ], function(err) {
+                res.redirect('/admin/profile');
+            });
+        } else if (req.params.action == 'change-password') {
+            async.waterfall([
+                function(done) {
+                    User.findOne({
+                        'local.loginID': req.session.clubID
+                    }, function(err, user) {
+                        if (!user) {
+                            req.flash('changePassMessage', 'User Not Found.');
+                            return res.redirect('/admin/change-password');
+                        }
+                        if (!user.validPassword(req.body.current)) {
+                            req.flash('changePassMessage', 'Wrong Password!')
+                            return res.redirect('/admin/change-password');
+                        } else {
+                            user.local.password = user.generateHash(req.body.new);
+                            user.save(function(err) {
+                                req.logIn(user, function(err) {
+                                    done(err, user);
+                                });
+                            });
+                        }
+                    });
+                },
+                function(user, done) {
+                    var smtpTransport = nodemailer.createTransport({
+                        service: 'Gmail',
+                        auth: {
+                            user: 'freeslotvit@gmail.com', // Your email id
+                            pass: 'FreeSlot1!' // Your password
+                        }
+                    });
+                    var mailOptions = {
+                        to: user.local.email,
+                        from: 'freeslotvit@gmail.com',
+                        subject: 'Your password has been changed',
+                        text: 'Hello,\n\n' +
+                            'This is a confirmation that the password for your account ' + user.local.email + ' on FreeSlot has just been changed.\n\nThank you.\nTeam FreeSlot.'
+                    };
+                    smtpTransport.sendMail(mailOptions, function(err) {
+                        req.flash('changePassMessage', 'Success! Your password has been changed.');
+                        done(err);
+                    });
+                }
+            ], function(err) {
+                res.redirect('/admin/change-password');
+            });
+        } else if (req.params.action == 'delete') {
+            student.findOne({
+                'clubID': req.session.clubID,
+                'regno': req.body.regno
+            }, function(err, student) {
+                if (err) throw err;
+                if (!student) {
+                    res.send('Data Not Found!!')
+                } else {
+                    deleteDoc(student.regno, student.clubID);
+                    res.send('Deleted!!');
+                }
+            });
+        } else res.redirect('/admin/home');
+    });
+
+
+    //==============================================
+    //============= Super user section =============
+    //==============================================
+
+    app.get('/superuser/login', function(req, res) {
+        res.render('superUserLogin.ejs', {
+            message: req.flash('superMessage')
+        });
+    });
+
+    app.post('/superuser/login', passport.authenticate('super-login', {
+        successRedirect: '/superuser/home',
+        failureRedirect: '/superuser/login',
+        failureFlash: true
+    }));
+
+    app.get('/superuser/:action', isSuperLoggedIn, function(req, res) {
+        if (req.params.action == 'home') {
+            Club.find({}, function(err, club) {
+                if (err) throw err;
+                res.render('superhome.ejs', {
+                    user: req.user,
+                    reg: club
+                });
+            });
+        } else if (req.params.action == 'verify') {
+            User.find({
+                'local.verified': false
+            }, function(err, club) {
+                if (err) throw err;
+                if (!club || club[0] == undefined) {
+                    res.render('verify.ejs', {
+                        user: req.user,
+                        message: 'All accounts are verified!',
+                        users: null
+                    });
+                } else {
+                    res.render('verify.ejs', {
+                        user: req.user,
+                        message: 'These Users have pending verification: ',
+                        users: club
+                    });
+                }
+            });
+        } else {
+            res.redirect('/superuser/home');
+        }
+    });
+
+    app.post('/superuser/:action', isSuperLoggedIn, function(req, res) {
+        if (req.params.action == 'verify') {
+            User.findOne({
+                'local.RepRegno': req.body.regno
+            }, function(err, user) {
+                if (err) throw err;
+                if (!user) {
+                    res.send('No user Found with this register number!');
+                } else {
+                    Club.findOne({
+                        'name': user.local.club
+                    }, function(err, club) {
+                        if (err) throw err;
+                        if (!club) {
+                            res.send('No club found!');
+                        } else {
+                            club.verified = true;
+                            club.loginID = req.body.clubID;
+                            club.save(function(err) {
+                                if (err) throw err;
+                            });
+                        }
+                    });
+                    user.local.verified = true;
+                    user.local.loginID = req.body.clubID;
+                    user.save(function(err) {
+                        if (err) throw err;
+                    });
+                    var smtpTransport = nodemailer.createTransport({
+                        service: 'Gmail',
+                        auth: {
+                            user: 'freeslotvit@gmail.com', // Your email id
+                            pass: 'FreeSlot1!' // Your password
+                        }
+                    });
+                    var mailOptions = {
+                        to: user.local.email,
+                        from: 'FreeSlot',
+                        subject: 'Your account has been verified and activated!',
+                        text: 'Congratulations ' + user.local.name + '!!\n\nYour Club/Chapter/Team account on FreeSlot has been verified and activated.' +
+                            '\n\nYou can access your admin panel at https://freeslot.herokuapp.com/admin.\nYour username is ' + req.body.clubID +
+                            '\nUse the password you provided at the time of signup.' +
+                            '\n\nYour club/chapter/team\'s unique timetable update link is https://freeslot.herokuapp.com/student/' + req.body.clubID +
+                            '\n\nYour club/chapter/team members can update their timetable at this link.' +
+                            'Remember that they should use this link only to store their timetable under your account.' +
+                            '\n\nThank you.\n\nTeam FreeSlot.\n\nFor any queries you can reply to this mail.'
+                    };
+                    smtpTransport.sendMail(mailOptions, function(err, info) {
+                        console.log('Activation Message sent: ' + info.response);
+                    });
+                    res.send('VERIFIED!');
+                }
+            });
+        } else if (req.params.action = 'delete') {
+            User.findOneAndRemove({
+                'local.RepRegno': req.body.regno
+            }, function(err, user) {
+                if (err) throw err;
+                if (!user) res.send('No user found!');
+                else {
+                    Club.findOneAndRemove({
+                        'regno': req.body.regno
+                    }, function(err, club) {
+                        if (err) throw err;
+                        if (!club) res.send('Club not found');
+                    });
+                    res.send('Club and user Deleted!');
+                }
+            });
+        }
+    });
+
 
 
     // =====================================
@@ -450,24 +506,10 @@ module.exports = function(app, passport) {
         res.redirect('/admin');
     });
 
-    //ALLOTMENT
-    app.get('/admin/allot', isLoggedIn, function(req, res) {
-        res.render('allot.ejs');
-    })
 
-
-    app.get('/get-data', isLoggedIn, function(req, res) {
-      student.find({'clubID' : req.session.clubID}, function (err, list) {
-        res.json(list);
-      })
-    })
-
-
-    //TIMETABLE
-
-    app.get('/', function(req, res, next) {
-        res.render('index.ejs');
-    });
+    //================================================
+    //============ Time table update section =========
+    //================================================
 
     app.get('/student/:id', function(req, res, next) {
         //  id = req.params.id;
@@ -479,7 +521,7 @@ module.exports = function(app, passport) {
             if (!name)
                 res.render('notfound.ejs', {
                     message: 'No Club/Chapter Associated with this ID Found!! Please contact your Club/Chapter\'s Admin.'
-                })
+                });
             else {
                 //clubName = name.name;
                 clubName.set(req.params.id, name.name);
@@ -488,7 +530,7 @@ module.exports = function(app, passport) {
                     message: req.flash('signupMessage')
                 });
             }
-        })
+        });
     });
 
     app.post('/student/:id', function(req, res, next) {
@@ -502,7 +544,7 @@ module.exports = function(app, passport) {
                     message: 'Please Fill Captcha!'
                 });
             }
-        })
+        });
     }, function(req, res) {
         if (!req.body.registerNo || !req.body.DOB || !req.body.phoneNo || clubName.get(req.params.id) == undefined) {
             res.redirect('/');
@@ -543,141 +585,157 @@ module.exports = function(app, passport) {
                         });
                     }
                 } else {
-                    res.redirect('/refresh');
+                    res.redirect('/student/' + id.get(req.body.registerNo) + '/refresh');
                 }
             });
         }
     });
 
-    app.get('/refresh', function(req, res, next) {
-        if (!req.session.regno || !req.session.dob || !req.session.mobile || clubName.get(id.get(req.session.regno)) == undefined) {
-            res.redirect('/');
-        } else {
-            var regno = req.session.regno;
-            res.render('update', {
-                name: name.get(regno),
-                registerNo: reg_no.get(regno)
-            });
-        }
-    });
-
-    app.post('/refresh', function(req, res, next) {
-        if (!req.session.regno || !req.session.dob || !req.session.mobile || clubName.get(id.get(req.session.regno)) == undefined) {
-            res.redirect('/');
-        } else {
-            var regno = req.session.regno;
-            var options = {
-                url: 'https://vitacademics-rel.herokuapp.com/api/v2/vellore/refresh',
-                data: 'regno=' + regno + '&dob=' + req.session.dob + '&mobile=' + req.session.mobile
-            };
-            curl.request(options, function(err, buffer) {
-                if (err) {
-                    throw err;
+    app.get('/student/:id/:action', function(req, res) {
+        if (req.params.action == 'refresh') {
+            if (!req.session.regno || !req.session.dob || !req.session.mobile || clubName.get(id.get(req.session.regno)) == undefined) {
+                res.redirect('/');
+            } else {
+                var regno = req.session.regno;
+                res.render('update', {
+                    name: name.get(regno),
+                    registerNo: reg_no.get(regno)
+                });
+            }
+        } else if (req.params.action == 'update') {
+            if (req.session.regno === undefined) {
+                res.redirect('/');
+            } else {
+                var BusySlots = new Array();
+                var regno = req.session.regno;
+                for (var value of slots.get(regno)) {
+                    if (value !== null) {
+                        split_slots(BusySlots, value);
+                    }
                 }
-                var status = JSON.parse(buffer).status.code;
-                if (status !== 0) {
-                    if (status === 12) {
-                        res.render('form.ejs', {
-                            name: clubName.get(id.get(regno)),
-                            id: id.get(regno),
-                            message: 'Invalid Credentials! Please Try Again!'
+                var TempBusyslotsFinal = new Array();
+                for (var value of BusySlots) {
+                    if (value[0] === 'L') {
+                        TempBusyslotsFinal.push(LabSlots[value]);
+                    } else if (value[0] === 'T') {
+                        TempBusyslotsFinal.push(Tslots[value]);
+                    } else {
+                        TempBusyslotsFinal.push(TheorySlots[value][0]);
+                        TempBusyslotsFinal.push(TheorySlots[value][1]);
+                    }
+                }
+                BusySlotsFinal.set(regno, TempBusyslotsFinal);
+                FreeSlots.set(regno, AllSlots.filter(function(slot) {
+                    return BusySlotsFinal.get(regno).indexOf(slot) < 0
+                }));
+                var newStud = student({
+                    name: name.get(regno),
+                    regno: regno,
+                    freeslots: FreeSlots.get(regno),
+                    clubID: id.get(regno)
+                });
+                student.find({
+                    'regno': regno,
+                    'clubID': id.get(regno)
+                }, function(err, student) {
+                    if (err) throw err;
+                    if (Object.keys(student).length === 0) {
+                        newStud.save(function(err) {
+                            if (err) throw err;
+                            console.log('Data created!');
+                            var regno = req.session.regno;
+                            var renderName = name.get(regno);
+                            var renderReg = reg_no.get(regno);
+                            name.delete(regno);
+                            reg_no.delete(regno);
+                            clubName.delete(id.get(regno));
+                            slots.delete(regno);
+                            FreeSlots.delete(regno);
+                            id.delete(regno);
+                            BusySlotsFinal.delete(regno);
+                            res.render('updated.ejs', {
+                                name: renderName,
+                                registerNo: renderReg
+                            });
                         });
-                    } else if (status === 11) {
-                        res.render('form.ejs', {
-                            name: clubName.get(id.get(regno)),
-                            id: id.get(regno),
-                            message: 'Session Timed Out!!'
-                        });
-                    } else if (status === 89) {
-                        res.render('form.ejs', {
-                            name: clubName.get(id.get(regno)),
-                            id: id.get(regno),
-                            message: 'VIT Servers are Down. Please Try After some Time!!'
+                    } else {
+                        deleteDoc(regno, id.get(regno));
+                        newStud.save(function(err) {
+                            if (err) throw err;
+                            console.log('Data updated!');
+                            var regno = req.session.regno;
+                            var renderName = name.get(regno);
+                            var renderReg = reg_no.get(regno);
+                            name.delete(regno);
+                            reg_no.delete(regno);
+                            clubName.delete(id.get(regno));
+                            slots.delete(regno);
+                            FreeSlots.delete(regno);
+                            id.delete(regno);
+                            BusySlotsFinal.delete(regno);
+                            res.render('updated.ejs', {
+                                name: renderName,
+                                registerNo: renderReg
+                            });
                         });
                     }
-                } else {
-                    var response = JSON.parse(buffer);
-                    for (i = 0;; i++) {
-                        if (response.courses[i] !== undefined) {
-                            slots.push(response.courses[i].slot);
-                        } else {
-                            break;
+                });
+            }
+        } else res.redirect('/');
+    });
+
+    app.post('/student/:id/:action', function(req, res) {
+        if (req.params.action == 'refresh') {
+            if (!req.session.regno || !req.session.dob || !req.session.mobile || clubName.get(id.get(req.session.regno)) == undefined) {
+                res.redirect('/');
+            } else {
+                var regno = req.session.regno;
+                var options = {
+                    url: 'https://vitacademics-rel.herokuapp.com/api/v2/vellore/refresh',
+                    data: 'regno=' + regno + '&dob=' + req.session.dob + '&mobile=' + req.session.mobile
+                };
+                curl.request(options, function(err, data) {
+                    if (err) {
+                        throw err;
+                    }
+                    var status = JSON.parse(data).status.code;
+                    if (status !== 0) {
+                        if (status === 12) {
+                            res.render('form.ejs', {
+                                name: clubName.get(id.get(regno)),
+                                id: id.get(regno),
+                                message: 'Invalid Credentials! Please Try Again!'
+                            });
+                        } else if (status === 11) {
+                            res.render('form.ejs', {
+                                name: clubName.get(id.get(regno)),
+                                id: id.get(regno),
+                                message: 'Session Timed Out!!'
+                            });
+                        } else if (status === 89) {
+                            res.render('form.ejs', {
+                                name: clubName.get(id.get(regno)),
+                                id: id.get(regno),
+                                message: 'VIT Servers are Down. Please Try After some Time!!'
+                            });
                         }
+                    } else {
+                        var allSlots = new Array();
+                        var response = JSON.parse(data);
+                        for (i = 0;; i++) {
+                            if (response.courses[i] !== undefined) {
+                                allSlots.push(response.courses[i].slot);
+                            } else {
+                                slots.set(regno, allSlots);
+                                break;
+                            }
+                        }
+                        res.redirect('/student/' + id.get(regno) + '/update');
                     }
-                    res.redirect('/update');
-                }
-            });
-
+                });
+            }
         }
     });
-    app.get('/update', function(req, res, next) {
-        if (req.session.regno === undefined) {
-            res.redirect('/');
-        } else {
-            var regno = req.session.regno;
-            for (var value of slots) {
-                if (value !== null) {
-                    split_slots(value);
-                }
-            }
-            for (var value of BusySlots) {
-                if (value[0] === 'L') {
-                    BusySlotsFinal.push(LabSlots[value]);
-                } else if (value[0] === 'T') {
-                    BusySlotsFinal.push(Tslots[value]);
-                } else {
-                    BusySlotsFinal.push(TheorySlots[value][0]);
-                    BusySlotsFinal.push(TheorySlots[value][1]);
-                }
-            }
-            FreeSlots = AllSlots.filter(function(x) {
-                return BusySlotsFinal.indexOf(x) < 0
-            });
-            var newStud = student({
-                name: name.get(regno),
-                regno: regno,
-                freeslots: FreeSlots,
-                clubID: id.get(regno)
-            });
-            student.find({
-                'regno': regno,
-                'clubID': id.get(regno)
-            }, function(err, student) {
-                if (err) throw err;
-                if (Object.keys(student).length === 0) {
-                    newStud.save(function(err) {
-                        if (err) throw err;
-                        console.log('Data created!');
-                        return next();
-                    });
-                } else {
-                    deleteDoc(regno, id.get(regno));
-                    newStud.save(function(err) {
-                        if (err) throw err;
-                        console.log('Data updated!');
-                        return next();
-                    });
-                }
-            })
-        }
-    }, function(req, res) {
-        var regno = req.session.regno;
-        var renderName = name.get(regno);
-        var renderReg = reg_no.get(regno);
-        name.delete(regno);
-        reg_no.delete(regno);
-        clubName.delete(id.get(regno));
-        id.delete(regno);
-        slots = new Array();
-        BusySlots = new Array();
-        BusySlotsFinal = new Array();
-        FreeSlots = new Array();
-        res.render('updated.ejs', {
-            name: renderName,
-            registerNo: renderReg
-        });
-    });
-
 };
 
 // route middleware to make sure
@@ -686,16 +744,14 @@ function isLoggedIn(req, res, next) {
     // if user is authenticated in the session, carry on
     if (req.isAuthenticated())
         return next();
-
     // if they aren't redirect them to the home page
     res.redirect('/admin');
 }
 
 function isSuperLoggedIn(req, res, next) {
-  if(req.session.name == 'SuperUser')
-  return next();
-
-  res.redirect('/admin');
+    if (req.session.role == 'superadmin' && req.isAuthenticated())
+        return next();
+    res.redirect('/admin');
 }
 
 function find_length(slt, index) {
@@ -710,7 +766,7 @@ function find_length(slt, index) {
     return length;
 }
 
-function split_slots(slot) {
+function split_slots(BusySlots, slot) {
     var index = 0;
     var length = undefined;
     for (var i = 0; i < slot.length; i++) {
@@ -746,37 +802,6 @@ function verifyRecaptcha(key, callback) {
             }
         });
     });
-}
-
-//Function to check if Slot is On the Selected Day
-function ParseDay(slot, day) {
-    if (slot <= 5) {
-        if (day === "Monday") {
-            return slot;
-        } else if (day === "Tuesday") {
-            return parseInt(slot) + 6;
-        } else if (day === "Wednesday") {
-            return parseInt(slot) + 12;
-        } else if (day === "Thursday") {
-            return parseInt(slot) + 18;
-        } else if (day === "Friday") {
-            return parseInt(slot) + 24;
-        }
-    } else if (slot >= 31) {
-        if (day === "Monday") {
-            return slot;
-        } else if (day === "Tuesday") {
-            return parseInt(slot) + 6;
-        } else if (day === "Wednesday") {
-            return parseInt(slot) + 12;
-        } else if (day === "Thursday") {
-            return parseInt(slot) + 18;
-        } else if (day === "Friday") {
-            return parseInt(slot) + 24;
-        }
-    } else {
-        return false;
-    }
 }
 
 var LabSlots = {

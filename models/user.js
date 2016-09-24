@@ -36,6 +36,7 @@ var userSchema = mongoose.Schema({
             type: String,
             required: true
         },
+        role : String,
         resetPasswordToken: String,
         resetPasswordExpires: Date
     },

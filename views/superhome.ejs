@@ -47,11 +47,27 @@
 							<p>
 								List of Clubs/Chapters/Team Registered on FreeSlot.
 							</p>
-              <ol>
-								<% reg.forEach(function(club) { %>
-									<li><%= club.name %> - Verification: <%= club.verified %></li>
-									<% }); %>
-							</ol>
+              <table>
+                <tbody>
+                  <% reg.forEach(function(club) { %>
+                  <tr>
+                    <td class="col-md-4">
+                      <%= club.name %>
+                    </td>
+                    <td class = "col-md-3">
+                      Verification : <%= club.verified %>
+                    </td>
+                    <% if(club.verified == false){ %>
+                    <td id="<%= club.regno %>">
+                      <button type="button" class="btn btn-default" onclick="delete_user(this.parentNode.id)" aria-label="Left Align">
+                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                      </button>
+                    </td>
+                    <% } %>
+                  </tr>
+                  <% }); %>
+                </tbody>
+              </table>
 						</div>
   					<div class="col-md-4">
 								<h3><span class="glyphicon glyphicon-wrench"></span> Actions</h3>
@@ -67,5 +83,24 @@
 		</div>
 	</div>
 	<% include footer.ejs %>
+  <script type="text/javascript">
+  function delete_user(regno) {
+      var confirmDelete = confirm("Are you sure you want to delete this user?")
+      if (confirmDelete == true) {
+          var data = {};
+          data.regno = regno;
+          $.ajax({
+              type: 'POST',
+              data: JSON.stringify(data),
+              contentType: 'application/json',
+              url: '/superuser/delete',
+              success: function(data) {
+                  document.getElementById(regno).innerHTML = data;
+              }
+          });
+      }
+  }
+
+  </script>
 </body>
 </html>
