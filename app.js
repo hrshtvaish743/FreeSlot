@@ -8,7 +8,7 @@ var mongoose = require('mongoose');
 var passport = require('passport');
 var flash    = require('connect-flash');
 var session      = require('express-session');
-
+var url_mongo = 'mongodb://freeslot_write:' + process.env.FREESLOT_MONGO + '@ds147905.mlab.com:47905/freeslots';
 
 var configDB = require('./config/database.js');
 mongoose.connect(configDB.url, function(err) {
@@ -35,7 +35,7 @@ app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
-require('./config/passport')(passport);
+require('./config/passport.js')(passport);
 require('./routes/routes.js')(app, passport);
 
 
@@ -60,10 +60,7 @@ app.use(function(req, res, next) {
 if (app.get('env') === 'development') {
   app.use(function(err, req, res, next) {
     res.status(err.status || 500);
-    res.render('error', {
-      message: err.message,
-      error: err
-    });
+    res.send(err.message);
   });
 }
 

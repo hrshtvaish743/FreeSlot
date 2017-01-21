@@ -6,20 +6,13 @@ var LocalStrategy   = require('passport-local').Strategy;
 // load up the user model
 var User            = require('../models/user');
 var Club            = require('../models/club');
+var config = require('./config');
 var superUser = require('../models/superuser');
 
 var nodemailer = require('nodemailer');
 
 // expose this function to our app using module.exports
 module.exports = function(passport) {
-
-    // =========================================================================
-    // passport session setup ==================================================
-    // =========================================================================
-    // required for persistent login sessions
-    // passport needs ability to serialize and unserialize users out of session
-
-    // used to serialize the user for the session
     passport.serializeUser(function(user, done) {
         done(null, user.id);
     });
@@ -73,6 +66,7 @@ module.exports = function(passport) {
                 newUser.local.RepRegno = req.param('RepRegno');
                 newUser.local.verified = false;
                 newUser.local.role = 'admin';
+                newUser.local.loginID = req.param('name');
 
                 newClub.name = req.param('club');
                 newClub.regno = req.param('RepRegno');
@@ -91,8 +85,8 @@ module.exports = function(passport) {
                 var transporter = nodemailer.createTransport({
                         service: 'Gmail',
                         auth: {
-                            user: 'freeslotvit@gmail.com', // Your email id
-                            pass: 'FreeSlot1!' // Your password
+                            user: config.email, // Your email id
+                            pass: config.password // Your password
                         }
                     });
                     var text = "Congratulations " + req.param('name') + "!!\n\t\t\tYour Club/Chapter " + req.param('club') + " is successfully registered on FreeSlot.\n\n\n"
@@ -116,7 +110,7 @@ module.exports = function(passport) {
                     text = req.param('club') + " was just registered on FreeSlot by " + req.param('name') + " " + req.param('RepRegno') + " using " + email;
                     var mailOptions = {
                         from: 'The FreeSlot App', // sender address
-                        to: 'freeslotvit@gmail.com', // list of receivers
+                        to: config.email, // list of receivers
                         subject: 'New Registration!', // Subject line
                         text: text
                     };

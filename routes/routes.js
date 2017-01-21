@@ -1,13 +1,14 @@
-// app/routes.js
 var student = require('../models/student');
 var Club = require('../models/club');
-var curl = require('curlrequest')
-var https = require('https');
+var curl = require('curlrequest');
 var nodemailer = require('nodemailer');
 var async = require('async');
 var crypto = require('crypto');
 var User = require('../models/user');
 var superUser = require('../models/superuser');
+var AccountFunctions = require('../config/AccountFunctions');
+var config = require('../config/config');
+var https = require('https');
 
 
 var name = new Map;
@@ -17,14 +18,12 @@ var clubName = new Map;
 var slots = new Map;
 var BusySlotsFinal = new Map;
 var FreeSlots = new Map;
-var SECRET = "6Lfq6ygTAAAAAJm0vH_CO6gTshtKQNQ0jZLDwjNK";
+var SECRET = process.env.FREESLOT_GOOGLE_SECRET;
 
 module.exports = function(app, passport) {
-
     // =====================================
     // HOME PAGE ===========================
     // =====================================
-
     app.get('/', function(req, res, next) {
         res.render('index.ejs');
     });
@@ -45,7 +44,6 @@ module.exports = function(app, passport) {
     // =====================================
     // show the signup form
     app.get('/signup', function(req, res) {
-
         // render the page and pass in any flash data if it exists
         res.render('signup.ejs', {
             message: req.flash('signupMessage')
@@ -57,14 +55,11 @@ module.exports = function(app, passport) {
     app.post('/signup', function(req, res, next) {
         verifyRecaptcha(req.body["g-recaptcha-response"], function(success) {
             if (success) {
-                return next();
-                // do registration using params in req.body
+                return next();// do registration using params in req.body
             } else {
                 res.render('signup.ejs', {
                     message: 'Please Fill Captcha!'
-                });
-                //  take them back to the previous page
-                // and for the love of everyone, restore their inputs
+                });//  take them back to the previous page
             }
         });
     }, passport.authenticate('local-signup', {
@@ -100,8 +95,6 @@ module.exports = function(app, passport) {
     }));
 
 
-
-
     app.get('/admin/forgot-password', function(req, res) {
         res.render('forgot.ejs', {
             user: req.user,
@@ -110,124 +103,16 @@ module.exports = function(app, passport) {
     });
 
     app.post('/admin/forgot-password', function(req, res, next) {
-        async.waterfall([
-            function(done) {
-                crypto.randomBytes(20, function(err, buf) {
-                    var token = buf.toString('hex');
-                    done(err, token);
-                });
-            },
-            function(token, done) {
-                User.findOne({
-                    'local.email': req.body.email,
-                    'local.loginID': req.body.loginID
-                }, function(err, user) {
-                    if (!user) {
-                        req.flash('forgotMessage', 'No account with that email address or LoginID Found.');
-                        return res.redirect('/admin/forgot-password');
-                    }
-                    user.local.resetPasswordToken = token;
-                    user.local.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-                    user.save(function(err) {
-                        done(err, token, user);
-                    });
-                });
-            },
-            function(token, user, done) {
-                var smtpTransport = nodemailer.createTransport({
-                    service: 'Gmail',
-                    auth: {
-                        user: 'freeslotvit@gmail.com', // Your email id
-                        pass: 'FreeSlot1!' // Your password
-                    }
-                });
-                var mailOptions = {
-                    to: user.local.email,
-                    from: 'FreeSlot',
-                    subject: 'Request for Password Reset',
-                    text: 'You are receiving this mail because you (or someone else) have requested to reset password for your FreeSlot account.\n\n' +
-                        'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-                        'https://freeslot.herokuapp.com/reset/' + token + '\n\n' +
-                        'This link is valid only for 1 hour.' +
-                        'If you did not request this, please ignore this email and your password will remain unchanged.\n\nThank you.\nTeam FreeSlot.'
-                };
-                smtpTransport.sendMail(mailOptions, function(err, info) {
-                    console.log('Reset Message sent: ' + info.response);
-                    req.flash('forgotMessage', 'An e-mail has been sent to ' + user.local.email + ' with further instructions.');
-                    done(err, 'done');
-                });
-            }
-        ], function(err) {
-            if (err) return next(err);
-            res.redirect('/admin/forgot-password');
-        });
+        AccountFunctions.ForgotPasswordTokenRequest(req, res);
     });
 
 
     app.get('/reset/:token', function(req, res) {
-        User.findOne({
-            'local.resetPasswordToken': req.params.token,
-            'local.resetPasswordExpires': {
-                $gt: Date.now()
-            }
-        }, function(err, user) {
-            if (!user) {
-                req.flash('forgotMessage', 'Password reset token is invalid or has expired.');
-                return res.redirect('/admin/forgot-password');
-            }
-            res.render('reset.ejs', {
-                message: "",
-                user: req.user
-            });
-        });
+        AccountFunctions.ForgotPasswordTokenVerification(req, res);
     });
 
     app.post('/reset/:token', function(req, res) {
-        async.waterfall([
-            function(done) {
-                User.findOne({
-                    'local.resetPasswordToken': req.params.token,
-                    'local.resetPasswordExpires': {
-                        $gt: Date.now()
-                    }
-                }, function(err, user) {
-                    if (!user) {
-                        req.flash('message', 'Password reset token is invalid or has expired.');
-                        return res.redirect('/admin');
-                    }
-                    user.local.password = user.generateHash(req.body.password);
-                    user.local.resetPasswordToken = undefined;
-                    user.local.resetPasswordExpires = undefined;
-                    user.save(function(err) {
-                        req.logIn(user, function(err) {
-                            done(err, user);
-                        });
-                    });
-                });
-            },
-            function(user, done) {
-                var smtpTransport = nodemailer.createTransport({
-                    service: 'Gmail',
-                    auth: {
-                        user: 'freeslotvit@gmail.com', // Your email id
-                        pass: 'FreeSlot1!' // Your password
-                    }
-                });
-                var mailOptions = {
-                    to: user.local.email,
-                    from: 'freeslotvit@gmail.com',
-                    subject: 'Your password has been changed',
-                    text: 'Hello,\n\n' +
-                        'This is a confirmation that the password for your account ' + user.local.email + ' on FreeSlot has just been changed.\n\nThank you.\nTeam FreeSlot.'
-                };
-                smtpTransport.sendMail(mailOptions, function(err) {
-                    req.flash('message', 'Success! Your password has been changed.');
-                    done(err);
-                });
-            }
-        ], function(err) {
-            res.redirect('/admin');
-        });
+        AccountFunctions.ForgotPasswordReset(req,res);
     });
 
 
@@ -332,13 +217,13 @@ module.exports = function(app, passport) {
                     var smtpTransport = nodemailer.createTransport({
                         service: 'Gmail',
                         auth: {
-                            user: 'freeslotvit@gmail.com', // Your email id
-                            pass: 'FreeSlot1!' // Your password
+                            user: config.email, // Your email id
+                            pass: config.password // Your password
                         }
                     });
                     var mailOptions = {
                         to: user.local.email,
-                        from: 'freeslotvit@gmail.com',
+                        from: config.email,
                         subject: 'Your password has been changed',
                         text: 'Hello,\n\n' +
                             'This is a confirmation that the password for your account ' + user.local.email + ' on FreeSlot has just been changed.\n\nThank you.\nTeam FreeSlot.'
@@ -453,8 +338,8 @@ module.exports = function(app, passport) {
                     var smtpTransport = nodemailer.createTransport({
                         service: 'Gmail',
                         auth: {
-                            user: 'freeslotvit@gmail.com', // Your email id
-                            pass: 'FreeSlot1!' // Your password
+                            user: config.email, // Your email id
+                            pass: config.password // Your password
                         }
                     });
                     var mailOptions = {
