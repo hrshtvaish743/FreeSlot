@@ -507,6 +507,9 @@ module.exports = function(app, passport) {
                             message: 'VIT Servers are Down. Please Try After some Time!!'
                         });
                     }
+                    else {
+                      res.send("some other error");
+                    }
                 } else {
                     res.redirect('/student/' + id.get(req.body.registerNo) + '/refresh');
                 }
