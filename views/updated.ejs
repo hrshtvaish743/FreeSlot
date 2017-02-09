@@ -2,11 +2,22 @@
 <body id="admin">
   <div class="container">
     <div class="jumbotron text-center">
-      <h1><span class="fa fa-lock"></span><p class="alert alert-danger"> Thank You <% if (name.length && registerNo.length > 0) { %>
-        <%= name %>!!</p> Your TimeTable is updated.
-        <% } %></h1>
+      <h2><span class="fa fa-lock"></span><p class="alert alert-danger"> Thank You <% if (name.length && registerNo.length > 0) { %>
+        <%= name %>!!</p> Your TimeTable is updated.</h2>
+        <h4>Please confirm with the below timetable. If there is any mistake then please update again.</h4>
+        <% } %>
     </div>
+    <% include DisplayTimetable.ejs %>
   </div>
 </body>
+<script type="text/javascript">
+
+var slots = [<%= slots %>];
+window.onload = function(next) {
+  for(i = 0; i < slots.length; i++) {
+    $('#' + slots[i]).css('background-color', "green").append("Class");
+  }
+};
+</script>
 <% include footer.ejs %>
 </html>

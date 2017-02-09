@@ -1,0 +1,30 @@
+<% include header.ejs %>
+<body id="page-top" data-spy="scroll" data-target="navbar-fixed-top">
+  <% include navbar.ejs %>
+        <div class="container content-section text-center">
+            <h3><a href="#" data-toggle="modal" data-target=".instructions">Read Instructions on How to Use</a></h3>
+            <hr>
+        </div>
+        <div class="container">
+          <div class=" dropdown col-md-6">
+            <h4>Select Student : </h4>
+            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+              Select Student
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+            </ul><strong><span id="Selected"></span></strong>
+          </div>
+        </div>
+        <div class="container text-center">
+        <h3>TimeTable:</h3>
+            <div id="TT">
+              <p class=""><% include DisplayTimetable.ejs %></p>
+            </div>
+            <button type="button" class="btn btn-default" onclick="ClearAll();" name="button">Clear</button>
+        </div>
+        <hr>
+        <% include footer.ejs %>
+        <script type="text/javascript" src="/javascripts/display.js"></script>
+    </body>
+</html>

@@ -45,10 +45,10 @@ module.exports = function(app, passport) {
     // show the signup form
     app.get('/signup', function(req, res) {
         // render the page and pass in any flash data if it exists
-        /*res.render('signup.ejs', {
+        res.render('signup.ejs', {
             message: req.flash('signupMessage')
-        });*/
-        res.redirect('/');
+        });
+        //res.redirect('/');
     });
 
 
@@ -163,6 +163,8 @@ module.exports = function(app, passport) {
             });
         } else if (req.params.action == 'allot') {
             res.render('allot.ejs');
+        } else if (req.params.action == 'display') {
+            res.render('display.ejs');
         } else res.redirect('/admin/home');
     });
 
@@ -573,6 +575,7 @@ module.exports = function(app, passport) {
                             var regno = req.session.regno;
                             var renderName = name.get(regno);
                             var renderReg = reg_no.get(regno);
+                            var displayslots = FreeSlots.get(regno);
                             name.delete(regno);
                             reg_no.delete(regno);
                             clubName.delete(id.get(regno));
@@ -582,7 +585,8 @@ module.exports = function(app, passport) {
                             BusySlotsFinal.delete(regno);
                             res.render('updated.ejs', {
                                 name: renderName,
-                                registerNo: renderReg
+                                registerNo: renderReg,
+                                slots : displayslots
                             });
                         });
                     } else {
@@ -593,6 +597,7 @@ module.exports = function(app, passport) {
                             var regno = req.session.regno;
                             var renderName = name.get(regno);
                             var renderReg = reg_no.get(regno);
+                            var displayslots = FreeSlots.get(regno);
                             name.delete(regno);
                             reg_no.delete(regno);
                             clubName.delete(id.get(regno));
@@ -602,7 +607,8 @@ module.exports = function(app, passport) {
                             BusySlotsFinal.delete(regno);
                             res.render('updated.ejs', {
                                 name: renderName,
-                                registerNo: renderReg
+                                registerNo: renderReg,
+                                slots : displayslots
                             });
                         });
                     }

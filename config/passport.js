@@ -40,7 +40,7 @@ module.exports = function(passport) {
 
         // find a user whose RepRegno is the same as the forms
         // we are checking to see if the user trying to login already exists
-        User.findOne({$or:[{ 'local.RepRegno' :  req.param('RepRegno')},{ 'local.email' : email },{'local.club' : req.param('club')}]}, function(err, user) {
+        User.findOne({$or:[{ 'local.RepRegno' :  req.body.RepRegno},{ 'local.email' : email },{'local.club' : req.body.club}]}, function(err, user) {
             // if there are any errors, return the error
             if (err) {
                 return done(err);
@@ -60,16 +60,17 @@ module.exports = function(passport) {
                 // set the user's local credentials
                 newUser.local.password = newUser.generateHash(password); // use the generateHash function in our user model
                 newUser.local.email    = email;
-                newUser.local.club     = req.param('club');
-                newUser.local.name     = req.param('name');
-                newUser.local.RepPhone = req.param('phone');
-                newUser.local.RepRegno = req.param('RepRegno');
+                newUser.local.club     = req.body.club;
+                newUser.local.name     = req.body.name;
+                newUser.local.RepPhone = req.body.phone;
+                newUser.local.RepRegno = req.body.RepRegno;
                 newUser.local.verified = false;
                 newUser.local.role = 'admin';
-                newUser.local.loginID = req.param('name');
+                newUser.local.loginID = req.body.name;
 
-                newClub.name = req.param('club');
-                newClub.regno = req.param('RepRegno');
+
+                newClub.name = req.body.club;
+                newClub.regno = req.body.RepRegno;
                 newClub.verified = false;
 
                 // save the user
@@ -89,7 +90,7 @@ module.exports = function(passport) {
                             pass: config.password // Your password
                         }
                     });
-                    var text = "Congratulations " + req.param('name') + "!!\n\t\t\tYour Club/Chapter " + req.param('club') + " is successfully registered on FreeSlot.\n\n\n"
+                    var text = "Congratulations " + req.body.name + "!!\n\t\t\tYour Club/Chapter " + req.body.club + " is successfully registered on FreeSlot.\n\n\n"
                     +"You can still not access your account unless it's verified by us."+
                     "\n\nTo verify please reply to this mail with your contact Details(Phone Number).\n "
                     +"After verification you will be provided with an unique ID which can further be used to"
@@ -107,7 +108,7 @@ module.exports = function(passport) {
                             console.log('Message sent to user: ' + info.response);
                         };
                     });
-                    text = req.param('club') + " was just registered on FreeSlot by " + req.param('name') + " " + req.param('RepRegno') + " using " + email;
+                    text = req.body.club + " was just registered on FreeSlot by " + req.body.name + " " + req.body.RepRegno + " using " + email;
                     var mailOptions = {
                         from: 'The FreeSlot App', // sender address
                         to: config.email, // list of receivers
@@ -141,7 +142,7 @@ module.exports = function(passport) {
 
         // find a user whose email is the same as the forms email
         // we are checking to see if the user trying to login already exists
-        User.findOne({ 'local.loginID' :  req.param('loginID'), 'local.email': email }, function(err, user) {
+        User.findOne({ 'local.loginID' :  req.body.loginID, 'local.email': email }, function(err, user) {
             // if there are any errors, return the error before anything else
             if (err)
                 return done(err);
@@ -170,7 +171,7 @@ module.exports = function(passport) {
         passReqToCallback : true // allows us to pass back the entire request to the callback
     },
     function(req, email, password, done) { // callback with email and password from our form
-      superUser.findOne({ 'local.loginID' :  req.param('loginID'), 'local.email': email, 'local.role': 'superadmin' }, function(err, user) {
+      superUser.findOne({ 'local.loginID' :  req.body.loginID, 'local.email': email, 'local.role': 'superadmin' }, function(err, user) {
           // if there are any errors, return the error before anything else
           if (err)
               return done(err);
