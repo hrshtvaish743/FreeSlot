@@ -12,7 +12,7 @@
               Select Student
               <span class="caret"></span>
             </button>
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" id="StudentDropdown">
             </ul><strong><span id="Selected"></span></strong>
           </div>
         </div>
@@ -21,7 +21,7 @@
             <div id="TT">
               <p class=""><% include DisplayTimetable.ejs %></p>
             </div>
-            <button type="button" class="btn btn-default" onclick="ClearAll();" name="button">Clear</button>
+            <button type="button" class="btn btn-default" onclick="clear();" name="button">Clear</button>
         </div>
         <hr>
         <% include footer.ejs %>
