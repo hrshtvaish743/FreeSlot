@@ -6,7 +6,7 @@ var async = require('async');
 var crypto = require('crypto');
 var User = require('../models/user');
 var superUser = require('../models/superuser');
-var AccountFunctions = require('../config/AccountFunctions');
+var AccountFunctions = require('../functions/AccountFunctions');
 var config = require('../config/config');
 var https = require('https');
 
@@ -170,75 +170,9 @@ module.exports = function(app, passport) {
 
     app.post('/admin/:action', isLoggedIn, function(req, res) {
         if (req.params.action == 'profile') {
-            async.waterfall([
-                function(done) {
-                    User.findOne({
-                        'local.loginID': req.session.clubID
-                    }, function(err, user) {
-                        if (!user) {
-                            req.flash('updateProfile', 'User Not Found.');
-                            return res.redirect('/admin/profile');
-                        }
-                        user.local.name = req.body.name;
-                        user.local.email = req.body.email;
-                        user.local.RepPhone = req.body.phone;
-                        user.save(function(err) {
-                            req.logIn(user, function(err) {
-                                req.flash('updateProfile', 'Success! Your profile has been updated.');
-                                done(err, user);
-                            });
-                        });
-                    });
-                }
-            ], function(err) {
-                res.redirect('/admin/profile');
-            });
+            AccountFunctions.UpdateProfile(req,res);
         } else if (req.params.action == 'change-password') {
-            async.waterfall([
-                function(done) {
-                    User.findOne({
-                        'local.loginID': req.session.clubID
-                    }, function(err, user) {
-                        if (!user) {
-                            req.flash('changePassMessage', 'User Not Found.');
-                            return res.redirect('/admin/change-password');
-                        }
-                        if (!user.validPassword(req.body.current)) {
-                            req.flash('changePassMessage', 'Wrong Password!')
-                            return res.redirect('/admin/change-password');
-                        } else {
-                            user.local.password = user.generateHash(req.body.new);
-                            user.save(function(err) {
-                                req.logIn(user, function(err) {
-                                    done(err, user);
-                                });
-                            });
-                        }
-                    });
-                },
-                function(user, done) {
-                    var smtpTransport = nodemailer.createTransport({
-                        service: 'Gmail',
-                        auth: {
-                            user: config.email, // Your email id
-                            pass: config.password // Your password
-                        }
-                    });
-                    var mailOptions = {
-                        to: user.local.email,
-                        from: config.email,
-                        subject: 'Your password has been changed',
-                        text: 'Hello,\n\n' +
-                            'This is a confirmation that the password for your account ' + user.local.email + ' on FreeSlot has just been changed.\n\nThank you.\nTeam FreeSlot.'
-                    };
-                    smtpTransport.sendMail(mailOptions, function(err) {
-                        req.flash('changePassMessage', 'Success! Your password has been changed.');
-                        done(err);
-                    });
-                }
-            ], function(err) {
-                res.redirect('/admin/change-password');
-            });
+            AccountFunctions.ChangePassword(req,res);
         } else if (req.params.action == 'delete') {
             student.findOne({
                 'clubID': req.session.clubID,
@@ -473,7 +407,11 @@ module.exports = function(app, passport) {
         });
     }, function(req, res) {
         if (!req.body.registerNo || !req.body.DOB || !req.body.phoneNo || clubName.get(req.params.id) == undefined) {
-            res.redirect('/');
+          res.render('form.ejs', {
+              name: clubName.get(req.params.id),
+              id: req.params.id,
+              message: 'Please fill in the details properly!'
+          });
         } else {
             req.session.regno = req.body.registerNo;
             req.session.dob = req.body.DOB;

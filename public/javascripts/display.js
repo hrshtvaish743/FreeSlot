@@ -20,7 +20,6 @@ var j = 0;
 function SelectStud(i) {
   clear();
   $('#Selected').empty().append(list[i].regno + "  " + list[i].name);
-  console.log(list[i]);
   for(j = 0; j < list[i].freeslots.length; j++) {
     $('#' + list[i].freeslots[j]).css("background-color", "white").empty().append("Free");
   }
