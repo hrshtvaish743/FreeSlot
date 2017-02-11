@@ -461,7 +461,11 @@ module.exports = function(app, passport) {
     app.get('/student/:id/:action', function(req, res) {
         if (req.params.action == 'refresh') {
             if (!req.session.regno || !req.session.dob || !req.session.mobile || clubName.get(id.get(req.session.regno)) == undefined) {
-                res.redirect('/');
+              res.render('form.ejs', {
+                  name: clubName.get(req.params.id),
+                  id: req.params.id,
+                  message: 'Some error occurred. Please try again!'
+              });
             } else {
                 var regno = req.session.regno;
                 res.render('update', {
@@ -471,7 +475,11 @@ module.exports = function(app, passport) {
             }
         } else if (req.params.action == 'update') {
             if (req.session.regno === undefined) {
-                res.redirect('/');
+              res.render('form.ejs', {
+                  name: clubName.get(req.params.id),
+                  id: req.params.id,
+                  message: 'Some error occurred. Please try again!'
+              });
             } else {
                 var BusySlots = new Array();
                 var regno = req.session.regno;
@@ -552,13 +560,23 @@ module.exports = function(app, passport) {
                     }
                 });
             }
-        } else res.redirect('/');
+        } else {
+            res.render('form.ejs', {
+                name: clubName.get(req.params.id),
+                id: req.params.id,
+                message: 'Some error occurred. Please try again!'
+            });
+          }
     });
 
     app.post('/student/:id/:action', function(req, res) {
         if (req.params.action == 'refresh') {
             if (!req.session.regno || !req.session.dob || !req.session.mobile || clubName.get(id.get(req.session.regno)) == undefined) {
-                res.redirect('/');
+              res.render('form.ejs', {
+                  name: clubName.get(req.params.id),
+                  id: req.params.id,
+                  message: 'Some error occurred. Please try again!'
+              });
             } else {
                 var regno = req.session.regno;
                 var options = {
