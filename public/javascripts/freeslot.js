@@ -8,7 +8,7 @@ var ck_password = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
 
 //Function for a delete request to the Server
 function deleteData(id) {
-    var confirmDelete = confirm("Are You Sure You Want to Delete Timetable Data For this Student?")
+    var confirmDelete = confirm("Are You Sure You Want to Delete Timetable Data For this Student?");
     if (confirmDelete == true) {
         var data = {};
         data.regno = document.getElementById(id).getAttribute('regno');

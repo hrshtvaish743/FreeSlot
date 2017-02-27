@@ -7,8 +7,11 @@ var crypto = require('crypto');
 var User = require('../models/user');
 var superUser = require('../models/superuser');
 var AccountFunctions = require('../functions/AccountFunctions');
+var TimeTableFunctions = require('../functions/TimeTableFunctions');
 var config = require('../config/config');
 var https = require('https');
+var Temp = require('../models/temp.js');
+const cache = require('memory-cache');
 
 
 var name = new Map;
@@ -38,7 +41,6 @@ module.exports = function(app, passport) {
         }); // load the admin.ejs file
     });
 
-
     // =====================================
     // SIGNUP ==============================
     // =====================================
@@ -48,7 +50,6 @@ module.exports = function(app, passport) {
         res.render('signup.ejs', {
             message: req.flash('signupMessage')
         });
-        //res.redirect('/');
     });
 
 
@@ -56,11 +57,11 @@ module.exports = function(app, passport) {
     app.post('/signup', function(req, res, next) {
         verifyRecaptcha(req.body["g-recaptcha-response"], function(success) {
             if (success) {
-                return next();// do registration using params in req.body
+                return next(); // do registration using params in req.body
             } else {
                 res.render('signup.ejs', {
                     message: 'Please Fill Captcha!'
-                });//  take them back to the previous page
+                }); //  take them back to the previous page
             }
         });
     }, passport.authenticate('local-signup', {
@@ -68,7 +69,6 @@ module.exports = function(app, passport) {
         failureRedirect: '/signup', // redirect back to the signup page if there is an error
         failureFlash: true // allow flash messages
     }));
-
 
     //Page to land after Registration
     app.get('/registered', isLoggedIn, function(req, res) {
@@ -113,7 +113,7 @@ module.exports = function(app, passport) {
     });
 
     app.post('/reset/:token', function(req, res) {
-        AccountFunctions.ForgotPasswordReset(req,res);
+        AccountFunctions.ForgotPasswordReset(req, res);
     });
 
 
@@ -170,9 +170,9 @@ module.exports = function(app, passport) {
 
     app.post('/admin/:action', isLoggedIn, function(req, res) {
         if (req.params.action == 'profile') {
-            AccountFunctions.UpdateProfile(req,res);
+            AccountFunctions.UpdateProfile(req, res);
         } else if (req.params.action == 'change-password') {
-            AccountFunctions.ChangePassword(req,res);
+            AccountFunctions.ChangePassword(req, res);
         } else if (req.params.action == 'delete') {
             student.findOne({
                 'clubID': req.session.clubID,
@@ -227,6 +227,7 @@ module.exports = function(app, passport) {
                         users: null
                     });
                 } else {
+                    console.log(req.user);
                     res.render('verify.ejs', {
                         user: req.user,
                         message: 'These Users have pending verification: ',
@@ -236,8 +237,8 @@ module.exports = function(app, passport) {
             });
         } else if (req.params.action == 'change-password') {
             res.render('super-change-password.ejs', {
-              user: req.user,
-              message: req.flash('changePassMessage')
+                user: req.user,
+                message: req.flash('changePassMessage')
             });
         } else {
             res.redirect('/superuser/home');
@@ -246,57 +247,7 @@ module.exports = function(app, passport) {
 
     app.post('/superuser/:action', isSuperLoggedIn, function(req, res) {
         if (req.params.action == 'verify') {
-            User.findOne({
-                'local.RepRegno': req.body.regno
-            }, function(err, user) {
-                if (err) throw err;
-                if (!user) {
-                    res.send('No user Found with this register number!');
-                } else {
-                    Club.findOne({
-                        'name': user.local.club
-                    }, function(err, club) {
-                        if (err) throw err;
-                        if (!club) {
-                            res.send('No club found!');
-                        } else {
-                            club.verified = true;
-                            club.loginID = req.body.clubID;
-                            club.save(function(err) {
-                                if (err) throw err;
-                            });
-                        }
-                    });
-                    user.local.verified = true;
-                    user.local.loginID = req.body.clubID;
-                    user.save(function(err) {
-                        if (err) throw err;
-                    });
-                    var smtpTransport = nodemailer.createTransport({
-                        service: 'Gmail',
-                        auth: {
-                            user: config.email, // Your email id
-                            pass: config.password // Your password
-                        }
-                    });
-                    var mailOptions = {
-                        to: user.local.email,
-                        from: 'FreeSlot',
-                        subject: 'Your account has been verified and activated!',
-                        text: 'Congratulations ' + user.local.name + '!!\n\nYour Club/Chapter/Team account on FreeSlot has been verified and activated.' +
-                            '\n\nYou can access your admin panel at https://freeslot.herokuapp.com/admin.\nYour username is ' + req.body.clubID +
-                            '\nUse the password you provided at the time of signup.' +
-                            '\n\nYour club/chapter/team\'s unique timetable update link is https://freeslot.herokuapp.com/student/' + req.body.clubID +
-                            '\n\nYour club/chapter/team members can update their timetable at this link.' +
-                            'Remember that they should use this link only to store their timetable under your account.' +
-                            '\n\nThank you.\n\nTeam FreeSlot.\n\nFor any queries you can reply to this mail.'
-                    };
-                    smtpTransport.sendMail(mailOptions, function(err, info) {
-                        console.log('Activation Message sent: ' + info.response);
-                    });
-                    res.send('VERIFIED!');
-                }
-            });
+            AccountFunctions.VerifyAccount(req, res);
         } else if (req.params.action == 'delete') {
             User.findOneAndRemove({
                 'local.RepRegno': req.body.regno
@@ -314,37 +265,37 @@ module.exports = function(app, passport) {
                 }
             });
         } else if (req.params.action == 'change-password') {
-          async.waterfall([
-              function(done) {
-                  superUser.findOne({
-                      'local.role': 'superadmin'
-                  }, function(err, user) {
-                      if (!user) {
-                          req.flash('changePassMessage', 'User Not Found.');
-                          return res.redirect('/superuser/change-password');
-                      }
-                      if (!user.validPassword(req.body.current)) {
-                          req.flash('changePassMessage', 'Wrong Password!')
-                          return res.redirect('/superuser/change-password');
-                      } else {
-                          user.local.password = user.generateHash(req.body.new);
-                          user.save(function(err) {
-                            if(err) throw err;
-                            console.log('user saved');
-                              req.logIn(user, function(err) {
-                                  done(err, user);
-                              });
-                          });
-                      }
-                  });
-              },
-              function(user, done) {
-                      req.flash('changePassMessage', 'Success! Your password has been changed.');
-                      done();
-              }
-          ], function(err) {
-              res.redirect('/superuser/change-password');
-          });
+            async.waterfall([
+                function(done) {
+                    superUser.findOne({
+                        'local.role': 'superadmin'
+                    }, function(err, user) {
+                        if (!user) {
+                            req.flash('changePassMessage', 'User Not Found.');
+                            return res.redirect('/superuser/change-password');
+                        }
+                        if (!user.validPassword(req.body.current)) {
+                            req.flash('changePassMessage', 'Wrong Password!')
+                            return res.redirect('/superuser/change-password');
+                        } else {
+                            user.local.password = user.generateHash(req.body.new);
+                            user.save(function(err) {
+                                if (err) throw err;
+                                console.log('user saved');
+                                req.logIn(user, function(err) {
+                                    done(err, user);
+                                });
+                            });
+                        }
+                    });
+                },
+                function(user, done) {
+                    req.flash('changePassMessage', 'Success! Your password has been changed.');
+                    done();
+                }
+            ], function(err) {
+                res.redirect('/superuser/change-password');
+            });
         }
     });
 
@@ -372,7 +323,6 @@ module.exports = function(app, passport) {
     //================================================
 
     app.get('/student/:id', function(req, res, next) {
-        //  id = req.params.id;
         Club.findOne({
             'loginID': req.params.id,
             'verified': true
@@ -383,103 +333,67 @@ module.exports = function(app, passport) {
                     message: 'No Club/Chapter Associated with this ID Found!! Please contact your Club/Chapter\'s Admin.'
                 });
             else {
-                //clubName = name.name;
+
                 clubName.set(req.params.id, name.name);
                 res.render('form.ejs', {
                     name: name.name,
-                    message: req.flash('signupMessage')
+                    message: req.flash('ErrorMsg')
                 });
             }
         });
     });
 
-    app.post('/student/:id', function(req, res, next) {
-        verifyRecaptcha(req.body["g-recaptcha-response"], function(success) {
-            if (success) {
-                return next();
-            } else {
+    /*  app.post('/student/:id', function(req, res, next) {
+          verifyRecaptcha(req.body["g-recaptcha-response"], function(success) {
+              if (success) {
+                  return next();
+              } else {
+                  res.render('form.ejs', {
+                      name: clubName.get(req.params.id),
+                      id: req.params.id,
+                      message: 'Please Fill Captcha!'
+                  });
+              }
+          });
+      }, function(req, res) {
+           TimeTableFunctions.Login(req, res, clubName.get(req.params.id));
+      });*/
+
+    app.post('/student/:id', function(req, res) {
+        TimeTableFunctions.Login(req, res, clubName.get(req.params.id));
+    });
+
+
+    app.get('/student/:id/:regno/:action', function(req, res) {
+        if (req.params.action == 'refresh') {
+          if(cache.get(req.params.regno)) {
+            Temp.findOne({
+              'regno': req.params.regno
+          }, function (err, student) {
+            if(err) throw err;
+            if(!student) {
+              req.flash('ErrorMsg', 'Session Expired! Try again!');
+              res.redirect('/student/' + req.params.id);
+            } else if (student.club_id == req.params.id) {
+              res.render('update.ejs', {
+                  name: student.name,
+                  registerNo: student.regno
+              });
+            }
+          });
+        } else {
+          req.flash('ErrorMsg', 'Some error occurred. Please try again!');
+          res.redirect('/student/' + req.params.id);
+        }
+        } else if (req.params.action == 'update') {
+            if (req.session.regno === undefined) {
+                req.flash('ErrorMsg', 'Some error occurred. Please try again!');
+                res.redirect('/student/' + req.params.id);
                 res.render('form.ejs', {
                     name: clubName.get(req.params.id),
                     id: req.params.id,
-                    message: 'Please Fill Captcha!'
+                    message: 'Some error occurred. Please try again!'
                 });
-            }
-        });
-    }, function(req, res) {
-        if (!req.body.registerNo || !req.body.DOB || !req.body.phoneNo || clubName.get(req.params.id) == undefined) {
-          res.render('form.ejs', {
-              name: clubName.get(req.params.id),
-              id: req.params.id,
-              message: 'Please fill in the details properly!'
-          });
-        } else {
-            req.session.regno = req.body.registerNo;
-            req.session.dob = req.body.DOB;
-            req.session.mobile = req.body.phoneNo;
-            id.set(req.body.registerNo, req.params.id);
-            var options = {
-                url: 'https://vitacademics-rel.herokuapp.com/api/v2/vellore/login',
-                data: 'regno=' + req.body.registerNo + '&dob=' + req.body.DOB + '&mobile=' + req.body.phoneNo
-            };
-            curl.request(options, function(err, file) {
-                if (err) {
-                    throw err;
-                }
-                name.set(req.body.registerNo, JSON.parse(file).name);
-                reg_no.set(req.body.registerNo, JSON.parse(file).reg_no)
-                var status = JSON.parse(file).status.code;
-                if (status !== 0) {
-                    if (status === 12) {
-                        res.render('form.ejs', {
-                            name: clubName.get(id.get(req.body.registerNo)),
-                            id: id.get(req.body.registerNo),
-                            message: 'Invalid Credentials! Please Try Again!'
-                        });
-                    } else if (status === 11) {
-                        res.render('form.ejs', {
-                            name: clubName.get(id.get(req.body.registerNo)),
-                            id: id.get(req.body.registerNo),
-                            message: 'Session Timed Out!!'
-                        });
-                    } else if (status === 89) {
-                        res.render('form.ejs', {
-                            name: clubName.get(id.get(req.body.registerNo)),
-                            id: id.get(req.body.registerNo),
-                            message: 'VIT Servers are Down. Please Try After some Time!!'
-                        });
-                    }
-                    else {
-                      res.send("some other error");
-                    }
-                } else {
-                    res.redirect('/student/' + id.get(req.body.registerNo) + '/refresh');
-                }
-            });
-        }
-    });
-
-    app.get('/student/:id/:action', function(req, res) {
-        if (req.params.action == 'refresh') {
-            if (!req.session.regno || !req.session.dob || !req.session.mobile || clubName.get(id.get(req.session.regno)) == undefined) {
-              res.render('form.ejs', {
-                  name: clubName.get(req.params.id),
-                  id: req.params.id,
-                  message: 'Some error occurred. Please try again!'
-              });
-            } else {
-                var regno = req.session.regno;
-                res.render('update', {
-                    name: name.get(regno),
-                    registerNo: reg_no.get(regno)
-                });
-            }
-        } else if (req.params.action == 'update') {
-            if (req.session.regno === undefined) {
-              res.render('form.ejs', {
-                  name: clubName.get(req.params.id),
-                  id: req.params.id,
-                  message: 'Some error occurred. Please try again!'
-              });
             } else {
                 var BusySlots = new Array();
                 var regno = req.session.regno;
@@ -532,7 +446,7 @@ module.exports = function(app, passport) {
                             res.render('updated.ejs', {
                                 name: renderName,
                                 registerNo: renderReg,
-                                slots : displayslots
+                                slots: displayslots
                             });
                         });
                     } else {
@@ -554,7 +468,7 @@ module.exports = function(app, passport) {
                             res.render('updated.ejs', {
                                 name: renderName,
                                 registerNo: renderReg,
-                                slots : displayslots
+                                slots: displayslots
                             });
                         });
                     }
@@ -566,18 +480,26 @@ module.exports = function(app, passport) {
                 id: req.params.id,
                 message: 'Some error occurred. Please try again!'
             });
-          }
+        }
     });
 
-    app.post('/student/:id/:action', function(req, res) {
+    app.post('/student/:id/:regno/:action', function(req, res) {
         if (req.params.action == 'refresh') {
-            if (!req.session.regno || !req.session.dob || !req.session.mobile || clubName.get(id.get(req.session.regno)) == undefined) {
-              res.render('form.ejs', {
-                  name: clubName.get(req.params.id),
-                  id: req.params.id,
-                  message: 'Some error occurred. Please try again!'
-              });
-            } else {
+          if(cache.get(req.params.regno)) {
+            Temp.findOne({'regno' : req.params.regno}, function(err, student) {
+              if(err) throw err;
+              if(!student) {
+                req.flash('ErrorMsg', 'Session Expired! Try again!');
+                res.redirect('/student/' + req.params.id);
+              } else if(student.club_id == req.params.id) {
+                TimeTableFunctions.Update(req, res, student);
+              }
+            })
+          } else {
+            req.flash('ErrorMsg', 'Session Expired! Try again!');
+            res.redirect('/student/' + req.params.id);
+          }
+            /*} else {
                 var regno = req.session.regno;
                 var options = {
                     url: 'https://vitacademics-rel.herokuapp.com/api/v2/vellore/refresh',
@@ -622,7 +544,7 @@ module.exports = function(app, passport) {
                         res.redirect('/student/' + id.get(regno) + '/update');
                     }
                 });
-            }
+            }*/
         }
     });
 };

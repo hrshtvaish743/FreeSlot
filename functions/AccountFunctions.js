@@ -3,11 +3,26 @@ var nodemailer = require('nodemailer');
 var async = require('async');
 var crypto = require('crypto');
 var User = require('../models/user');
+var student = require('../models/student');
+var Club = require('../models/club');
+var curl = require('curlrequest');
+var superUser = require('../models/superuser');
+var config = require('../config/config');
+var https = require('https');
+
+
+var name = new Map;
+var reg_no = new Map;
+var id = new Map;
+var clubName = new Map;
+var slots = new Map;
+var BusySlotsFinal = new Map;
+var FreeSlots = new Map;
+var SECRET = process.env.FREESLOT_GOOGLE_SECRET;
 
 module.exports = {
 
   ForgotPasswordTokenRequest : function (req, res) {
-    this.TestFunct();
     async.waterfall([
         function(done) {
             crypto.randomBytes(20, function(err, buf) {
@@ -204,6 +219,60 @@ module.exports = {
         }
     ], function(err) {
         res.redirect('/admin/change-password');
+    });
+  },
+
+  VerifyAccount : function (req, res) {
+    User.findOne({
+        'local.RepRegno': req.body.regno
+    }, function(err, user) {
+        if (err) throw err;
+        if (!user) {
+            res.send('No user Found with this register number!');
+        } else {
+            Club.findOne({
+                'name': user.local.club
+            }, function(err, club) {
+                if (err) throw err;
+                if (!club) {
+                    res.send('No club found!');
+                } else {
+                    club.verified = true;
+                    club.loginID = req.body.clubID;
+                    club.save(function(err) {
+                        if (err) throw err;
+                    });
+                }
+            });
+            user.local.verified = true;
+            user.local.loginID = req.body.clubID;
+            user.save(function(err) {
+                if (err) throw err;
+            });
+            var smtpTransport = nodemailer.createTransport({
+                service: 'Gmail',
+                auth: {
+                    user: config.email, // Your email id
+                    pass: config.password // Your password
+                }
+            });
+            var mailOptions = {
+                to: user.local.email,
+                from: 'FreeSlot',
+                subject: 'Your account has been verified and activated!',
+                text: 'Congratulations ' + user.local.name + '!!\n\nYour Club/Chapter/Team account on FreeSlot has been verified and activated.' +
+                    '\n\nYou can access your admin panel at https://freeslot.herokuapp.com/admin.\nYour username is ' + req.body.clubID +
+                    '\nUse the password you provided at the time of signup.' +
+                    '\n\nYour club/chapter/team\'s unique timetable update link is https://freeslot.herokuapp.com/student/' + req.body.clubID +
+                    '\n\nYour club/chapter/team members can update their timetable at this link.' +
+                    'Remember that they should use this link only to store their timetable under your account.' +
+                    '\n\nThank you.\n\nTeam FreeSlot.\n\nFor any queries you can reply to this mail.'
+            };
+            smtpTransport.sendMail(mailOptions, function(err, info) {
+                console.log('Activation Message sent: ' + info.response);
+            });
+            res.send('VERIFIED!');
+        }
     });
   }
 

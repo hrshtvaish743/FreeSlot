@@ -7,17 +7,22 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var passport = require('passport');
 var flash    = require('connect-flash');
-var session      = require('express-session');
-var url_mongo = 'mongodb://freeslot_write:' + process.env.FREESLOT_MONGO + '@ds147905.mlab.com:47905/freeslots';
-
+var session  = require('express-session');
 var configDB = require('./config/database.js');
+var Temp = require('./models/temp');
+var unirest = require('unirest');
+
 mongoose.connect(configDB.url, function(err) {
     if (err) {
       console.log("Can't connect to DB!");
       throw err;
     }
     console.log('Connected to database!');
+    Temp.remove({},function(err) {
+      if(err) throw err;
+    });
 });
+
 
 var app = express();
 app.use(morgan('dev'));
@@ -50,6 +55,7 @@ app.use(favicon(path.join(__dirname, 'public', 'favicon.jpg')));
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;
+  res.render('error');
   next(err);
 });
 
@@ -60,7 +66,8 @@ app.use(function(req, res, next) {
 if (app.get('env') === 'development') {
   app.use(function(err, req, res, next) {
     res.status(err.status || 500);
-    res.send(err.message);
+    console.log(err);
+    res.send(err);
   });
 }
 
