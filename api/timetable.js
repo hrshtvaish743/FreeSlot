@@ -226,6 +226,7 @@ exports.scrapeTimetable = function (data, callback) {
       }
       catch (ex) {
         data.status = status.dataParsing;
+        console.log(ex);
         callback(true, data);
       }
     }

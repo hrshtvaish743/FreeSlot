@@ -343,7 +343,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    /*  app.post('/student/:id', function(req, res, next) {
+    app.post('/student/:id', function(req, res, next) {
           verifyRecaptcha(req.body["g-recaptcha-response"], function(success) {
               if (success) {
                   return next();
@@ -357,11 +357,11 @@ module.exports = function(app, passport) {
           });
       }, function(req, res) {
            TimeTableFunctions.Login(req, res, clubName.get(req.params.id));
-      });*/
+      });
 
-    app.post('/student/:id', function(req, res) {
+    /*app.post('/student/:id', function(req, res) {
         TimeTableFunctions.Login(req, res, clubName.get(req.params.id));
-    });
+    });*/
 
 
     app.get('/student/:id/:regno/:action', function(req, res) {
@@ -375,7 +375,7 @@ module.exports = function(app, passport) {
               req.flash('ErrorMsg', 'Session Expired! Try again!');
               res.redirect('/student/' + req.params.id);
             } else if (student.club_id == req.params.id) {
-              res.render('update.ejs', {
+              res.render('refresh.ejs', {
                   name: student.name,
                   registerNo: student.regno
               });
@@ -385,101 +385,9 @@ module.exports = function(app, passport) {
           req.flash('ErrorMsg', 'Some error occurred. Please try again!');
           res.redirect('/student/' + req.params.id);
         }
-        } else if (req.params.action == 'update') {
-            if (req.session.regno === undefined) {
-                req.flash('ErrorMsg', 'Some error occurred. Please try again!');
-                res.redirect('/student/' + req.params.id);
-                res.render('form.ejs', {
-                    name: clubName.get(req.params.id),
-                    id: req.params.id,
-                    message: 'Some error occurred. Please try again!'
-                });
-            } else {
-                var BusySlots = new Array();
-                var regno = req.session.regno;
-                for (var value of slots.get(regno)) {
-                    if (value !== null) {
-                        split_slots(BusySlots, value);
-                    }
-                }
-                var TempBusyslotsFinal = new Array();
-                for (var value of BusySlots) {
-                    if (value[0] === 'L') {
-                        TempBusyslotsFinal.push(LabSlots[value]);
-                    } else if (value[0] === 'T') {
-                        TempBusyslotsFinal.push(Tslots[value]);
-                    } else {
-                        TempBusyslotsFinal.push(TheorySlots[value][0]);
-                        TempBusyslotsFinal.push(TheorySlots[value][1]);
-                    }
-                }
-                BusySlotsFinal.set(regno, TempBusyslotsFinal);
-                FreeSlots.set(regno, AllSlots.filter(function(slot) {
-                    return BusySlotsFinal.get(regno).indexOf(slot) < 0
-                }));
-                var newStud = student({
-                    name: name.get(regno),
-                    regno: regno,
-                    freeslots: FreeSlots.get(regno),
-                    clubID: id.get(regno)
-                });
-                student.find({
-                    'regno': regno,
-                    'clubID': id.get(regno)
-                }, function(err, student) {
-                    if (err) throw err;
-                    if (Object.keys(student).length === 0) {
-                        newStud.save(function(err) {
-                            if (err) throw err;
-                            console.log('Data created!');
-                            var regno = req.session.regno;
-                            var renderName = name.get(regno);
-                            var renderReg = reg_no.get(regno);
-                            var displayslots = FreeSlots.get(regno);
-                            name.delete(regno);
-                            reg_no.delete(regno);
-                            clubName.delete(id.get(regno));
-                            slots.delete(regno);
-                            FreeSlots.delete(regno);
-                            id.delete(regno);
-                            BusySlotsFinal.delete(regno);
-                            res.render('updated.ejs', {
-                                name: renderName,
-                                registerNo: renderReg,
-                                slots: displayslots
-                            });
-                        });
-                    } else {
-                        deleteDoc(regno, id.get(regno));
-                        newStud.save(function(err) {
-                            if (err) throw err;
-                            console.log('Data updated!');
-                            var regno = req.session.regno;
-                            var renderName = name.get(regno);
-                            var renderReg = reg_no.get(regno);
-                            var displayslots = FreeSlots.get(regno);
-                            name.delete(regno);
-                            reg_no.delete(regno);
-                            clubName.delete(id.get(regno));
-                            slots.delete(regno);
-                            FreeSlots.delete(regno);
-                            id.delete(regno);
-                            BusySlotsFinal.delete(regno);
-                            res.render('updated.ejs', {
-                                name: renderName,
-                                registerNo: renderReg,
-                                slots: displayslots
-                            });
-                        });
-                    }
-                });
-            }
         } else {
-            res.render('form.ejs', {
-                name: clubName.get(req.params.id),
-                id: req.params.id,
-                message: 'Some error occurred. Please try again!'
-            });
+          req.flash('ErrorMsg', 'Some error occurred. Please try again!');
+          res.redirect('/student/' + req.params.id);
         }
     });
 
@@ -492,59 +400,13 @@ module.exports = function(app, passport) {
                 req.flash('ErrorMsg', 'Session Expired! Try again!');
                 res.redirect('/student/' + req.params.id);
               } else if(student.club_id == req.params.id) {
-                TimeTableFunctions.Update(req, res, student);
+                TimeTableFunctions.GetData(req, res, student);
               }
-            })
+            });
           } else {
             req.flash('ErrorMsg', 'Session Expired! Try again!');
             res.redirect('/student/' + req.params.id);
           }
-            /*} else {
-                var regno = req.session.regno;
-                var options = {
-                    url: 'https://vitacademics-rel.herokuapp.com/api/v2/vellore/refresh',
-                    data: 'regno=' + regno + '&dob=' + req.session.dob + '&mobile=' + req.session.mobile
-                };
-                curl.request(options, function(err, data) {
-                    if (err) {
-                        throw err;
-                    }
-                    var status = JSON.parse(data).status.code;
-                    if (status !== 0) {
-                        if (status === 12) {
-                            res.render('form.ejs', {
-                                name: clubName.get(id.get(regno)),
-                                id: id.get(regno),
-                                message: 'Invalid Credentials! Please Try Again!'
-                            });
-                        } else if (status === 11) {
-                            res.render('form.ejs', {
-                                name: clubName.get(id.get(regno)),
-                                id: id.get(regno),
-                                message: 'Session Timed Out!!'
-                            });
-                        } else if (status === 89) {
-                            res.render('form.ejs', {
-                                name: clubName.get(id.get(regno)),
-                                id: id.get(regno),
-                                message: 'VIT Servers are Down. Please Try After some Time!!'
-                            });
-                        }
-                    } else {
-                        var allSlots = new Array();
-                        var response = JSON.parse(data);
-                        for (i = 0;; i++) {
-                            if (response.courses[i] !== undefined) {
-                                allSlots.push(response.courses[i].slot);
-                            } else {
-                                slots.set(regno, allSlots);
-                                break;
-                            }
-                        }
-                        res.redirect('/student/' + id.get(regno) + '/update');
-                    }
-                });
-            }*/
         }
     });
 };
@@ -577,18 +439,7 @@ function find_length(slt, index) {
     return length;
 }
 
-function split_slots(BusySlots, slot) {
-    var index = 0;
-    var length = undefined;
-    for (var i = 0; i < slot.length; i++) {
-        if (slot[i] === '+') {
-            length = find_length(slot, index);
-            BusySlots.push(slot.substr(index, length));
-            index = i + 1;
-        }
-    }
-    BusySlots.push(slot.substr(index));
-}
+
 
 var deleteDoc = function(regno, id) {
     student.find({

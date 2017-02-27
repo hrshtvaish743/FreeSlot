@@ -17,34 +17,6 @@ exports.get = function (data, callback) {
   if (cache.get(data.reg_no) !== null) {
     const cacheDoc = cache.get(data.reg_no);
     if (cacheDoc.dob === data.dob && cacheDoc.mobile === data.mobile) {
-      const keys = {
-        reg_no: 1,
-        dob: 1,
-        name: 1,
-        mobile: 1,
-        campus: 1,
-        semester: 1,
-        courses: 1,
-        withdrawn_courses: 1,
-        refreshed: 1
-      };
-      const onFetch = function (err, mongoDoc) {
-        if (err) {
-          data.status = status.mongoDown;
-          console.log(JSON.stringify(data));
-          callback(true, data);
-        }
-        else if (mongoDoc) {
-          delete mongoDoc['_id'];
-          mongoDoc.status = status.success;
-          mongoDoc.cached = true;
-          callback(false, mongoDoc);
-        }
-        else {
-          data.status = status.noData;
-          callback(true, data);
-        }
-      };
         data.semester = config.SemesterCode;
         const cookieSerial = cache.get(data.reg_no).cookie;
         const parallelTasks = {
@@ -53,7 +25,6 @@ exports.get = function (data, callback) {
           }
         };
         const onFinish = function (err, results) {
-          console.log(results);
             if (err || results.timetable.status.code !== 0) {
               data.status = results.timetable.status;
               data.HTML_error = true;
@@ -143,7 +114,6 @@ exports.get = function (data, callback) {
     }
   }
   else {
-    console.log("TimedOut");
     data.status = status.timedOut;
     callback(true, data);
   }
