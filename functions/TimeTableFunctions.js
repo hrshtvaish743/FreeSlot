@@ -14,8 +14,6 @@ var Scraper = require('../api/scraper.js');
 const cache = require('memory-cache');
 const path = require('path');
 
-const Slots = path.join(path.join(__dirname,'..','config', 'slots'));
-
 
 module.exports = {
     Login: function(req, res, clubName) {
@@ -161,10 +159,6 @@ module.exports = {
         });
       };
       Scraper.get(data, onGet);
-    },
-
-    Update : function (req, res, data) {
-      res.send("OK");
     }
 }
 

@@ -10,14 +10,6 @@ var superUser = require('../models/superuser');
 var config = require('../config/config');
 var https = require('https');
 
-
-var name = new Map;
-var reg_no = new Map;
-var id = new Map;
-var clubName = new Map;
-var slots = new Map;
-var BusySlotsFinal = new Map;
-var FreeSlots = new Map;
 var SECRET = process.env.FREESLOT_GOOGLE_SECRET;
 
 module.exports = {
@@ -50,8 +42,8 @@ module.exports = {
             var smtpTransport = nodemailer.createTransport({
                 service: 'Gmail',
                 auth: {
-                    user: config.email, // Your email id
-                    pass: config.password // Your password
+                    user: config.email,
+                    pass: config.password
                 }
             });
             var mailOptions = {

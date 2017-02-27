@@ -5,6 +5,7 @@ var ck_email = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}
 var ck_regno = /^1[123456][bmBM][abceimnpsvABCEIMNPSV][abcdefihlmtsABCDEFIHLMTS]\d{4}$/;
 var ck_phone = /^\d{10}$/;
 var ck_password = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+var ck_dob = /^\d{8}$/;
 
 //Function for a delete request to the Server
 function deleteData(id) {
@@ -30,6 +31,13 @@ function deleteData(id) {
 //Function to check validity
 function check() {
     if(!document.getElementById('regno').value.match(ck_regno)) {
+      $('#regno').css('border-color', 'red');
+      return false;
+    } else if (!document.getElementById('dob').value.match(ck_dob)) {
+      $('#dob').css('border-color', 'red');
+      return false;
+    } else if (!document.getElementById('phno').value.match(ck_phone)) {
+      $('#phno').css('border-color', 'red');
       return false;
     }
     return true;
