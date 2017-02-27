@@ -369,16 +369,29 @@ module.exports = function(app, passport) {
           if(cache.get(req.params.regno)) {
             Temp.findOne({
               'regno': req.params.regno
-          }, function (err, student) {
+          }, function (err, stud) {
             if(err) throw err;
-            if(!student) {
+            if(!stud) {
               req.flash('ErrorMsg', 'Session Expired! Try again!');
               res.redirect('/student/' + req.params.id);
-            } else if (student.club_id == req.params.id) {
-              res.render('refresh.ejs', {
-                  name: student.name,
-                  registerNo: student.regno
+            } else if (stud.club_id == req.params.id) {
+              student.findOne({'regno' : req.params.regno, 'clubID' : req.params.id}, function(err, data) {
+                if(err) throw err;
+                if(data) {
+                  res.render('refresh.ejs', {
+                      name: stud.name,
+                      registerNo: stud.regno,
+                      data : data.freeslots
+                  });
+                } else {
+                  res.render('refresh.ejs', {
+                      name: stud.name,
+                      registerNo: stud.regno,
+                      data : null
+                  });
+                }
               });
+
             }
           });
         } else {

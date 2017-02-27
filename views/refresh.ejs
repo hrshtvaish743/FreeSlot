@@ -6,12 +6,25 @@
         <div class="alert alert-danger"><%= name %> <%= registerNo%>
         </div>
         <% } %></h1>
-        <h2>Please hit the Refresh button below to update your TimeTable.</h2>
+        <h2>If your timetable doesn't show at the bottom of this page then Please hit the Refresh button below to update your TimeTable.</h2>
         <form method="post">
           <button type="submit" class="btn btn-warning btn-lg">Refresh</button>
         </form>
     </div>
+    <% include DisplayTimetable.ejs %>
   </div>
 </body>
 <% include footer.ejs %>
+<script type="text/javascript">
+var slots = [<%= data %>];
+window.onload = function(next) {
+  if(slots.length == 0) {
+    $('#DisTT').hide();
+  } else {
+    for(i = 0; i < slots.length; i++) {
+      $('#' + slots[i]).css('background-color', "white").empty().append("Free");
+    }
+  }
+};
+</script>
 </html>
