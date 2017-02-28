@@ -344,20 +344,20 @@ module.exports = function(app, passport) {
     });
 
     app.post('/student/:id', function(req, res, next) {
-          verifyRecaptcha(req.body["g-recaptcha-response"], function(success) {
-              if (success) {
-                  return next();
-              } else {
-                  res.render('form.ejs', {
-                      name: clubName.get(req.params.id),
-                      id: req.params.id,
-                      message: 'Please Fill Captcha!'
-                  });
-              }
-          });
-      }, function(req, res) {
-           TimeTableFunctions.Login(req, res, clubName.get(req.params.id));
-      });
+        verifyRecaptcha(req.body["g-recaptcha-response"], function(success) {
+            if (success) {
+                return next();
+            } else {
+                res.render('form.ejs', {
+                    name: clubName.get(req.params.id),
+                    id: req.params.id,
+                    message: 'Please Fill Captcha!'
+                });
+            }
+        });
+    }, function(req, res) {
+        TimeTableFunctions.Login(req, res, clubName.get(req.params.id));
+    });
 
     /*app.post('/student/:id', function(req, res) {
         TimeTableFunctions.Login(req, res, clubName.get(req.params.id));
@@ -366,61 +366,78 @@ module.exports = function(app, passport) {
 
     app.get('/student/:id/:regno/:action', function(req, res) {
         if (req.params.action == 'refresh') {
-          if(cache.get(req.params.regno)) {
-            Temp.findOne({
-              'regno': req.params.regno
-          }, function (err, stud) {
-            if(err) throw err;
-            if(!stud) {
-              req.flash('ErrorMsg', 'Session Expired! Try again!');
-              res.redirect('/student/' + req.params.id);
-            } else if (stud.club_id == req.params.id) {
-              student.findOne({'regno' : req.params.regno, 'clubID' : req.params.id}, function(err, data) {
-                if(err) throw err;
-                if(data) {
-                  res.render('refresh.ejs', {
-                      name: stud.name,
-                      registerNo: stud.regno,
-                      data : data.freeslots
-                  });
-                } else {
-                  res.render('refresh.ejs', {
-                      name: stud.name,
-                      registerNo: stud.regno,
-                      data : null
-                  });
-                }
-              });
+            if (cache.get(req.params.regno)) {
+                Temp.findOne({
+                    'regno': req.params.regno
+                }, function(err, stud) {
+                    if (err) throw err;
+                    if (!stud) {
+                        req.flash('ErrorMsg', 'Session Expired! Try again!');
+                        res.redirect('/student/' + req.params.id);
+                    } else if (stud.club_id == req.params.id) {
+                        student.findOne({
+                            'regno': req.params.regno,
+                            'clubID': req.params.id
+                        }, function(err, data) {
+                            if (err) throw err;
+                            if (data) {
+                                res.render('refresh.ejs', {
+                                    name: stud.name,
+                                    registerNo: stud.regno,
+                                    data: data.freeslots
+                                });
+                            } else {
+                                res.render('refresh.ejs', {
+                                    name: stud.name,
+                                    registerNo: stud.regno,
+                                    data: null
+                                });
+                            }
+                        });
 
+                    }
+                });
+            } else {
+                req.flash('ErrorMsg', 'Some error occurred. Please try again!');
+                res.redirect('/student/' + req.params.id);
             }
-          });
         } else {
-          req.flash('ErrorMsg', 'Some error occurred. Please try again!');
-          res.redirect('/student/' + req.params.id);
-        }
-        } else {
-          req.flash('ErrorMsg', 'Some error occurred. Please try again!');
-          res.redirect('/student/' + req.params.id);
+            req.flash('ErrorMsg', 'Some error occurred. Please try again!');
+            res.redirect('/student/' + req.params.id);
         }
     });
 
     app.post('/student/:id/:regno/:action', function(req, res) {
         if (req.params.action == 'refresh') {
-          if(cache.get(req.params.regno)) {
-            Temp.findOne({'regno' : req.params.regno}, function(err, student) {
-              if(err) throw err;
-              if(!student) {
+            if (cache.get(req.params.regno)) {
+                Temp.findOne({
+                    'regno': req.params.regno
+                }, function(err, student) {
+                    if (err) throw err;
+                    if (!student) {
+                        req.flash('ErrorMsg', 'Session Expired! Try again!');
+                        res.redirect('/student/' + req.params.id);
+                    } else if (student.club_id == req.params.id) {
+                        TimeTableFunctions.GetData(req, res, student);
+                    }
+                });
+            } else {
                 req.flash('ErrorMsg', 'Session Expired! Try again!');
                 res.redirect('/student/' + req.params.id);
-              } else if(student.club_id == req.params.id) {
-                TimeTableFunctions.GetData(req, res, student);
-              }
-            });
-          } else {
-            req.flash('ErrorMsg', 'Session Expired! Try again!');
-            res.redirect('/student/' + req.params.id);
-          }
+            }
         }
+    });
+
+    app.get('/check', function(req, res) {
+      student.find({}, function(err, data) {
+        if(err) throw err;
+        var info = [];
+        for(i = 0; i<data.length; i++) {
+          if(data[i].freeslots.length == 60)
+            info.push(data[i]);
+        }
+        res.send(info);
+      });
     });
 };
 
@@ -452,8 +469,6 @@ function find_length(slt, index) {
     return length;
 }
 
-
-
 var deleteDoc = function(regno, id) {
     student.find({
         'regno': regno,
@@ -479,107 +494,4 @@ function verifyRecaptcha(key, callback) {
     });
 }
 
-var LabSlots = {
-    "L1": "1",
-    "L2": "2",
-    "L3": "3",
-    "L4": "4",
-    "L5": "5",
-    "L6": "6",
-    "L7": "7",
-    "L8": "8",
-    "L9": "9",
-    "L10": "10",
-    "L11": "11",
-    "L12": "12",
-    "L13": "13",
-    "L14": "14",
-    "L15": "15",
-    "L16": "16",
-    "L17": "17",
-    "L18": "18",
-    "L19": "19",
-    "L20": "20",
-    "L21": "21",
-    "L22": "22",
-    "L23": "23",
-    "L24": "24",
-    "L25": "25",
-    "L26": "26",
-    "L27": "27",
-    "L28": "28",
-    "L29": "29",
-    "L30": "30",
-    "L31": "31",
-    "L32": "32",
-    "L33": "33",
-    "L34": "34",
-    "L35": "35",
-    "L36": "36",
-    "L37": "37",
-    "L38": "38",
-    "L39": "39",
-    "L40": "40",
-    "L41": "41",
-    "L42": "42",
-    "L43": "43",
-    "L44": "44",
-    "L45": "45",
-    "L46": "46",
-    "L47": "47",
-    "L48": "48",
-    "L49": "49",
-    "L50": "50",
-    "L51": "51",
-    "L52": "52",
-    "L53": "53",
-    "L54": "54",
-    "L55": "55",
-    "L56": "56",
-    "L57": "57",
-    "L58": "58",
-    "L59": "59",
-    "L60": "60"
-};
-
 var AllSlots = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60"];
-
-var TheorySlots = {
-    "A1": ["1", "14"],
-    "B1": ["7", "20"],
-    "C1": ["13", "26"],
-    "D1": ["3", "19"],
-    "E1": ["9", "25"],
-    "F1": ["2", "15"],
-    "G1": ["8", "21"],
-    "A2": ["31", "44"],
-    "B2": ["37", "50"],
-    "C2": ["43", "56"],
-    "D2": ["33", "49"],
-    "E2": ["39", "55"],
-    "F2": ["32", "45"],
-    "G2": ["38", "51"]
-};
-
-var Tslots = {
-    "TA1": "27",
-    "TA2": "57",
-    "TB1": "4",
-    "TB2": "34",
-    "TC1": "10",
-    "TC2": "40",
-    "TD1": "29",
-    "TD2": "46",
-    "TE1": "22",
-    "TE2": "52",
-    "TF1": "28",
-    "TF2": "58",
-    "TG1": "5",
-    "TG2": "35",
-    "TAA1": "11",
-    "TCC1": "23",
-    "TAA2": "41",
-    "TBB2": "47",
-    "TCC2": "53",
-    "TDD2": "59"
-};

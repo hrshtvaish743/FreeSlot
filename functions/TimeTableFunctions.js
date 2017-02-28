@@ -25,7 +25,7 @@ module.exports = {
             });
         } else {
             newTemp = new Temp;
-            newTemp.regno = req.body.registerNo;
+            newTemp.regno = req.body.registerNo.toUpperCase();
             newTemp.dob = req.body.DOB;
             newTemp.mobile = req.body.phoneNo;
             newTemp.club_id = req.params.id;
@@ -71,94 +71,94 @@ module.exports = {
         }
     },
 
-    GetData : function (req, res, student) {
-      const data = {
-        reg_no: student.regno.toUpperCase(),
-        dob: student.dob,
-        mobile: student.mobile || null
-      };
-      const onGet = function (err, response) {
-        var status = response.status.code;
-        if (status !== 0) {
-            if (status === 12) {
-              req.flash('ErrorMsg', 'Invalid Credentials! Please Try Again!')
-              res.redirect('/student/' + req.params.id);
-            } else if (status === 11) {
-              req.flash('ErrorMsg', 'Session Timed Out!!')
-              res.redirect('/student/' + req.params.id);
-            } else if (status === 89) {
-              req.flash('ErrorMsg', 'VIT Servers are Down. Please Try After some Time!!')
-              res.redirect('/student/' + req.params.id);
-            }
-        } else {
-            var Slots = new Array();
-
-            for (i = 0; i < response.courses.length; i++) {
-                if (response.courses[i]) {
-                    Slots.push(response.courses[i].slot);
+    GetData: function(req, res, student) {
+        const data = {
+            reg_no: student.regno.toUpperCase(),
+            dob: student.dob,
+            mobile: student.mobile || null
+        };
+        const onGet = function(err, response) {
+            var status = response.status.code;
+            if (status !== 0) {
+                if (status === 12) {
+                    req.flash('ErrorMsg', 'Invalid Credentials! Please Try Again!')
+                    res.redirect('/student/' + req.params.id);
+                } else if (status === 11) {
+                    req.flash('ErrorMsg', 'Session Timed Out!!')
+                    res.redirect('/student/' + req.params.id);
+                } else if (status === 89) {
+                    req.flash('ErrorMsg', 'VIT Servers are Down. Please Try After some Time!!')
+                    res.redirect('/student/' + req.params.id);
                 }
-            }
-
-            var BusySlots = new Array();
-            for (var value of Slots) {
-                if (value !== null) {
-                    BusySlots = split_slots(BusySlots, value);
-                }
-            }
-
-            var NumberedBusySlots = new Array();
-            for (var value of BusySlots) {
-                if (value[0] === 'L') {
-                    NumberedBusySlots.push(LabSlots[value]);
-                } else if (value[0] === 'T') {
-                    NumberedBusySlots.push(Tslots[value]);
-                } else {
-                    NumberedBusySlots.push(TheorySlots[value][0]);
-                    NumberedBusySlots.push(TheorySlots[value][1]);
-                }
-            }
-        }
-
-        var NumberedFreeSlots = AllSlots.filter(function(slot) {
-            return NumberedBusySlots.indexOf(slot) < 0
-        });
-
-        var newStud = new Student;
-        newStud.name = student.name;
-        newStud.regno = response.reg_no;
-        newStud.freeslots = NumberedFreeSlots;
-        newStud.clubID = req.params.id;
-
-        Student.find({
-            'regno': response.reg_no,
-            'clubID': req.params.id
-        }, function(err, stud) {
-            if (err) throw err;
-            if (Object.keys(stud).length === 0) {
-                newStud.save(function(err) {
-                    if (err) throw err;
-                    console.log('Data created!');
-                    res.render('updated.ejs', {
-                        name: student.name,
-                        registerNo: response.reg_no,
-                        slots: NumberedFreeSlots
-                    });
-                });
             } else {
-                deleteDoc(response.reg_no, req.params.id);
-                newStud.save(function(err) {
-                    if (err) throw err;
-                    console.log('Data updated!');
-                    res.render('updated.ejs', {
-                        name: student.name,
-                        registerNo: response.reg_no,
-                        slots: NumberedFreeSlots
-                    });
-                });
+                var Slots = new Array();
+
+                for (i = 0; i < response.courses.length; i++) {
+                    if (response.courses[i]) {
+                        Slots.push(response.courses[i].slot);
+                    }
+                }
+
+                var BusySlots = new Array();
+                for (var value of Slots) {
+                    if (value !== null) {
+                        BusySlots = split_slots(BusySlots, value);
+                    }
+                }
+
+                var NumberedBusySlots = new Array();
+                for (var value of BusySlots) {
+                    if (value[0] === 'L') {
+                        NumberedBusySlots.push(LabSlots[value]);
+                    } else if (value[0] === 'T') {
+                        NumberedBusySlots.push(Tslots[value]);
+                    } else {
+                        NumberedBusySlots.push(TheorySlots[value][0]);
+                        NumberedBusySlots.push(TheorySlots[value][1]);
+                    }
+                }
             }
-        });
-      };
-      Scraper.get(data, onGet);
+
+            var NumberedFreeSlots = AllSlots.filter(function(slot) {
+                return NumberedBusySlots.indexOf(slot) < 0
+            });
+
+            var newStud = new Student;
+            newStud.name = student.name.toUpperCase();
+            newStud.regno = response.reg_no.toUpperCase();
+            newStud.freeslots = NumberedFreeSlots;
+            newStud.clubID = req.params.id;
+
+            Student.find({
+                'regno': response.reg_no,
+                'clubID': req.params.id
+            }, function(err, stud) {
+                if (err) throw err;
+                if (Object.keys(stud).length === 0) {
+                    newStud.save(function(err) {
+                        if (err) throw err;
+                        console.log('Data created!');
+                        res.render('updated.ejs', {
+                            name: student.name,
+                            registerNo: response.reg_no,
+                            slots: NumberedFreeSlots
+                        });
+                    });
+                } else {
+                    deleteDoc(response.reg_no, req.params.id);
+                    newStud.save(function(err) {
+                        if (err) throw err;
+                        console.log('Data updated!');
+                        res.render('updated.ejs', {
+                            name: student.name,
+                            registerNo: response.reg_no,
+                            slots: NumberedFreeSlots
+                        });
+                    });
+                }
+            });
+        };
+        Scraper.get(data, onGet);
     }
 }
 

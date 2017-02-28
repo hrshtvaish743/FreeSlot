@@ -4,10 +4,11 @@
     var prevSlot = undefined;
     var NumberofStudents = undefined;
     var allotedSlot = new Map;
-    var Free = {};
+    var FreeUnion = {};
 
     // AJAX query to get all Timetable data from server
     $(document).ready(function(next) {
+        $('.tableContainer').hide();
         $.ajax({
             type: 'GET',
             contentType: 'application/json',
@@ -26,42 +27,43 @@
         if (allotedSlot.get(Boxslot) == undefined) {
             allotedSlot.set(Boxslot, NumberofStudents);
         }
-        if (document.getElementById(Boxslot).innerHTML == "") {
-            document.getElementById(Boxslot).style.backgroundColor = 'red';
-        } else if (document.getElementById(Boxslot).innerHTML != "") {
-            document.getElementById(Boxslot).style.backgroundColor = 'red';
-            document.getElementById(Boxslot).innerHTML = "";
+        if ($('#' + Boxslot).html() == "") {
+          $('#' + Boxslot).css('background-color', 'red');
+        } else if ($('#' + Boxslot).html() != "") {
+          $('#' + Boxslot).css('background-color', 'red');
+          $('#' + Boxslot).html('');
             allotedSlot.set(Boxslot, NumberofStudents);
         }
-        if (prevSlot && prevSlot != Boxslot && document.getElementById(prevSlot).innerHTML == "") {
-            document.getElementById(prevSlot).style.backgroundColor = '#F5F5F5';
+        if (prevSlot && prevSlot != Boxslot && $('#' + prevSlot).html() == "") {
+          $('#' + prevSlot).css('background-color', '#F5F5F5');
         }
         prevSlot = Boxslot;
-        document.getElementById('livesearch').innerHTML = "<h3>Loading...</h3>";
-        var value = parseInt(document.getElementById(Boxslot).getAttribute('value'));
+        var value = parseInt($('#' + Boxslot).attr('value'));
         if (day != undefined) {
             for (var i = 0; i < list.length; i++) {
                 var reqSlot = ParseDay(value, day);
-                document.getElementById('selectedSlot').innerHTML = 'Selected Slot : L' + reqSlot;
+                $('#selectedSlot').html('Selected Slot : L' + reqSlot);
                 if (reqSlot !== false) {
                     if (list[i].freeslots.indexOf(reqSlot) !== -1) {
                         regno = list[i].regno;
                         Free[regno] = list[i].name;
                     }
                 } else {
-                    document.getElementById("livesearch").innerHTML = '<h3>WRONG SLOT</h3>';
+                  $('#TableBody').html('<h3>WRONG SLOT</h3>');
                 }
             }
             if (jQuery.isEmptyObject(Free))
-                document.getElementById("livesearch").innerHTML = '<h3>No Result!</h3>';
+                $('#TableBody').html('<h3>No Result!</h3>');
             else {
-                document.getElementById("livesearch").innerHTML = "";
-                jQuery.each(Free, function(i, val) {
-                    document.getElementById('livesearch').innerHTML += "<li><a id=\"" + i + "\" onclick=\"substitute(this.id)\" style=\"cursor:pointer;\">" + i + " " + val + "</a></li>";
+              $('#TableBody').html('');
+              var num = 1;
+              $('.tableContainer').show();
+                jQuery.each(Free, function(reg_no, name) {
+                  $('#TableBody').append("<tr class=\"" + reg_no + "\"><td class=\"col-xs-2\">"+ num +"</td><td class=\"col-xs-8\"><a id=\"" + reg_no + "\" onclick=\"substitute(this.id)\" style=\"cursor:pointer;\">" + name +"</a></td><td class=\"col-xs-2\">" + i + "</td></tr>");
+                  num++;
                 });
             }
         } else {
-            document.getElementById("livesearch").innerHTML = "<h3>Please Select a Day</h3>";
             alert('Please select a Day!')
         }
 
@@ -73,12 +75,17 @@
         day = Day;
         ClearAll();
         document.getElementById('Selected').innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + day;
-        document.getElementById("livesearch").innerHTML = "";
     }
 
     //Function to Select No of people Per Slot
     function selectNumber(number) {
         NumberofStudents = document.getElementById(number).value;
+    }
+
+    function Display (arr) {
+      for(i = 0; i<arr.length; i++) {
+        if(FreeUnion.indexOf(arr[i]));
+      }
     }
 
 
@@ -133,7 +140,7 @@
             if (allotedSlot.get(slot) == NumberofStudents && document.getElementById(slot).innerHTML == "") {
                 old_html = document.getElementById(slot).innerHTML = Free[regno];
                 delete Free[regno];
-                $('#' + regno).parent().remove();
+                $('.' + regno).remove();
                 document.getElementById(slot).style.backgroundColor = 'grey';
                 var current = allotedSlot.get(slot) - 1;
                 allotedSlot.set(slot, current);
@@ -141,20 +148,20 @@
                 if (allotedSlot.get(slot) < NumberofStudents && allotedSlot.get(slot) > 0) {
                     old_html = document.getElementById(slot).innerHTML = old_html + ' - ' + Free[regno];
                     delete Free[regno];
-                    $('#' + regno).parent().remove();
+                    $('.' + regno).remove();
                     var current = allotedSlot.get(slot) - 1;
                     allotedSlot.set(slot, current);
                 } else if (allotedSlot.get(slot) == 1) {
                     old_html = document.getElementById(slot).innerHTML = old_html + ' - ' + Free[regno];
                     delete Free[regno];
-                    $('#' + regno).parent().remove();
+                    $('.' + regno).remove();
                     var current = allotedSlot.get(slot) - 1;
                     allotedSlot.set(slot, current);
                     old_html = "";
                 } else {
                     old_html = document.getElementById(slot).innerHTML = Free[regno];
                     delete Free[regno];
-                    $('#' + regno).parent().remove();
+                    $('.' + regno).remove();
                     var current = NumberofStudents - 1;
                     document.getElementById(slot).style.backgroundColor = 'grey';
                     allotedSlot.set(slot, current);
@@ -227,7 +234,6 @@
 
     function autoAssign() {
         if (!NumberofStudents || !day) {
-            document.getElementById("livesearch").innerHTML = "<h3>Please select both Day and Number of Students per slot";
             alert('Please select both Day and Number of Students per slot');
             return false;
         }
