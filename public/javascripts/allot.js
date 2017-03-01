@@ -15,10 +15,19 @@
             url: '/get-data',
             success: function(data) {
                 list = data;
+                list.sort(compare);
                 console.log("Data Received!");
             }
         });
     });
+
+    function compare(a,b) {
+      if (a.regno > b.regno)
+        return -1;
+      if (a.regno < b.regno)
+        return 1;
+      return 0;
+    }
 
     //Functin To Find Free People in the selected Slot
     function FindFree(Boxslot) {
@@ -59,7 +68,7 @@
               var num = 1;
               $('.tableContainer').show();
                 jQuery.each(Free, function(reg_no, name) {
-                  $('#TableBody').append("<tr class=\"" + reg_no + "\"><td class=\"col-xs-2\">"+ num +"</td><td class=\"col-xs-8\"><a id=\"" + reg_no + "\" onclick=\"substitute(this.id)\" style=\"cursor:pointer;\">" + name +"</a></td><td class=\"col-xs-2\">" + i + "</td></tr>");
+                  $('#TableBody').append("<tr class=\"" + reg_no + "\"><td class=\"col-xs-2\">"+ num +"</td><td class=\"col-xs-8\"><a id=\"" + reg_no + "\" onclick=\"substitute(this.id)\" style=\"cursor:pointer;\">" + name +"</a></td><td class=\"col-xs-2\">" + reg_no + "</td></tr>");
                   num++;
                 });
             }
@@ -78,8 +87,9 @@
     }
 
     //Function to Select No of people Per Slot
-    function selectNumber(number) {
-        NumberofStudents = document.getElementById(number).value;
+    function selectNumber() {
+        var Selected = document.getElementById('SelectNumber');
+        NumberofStudents = Selected.options[Selected.selectedIndex].value;
     }
 
     function Display (arr) {
@@ -285,3 +295,46 @@
             }
         }
     }
+
+
+$(document).ready(function(){
+    $('.filterable .btn-filter').click(function(){
+        var $panel = $(this).parents('.filterable'),
+        $filters = $panel.find('.filters input'),
+        $tbody = $panel.find('.table tbody');
+        if ($filters.prop('disabled') == true) {
+            $filters.prop('disabled', false);
+            $filters.last().focus();
+        } else {
+            $filters.val('').prop('disabled', true);
+            $tbody.find('.no-result').remove();
+            $tbody.find('tr').show();
+        }
+    });
+
+    $('.filterable .filters input').keyup(function(e){
+        /* Ignore tab key */
+        var code = e.keyCode || e.which;
+        if (code == '9') return;
+        var $input = $(this),
+        inputContent = $input.val().toLowerCase(),
+        $panel = $input.parents('.filterable'),
+        column = $panel.find('.filters th').index($input.parents('th')),
+        $table = $panel.find('.table'),
+        $rows = $table.find('tbody tr');
+        /* Dirtiest filter function ever ;) */
+        var $filteredRows = $rows.filter(function(){
+            var value = $(this).find('td').eq(column).text().toLowerCase();
+            return value.indexOf(inputContent) === -1;
+        });
+        /* Clean previous no-result if exist */
+        $table.find('tbody .no-result').remove();
+        /* Show all rows, hide filtered ones (never do that outside of a demo ! xD) */
+        $rows.show();
+        $filteredRows.hide();
+        /* Prepend no-result row if all rows are filtered */
+        if ($filteredRows.length === $rows.length) {
+            $table.find('tbody').prepend($('<tr class="no-result text-center"><td colspan="'+ $table.find('.filters th').length +'">No result found</td></tr>'));
+        }
+    });
+});

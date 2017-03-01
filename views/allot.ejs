@@ -20,28 +20,38 @@
               <li><a id="Friday" onclick="SelectDay(this.id)" style="cursor:pointer;">Friday</a></li>
             </ul><strong><span id="Selected"></span></strong>
           </div>
-          <div class="col-md-6">
-              <h4>Enter Number of people to be alloted per slot :</h4>
-            <input id="number" type="text" class="form-control" name="number" onkeyup="selectNumber(this.id)">
+          <div class="col-md-6 form-group">
+              <h4>Select Number of students to be alloted per slot :</h4>
+              <select class="form-control" id="SelectNumber" onchange="selectNumber()">
+                <option value="" disabled selected style="display:none;"></option>
+                <option value="1" id="one" onclick="console.log('hello')">One</option>
+                <option value="2" id="two" onclick="selectNumber(this.id)">Two</option>
+              </select>
             <strong><span id="Selected"></span></strong>
           </div>
         </div>
         <div class="container tableContainer">
           <div class="row">
-              <div class="panel panel-default">
+              <div class="panel panel-default panel-primary filterable">
                 <div class="panel-heading">
-                  <h4>
-                    Results
+                  <h4 class="panel-title">
+                    Results - Scroll Here (Sorted according to the year. First years first.)
                   </h4>
+                  <div class="pull-right">
+                    <button class="btn btn-default btn-xs btn-filter"><span class="glyphicon glyphicon-filter"></span> Filter</button>
+                  </div>
+                  <h4 class="pull-right ">Click to filter <span class="fa fa-hand-o-right"></span>&nbsp;</h4>
+
                 </div>
                 <table class="table table-fixed">
                   <thead>
-                    <tr>
-                      <th class="col-xs-2">#</th><th class="col-xs-8">Name</th><th class="col-xs-2">Register Number</th>
+                    <tr class="filters">
+                      <th class="col-xs-2"><input type="text" class="form-control" placeholder="#" disabled></th>
+                      <th class="col-xs-8"><input type="text" class="form-control" placeholder="Name" disabled></th>
+                      <th class="col-xs-2"><input type="text" class="form-control" placeholder="Register Number" disabled></th>
                     </tr>
                   </thead>
                   <tbody id="TableBody">
-                    <tr><td class="col-xs-2">1</td><td class="col-xs-8">Mike Adams</td><td class="col-xs-2">23</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -69,7 +79,7 @@
                     <li>Select the day of the Week from the DropDown Menu.</li>
                     <li>Type Maximum Number of students that you want to allot in a particular slot in the box on right.</li>
                     <li>Click on the sequired slot in Building Timetable.</li>
-                    <li>If student(s) is/are free in that slot, their name(s) will appear in a list.</li>
+                    <li>If student(s) is/are free in that slot, their name(s) will appear in a list. Filter the list as required using filter option at the right top of the table</li>
                     <li>Click on the desired Name and their name will get Appended to the Selected slot in Timetable.</li>
                     <li>If you want to delete the current Allotment of that particular slot then Click on that slot again.</li>
                     <li>If you change the day after alloting some slots, all the slots will get cleared automatically.</li>
