@@ -3,8 +3,10 @@
     var day = undefined;
     var prevSlot = undefined;
     var NumberofStudents = undefined;
+    var SelectedYear = undefined;
     var allotedSlot = new Map;
     var FreeUnion = {};
+    var Years = [];
 
     // AJAX query to get all Timetable data from server
     $(document).ready(function(next) {
@@ -16,10 +18,26 @@
             success: function(data) {
                 list = data;
                 list.sort(compare);
+                SplitYears(list);
                 console.log("Data Received!");
             }
         });
     });
+
+    function SplitYears(list) {
+      for(var i = 0; i<list.length; i++) {
+        if(!Years[list[i].regno.slice(0,2)]) {
+          var year = list[i].regno.slice(0,2);
+          Years[year] = [];
+          Years[year].push(list[i]);
+          $('#SelectYear').append("<option value=\"" + year + "\" id=\"year_"+ year +"\">"+ year +"XXXXXX</option>");
+        } else {
+          var year = list[i].regno.slice(0,2);
+          Years[year].push(list[i]);
+        }
+      }
+      console.log(Years[15][0].regno);
+    }
 
     function compare(a,b) {
       if (a.regno > b.regno)
@@ -28,6 +46,8 @@
         return 1;
       return 0;
     }
+
+
 
     //Functin To Find Free People in the selected Slot
     function FindFree(Boxslot) {
@@ -48,14 +68,14 @@
         }
         prevSlot = Boxslot;
         var value = parseInt($('#' + Boxslot).attr('value'));
-        if (day != undefined) {
-            for (var i = 0; i < list.length; i++) {
+        if (day != undefined && SelectedYear != undefined) {
+            for (var i = 0; i < Years[SelectedYear].length; i++) {
                 var reqSlot = ParseDay(value, day);
                 $('#selectedSlot').html('Selected Slot : L' + reqSlot);
                 if (reqSlot !== false) {
-                    if (list[i].freeslots.indexOf(reqSlot) !== -1) {
-                        regno = list[i].regno;
-                        Free[regno] = list[i].name;
+                    if (Years[SelectedYear][i].freeslots.indexOf(reqSlot) !== -1) {
+                        regno = Years[SelectedYear][i].regno;
+                        Free[regno] = Years[SelectedYear][i].name;
                     }
                 } else {
                   $('#TableBody').html('<h3>WRONG SLOT</h3>');
@@ -73,7 +93,7 @@
                 });
             }
         } else {
-            alert('Please select a Day!')
+            alert('Please select both day and year of students!')
         }
 
     }
@@ -90,6 +110,12 @@
     function selectNumber() {
         var Selected = document.getElementById('SelectNumber');
         NumberofStudents = Selected.options[Selected.selectedIndex].value;
+    }
+
+    //function to select the year of students
+    function selectYear() {
+      var selected = document.getElementById('SelectYear');
+      SelectedYear = selected.options[selected.selectedIndex].value;
     }
 
     function Display (arr) {
@@ -257,16 +283,16 @@
             NumberofStudents = 2;
         }
         allotedStudent = new Map;
-        for (var k = 0; k < list.length; k++) {
-            allotedStudent.set(list[k].regno, 0);
+        for (var k = 0; k < Years[SelectedYear].length; k++) {
+            allotedStudent.set(Years[SelectedYear][k].regno, 0);
         }
         for (var i = 1; i < DaySlot; i++) {
             slot = ParseDay(i, day);
             Free = {};
-            for (var k = 0; k < list.length; k++) {
-                if (list[k].freeslots.indexOf(slot) !== -1) {
-                    regno = list[k].regno;
-                    Free[regno] = list[k].name;
+            for (var k = 0; k < Years[SelectedYear].length; k++) {
+                if (Years[SelectedYear][k].freeslots.indexOf(slot) !== -1) {
+                    regno = Years[SelectedYear][k].regno;
+                    Free[regno] = Years[SelectedYear][k].name;
                 }
             }
             for (var j = i; j <= 29;) {
@@ -280,10 +306,10 @@
         for (var i = 31; i < 35; i++) {
             slot = ParseDay(i, day);
             Free = {};
-            for (var k = 0; k < list.length; k++) {
-                if (list[k].freeslots.indexOf(slot) !== -1) {
-                    regno = list[k].regno;
-                    Free[regno] = list[k].name;
+            for (var k = 0; k < Years[SelectedYear].length; k++) {
+                if (Years[SelectedYear][k].freeslots.indexOf(slot) !== -1) {
+                    regno = Years[SelectedYear][k].regno;
+                    Free[regno] = Years[SelectedYear][k].name;
                 }
             }
             for (var j = i; j <= 59;) {

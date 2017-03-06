@@ -27,6 +27,13 @@ label.error {
   padding-bottom: 4px;
 }
 
+#dropdownMenu1 {
+  width: 100%;
+}
+#DropDownDay {
+  width: 100%;
+}
+
 .TimeTable2 {
   cursor: pointer;
   padding-top: 4px;
