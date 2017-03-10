@@ -15,12 +15,28 @@
 							<p>
 								List of your Club/Chapter's students who have updated their Timetable.
 							</p>
-							<ol>
-								<% students.forEach(function(student) { %>
-									<li><%= student.name %></li>
-									<% }); %>
-							</ol>
+							<div class="">
+		             <table class="table table-fixed">
+		                <thead>
+		                   <tr class="">
+		                      <th class="col-xs-2 col-md-2">#</th>
+		                      <th class="col-xs-8 col-md-6">Name</th>
+		                      <th class="col-xs-2 col-md-4">Register Number</th>
+		                   </tr>
 
+		                </thead>
+		                <tbody id="TableBody">
+											<% n = 1;
+											students.forEach(function(student) { %>
+											 <tr>
+												 <td class="col-xs-2 col-md-2"><%= n %></td>
+												 <td class="col-xs-8 col-md-6"><%= student.name %></td>
+												 <td class="col-xs-2 col-md-4"><%= student.regno %></td>
+											 </tr>
+										 <% n++; }); %>
+		                </tbody>
+		             </table>
+		          </div>
 						</div>
   					<div class="col-md-4">
 								<h3><span class="glyphicon glyphicon-wrench"></span> Actions</h3>

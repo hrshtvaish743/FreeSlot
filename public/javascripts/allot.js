@@ -2,7 +2,7 @@
     var slot;
     var day = undefined;
     var prevSlot = undefined;
-    var NumberofStudents = undefined;
+    var NumberofStudents = 1;
     var SelectedYear = undefined;
     var allotedSlot = new Map;
     var FreeUnion = {};
@@ -25,26 +25,25 @@
     });
 
     function SplitYears(list) {
-      for(var i = 0; i<list.length; i++) {
-        if(!Years[list[i].regno.slice(0,2)]) {
-          var year = list[i].regno.slice(0,2);
-          Years[year] = [];
-          Years[year].push(list[i]);
-          $('#SelectYear').append("<option value=\"" + year + "\" id=\"year_"+ year +"\">"+ year +"XXXXXX</option>");
-        } else {
-          var year = list[i].regno.slice(0,2);
-          Years[year].push(list[i]);
+        for (var i = 0; i < list.length; i++) {
+            if (!Years[list[i].regno.slice(0, 2)]) {
+                var year = list[i].regno.slice(0, 2);
+                Years[year] = [];
+                Years[year].push(list[i]);
+                $('#SelectYear').append("<option value=\"" + year + "\" id=\"year_" + year + "\">" + year + "XXXXXX</option>");
+            } else {
+                var year = list[i].regno.slice(0, 2);
+                Years[year].push(list[i]);
+            }
         }
-      }
-      console.log(Years[15][0].regno);
     }
 
-    function compare(a,b) {
-      if (a.regno > b.regno)
-        return -1;
-      if (a.regno < b.regno)
-        return 1;
-      return 0;
+    function compare(a, b) {
+        if (a.regno > b.regno)
+            return -1;
+        if (a.regno < b.regno)
+            return 1;
+        return 0;
     }
 
 
@@ -57,18 +56,18 @@
             allotedSlot.set(Boxslot, NumberofStudents);
         }
         if ($('#' + Boxslot).html() == "") {
-          $('#' + Boxslot).css('background-color', 'red');
+            $('#' + Boxslot).css('background-color', 'red');
         } else if ($('#' + Boxslot).html() != "") {
-          $('#' + Boxslot).css('background-color', 'red');
-          $('#' + Boxslot).html('');
+            $('#' + Boxslot).css('background-color', 'red');
+            $('#' + Boxslot).html('');
             allotedSlot.set(Boxslot, NumberofStudents);
         }
         if (prevSlot && prevSlot != Boxslot && $('#' + prevSlot).html() == "") {
-          $('#' + prevSlot).css('background-color', '#F5F5F5');
+            $('#' + prevSlot).css('background-color', '#F5F5F5');
         }
         prevSlot = Boxslot;
         var value = parseInt($('#' + Boxslot).attr('value'));
-        if (day != undefined && SelectedYear != undefined) {
+        if (day && SelectedYear) {
             for (var i = 0; i < Years[SelectedYear].length; i++) {
                 var reqSlot = ParseDay(value, day);
                 $('#selectedSlot').html('Selected Slot : L' + reqSlot);
@@ -78,18 +77,18 @@
                         Free[regno] = Years[SelectedYear][i].name;
                     }
                 } else {
-                  $('#TableBody').html('<h3>WRONG SLOT</h3>');
+                    $('#TableBody').html('<h3>WRONG SLOT</h3>');
                 }
             }
             if (jQuery.isEmptyObject(Free))
                 $('#TableBody').html('<h3>No Result!</h3>');
             else {
-              $('#TableBody').html('');
-              var num = 1;
-              $('.tableContainer').show();
+                $('#TableBody').html('');
+                var num = 1;
+                $('.tableContainer').show();
                 jQuery.each(Free, function(reg_no, name) {
-                  $('#TableBody').append("<tr class=\"" + reg_no + "\"><td class=\"col-xs-2\">"+ num +"</td><td class=\"col-xs-8\"><a id=\"" + reg_no + "\" onclick=\"substitute(this.id)\" style=\"cursor:pointer;\">" + name +"</a></td><td class=\"col-xs-2\">" + reg_no + "</td></tr>");
-                  num++;
+                    $('#TableBody').append("<tr class=\"" + reg_no + "\"><td class=\"col-xs-2\">" + num + "</td><td class=\"col-xs-8\"><a id=\"" + reg_no + "\" onclick=\"substitute(this.id)\" style=\"cursor:pointer;\">" + name + "</a></td><td class=\"col-xs-2\">" + reg_no + "</td></tr>");
+                    num++;
                 });
             }
         } else {
@@ -100,10 +99,10 @@
 
 
     //Function To select the week day
-    function SelectDay(Day) {
-        day = Day;
+    function selectDay() {
+        var Selected = document.getElementById('SelectDay');
+        day = Selected.options[Selected.selectedIndex].value;
         ClearAll();
-        document.getElementById('Selected').innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + day;
     }
 
     //Function to Select No of people Per Slot
@@ -114,14 +113,8 @@
 
     //function to select the year of students
     function selectYear() {
-      var selected = document.getElementById('SelectYear');
-      SelectedYear = selected.options[selected.selectedIndex].value;
-    }
-
-    function Display (arr) {
-      for(i = 0; i<arr.length; i++) {
-        if(FreeUnion.indexOf(arr[i]));
-      }
+        var selected = document.getElementById('SelectYear');
+        SelectedYear = selected.options[selected.selectedIndex].value;
     }
 
 
@@ -159,13 +152,13 @@
     //Function to clear all the slots
     function ClearAll() {
         for (var i = 1; i < 60; i++) {
-            if (document.getElementById(i) && i != slot) {
-                document.getElementById(i).innerHTML = "";
-                document.getElementById(i).style.backgroundColor = '#F5F5F5';
+            if ($('#' + i) && i != slot) {
+                $('#' + i).html("");
+                $('#' + i).css('background-color', '#F5F5F5');
             } else if (i == slot) {
-                document.getElementById(i).innerHTML = "";
-                document.getElementById(i).style.backgroundColor = 'red';
-                allotedSlot.set(slot, NumberofStudents);
+              $('#' + i).html("");
+              $('#' + i).css('background-color', 'red');
+              allotedSlot.set(slot, NumberofStudents);
             }
         }
     }
@@ -177,7 +170,7 @@
                 old_html = document.getElementById(slot).innerHTML = Free[regno];
                 delete Free[regno];
                 $('.' + regno).remove();
-                document.getElementById(slot).style.backgroundColor = 'grey';
+                $('#' + slot).css('background-color', '#A9A7B0');
                 var current = allotedSlot.get(slot) - 1;
                 allotedSlot.set(slot, current);
             } else {
@@ -199,7 +192,7 @@
                     delete Free[regno];
                     $('.' + regno).remove();
                     var current = NumberofStudents - 1;
-                    document.getElementById(slot).style.backgroundColor = 'grey';
+                    $('#' + slot).css('background-color', '#A9A7B0');
                     allotedSlot.set(slot, current);
                 }
             }
@@ -226,7 +219,7 @@
         if (allotedSlot.get(BoxId) == NumberofStudents) {
             old_html = document.getElementById(BoxId).innerHTML = Free[random];
             delete Free[random];
-            document.getElementById(BoxId).style.backgroundColor = 'grey';
+            $('#' + BoxId).css('background-color', '#A9A7B0');
             var current = allotedSlot.get(BoxId) - 1;
             allotedSlot.set(BoxId, current);
             var current = allotedStudent.get(random) + 1;
@@ -323,44 +316,44 @@
     }
 
 
-$(document).ready(function(){
-    $('.filterable .btn-filter').click(function(){
-        var $panel = $(this).parents('.filterable'),
-        $filters = $panel.find('.filters input'),
-        $tbody = $panel.find('.table tbody');
-        if ($filters.prop('disabled') == true) {
-            $filters.prop('disabled', false);
-            $filters.last().focus();
-        } else {
-            $filters.val('').prop('disabled', true);
-            $tbody.find('.no-result').remove();
-            $tbody.find('tr').show();
-        }
-    });
-
-    $('.filterable .filters input').keyup(function(e){
-        /* Ignore tab key */
-        var code = e.keyCode || e.which;
-        if (code == '9') return;
-        var $input = $(this),
-        inputContent = $input.val().toLowerCase(),
-        $panel = $input.parents('.filterable'),
-        column = $panel.find('.filters th').index($input.parents('th')),
-        $table = $panel.find('.table'),
-        $rows = $table.find('tbody tr');
-        /* Dirtiest filter function ever ;) */
-        var $filteredRows = $rows.filter(function(){
-            var value = $(this).find('td').eq(column).text().toLowerCase();
-            return value.indexOf(inputContent) === -1;
+    $(document).ready(function() {
+        $('.filterable .btn-filter').click(function() {
+            var $panel = $(this).parents('.filterable'),
+                $filters = $panel.find('.filters input'),
+                $tbody = $panel.find('.table tbody');
+            if ($filters.prop('disabled') == true) {
+                $filters.prop('disabled', false);
+                $filters.last().focus();
+            } else {
+                $filters.val('').prop('disabled', true);
+                $tbody.find('.no-result').remove();
+                $tbody.find('tr').show();
+            }
         });
-        /* Clean previous no-result if exist */
-        $table.find('tbody .no-result').remove();
-        /* Show all rows, hide filtered ones (never do that outside of a demo ! xD) */
-        $rows.show();
-        $filteredRows.hide();
-        /* Prepend no-result row if all rows are filtered */
-        if ($filteredRows.length === $rows.length) {
-            $table.find('tbody').prepend($('<tr class="no-result text-center"><td colspan="'+ $table.find('.filters th').length +'">No result found</td></tr>'));
-        }
+
+        $('.filterable .filters input').keyup(function(e) {
+            /* Ignore tab key */
+            var code = e.keyCode || e.which;
+            if (code == '9') return;
+            var $input = $(this),
+                inputContent = $input.val().toLowerCase(),
+                $panel = $input.parents('.filterable'),
+                column = $panel.find('.filters th').index($input.parents('th')),
+                $table = $panel.find('.table'),
+                $rows = $table.find('tbody tr');
+            /* Dirtiest filter function ever ;) */
+            var $filteredRows = $rows.filter(function() {
+                var value = $(this).find('td').eq(column).text().toLowerCase();
+                return value.indexOf(inputContent) === -1;
+            });
+            /* Clean previous no-result if exist */
+            $table.find('tbody .no-result').remove();
+            /* Show all rows, hide filtered ones (never do that outside of a demo ! xD) */
+            $rows.show();
+            $filteredRows.hide();
+            /* Prepend no-result row if all rows are filtered */
+            if ($filteredRows.length === $rows.length) {
+                $table.find('tbody').prepend($('<tr class="no-result text-center"><td colspan="' + $table.find('.filters th').length + '">No result found</td></tr>'));
+            }
+        });
     });
-});
