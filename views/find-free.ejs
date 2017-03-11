@@ -14,39 +14,40 @@
       </div>
    </div>
    <div class="container tableContainer">
-      <div class="row">
-         <h4>Results are scrollable.</h4>
-         <div class="panel panel-default panel-primary filterable">
-            <div class="panel-heading">
-               <div>
-                  <h4 class="panel-title">
-                     Results
-                  </h4>
-               </div>
-               <div class="pull-right">Click to filter <span class="fa fa-hand-o-right"></span>&nbsp;<button class="btn btn-default btn-xs btn-filter"><span class="glyphicon glyphicon-filter"></span> Filter</button></div>
+      <h4>Results are scrollable.</h4>
+      <div class="panel panel-default panel-primary filterable">
+         <div class="panel-heading">
+            <div>
+               <h4 class="panel-title">
+                  Results
+               </h4>
             </div>
-            <table class="table table-fixed">
-               <thead>
-                  <tr class="filters">
-                     <th class="col-xs-2"><input type="text" class="form-control" placeholder="#" disabled></th>
-                     <th class="col-xs-8"><input type="text" class="form-control" placeholder="Name" disabled></th>
-                     <th class="col-xs-2"><input type="text" class="form-control" placeholder="Register Number" disabled></th>
-                  </tr>
-               </thead>
-               <tbody id="TableBody">
-               </tbody>
-            </table>
+            <div class="pull-right">Click to filter <span class="fa fa-hand-o-right"></span>&nbsp;<button class="btn btn-default btn-xs btn-filter"><span class="glyphicon glyphicon-filter"></span> Filter</button></div>
+         </div>
+         <table class="table table-fixed">
+            <thead>
+               <tr class="filters">
+                  <th class="col-xs-2"><input type="text" class="form-control" placeholder="#" disabled></th>
+                  <th class="col-xs-8"><input type="text" class="form-control" placeholder="Name" disabled></th>
+                  <th class="col-xs-2"><input type="text" class="form-control" placeholder="Register Number" disabled></th>
+               </tr>
+            </thead>
+            <tbody id="TableBody">
+            </tbody>
+         </table>
+         <div class="panel-heading text-center">
+            <div>
+              <button class="btn" data-clipboard-target="#TableBody">
+                  Copy to Clipboard&nbsp;<i class="fa fa-clipboard" aria-hidden="true"></i>
+              </button>
+            </div>
          </div>
       </div>
    </div>
    <div class="container text-center">
-      <h3>Building Slot TimeTable:</h3>
-      <h3 id="selectedSlot"></h3>
       <div id="TT">
          <p class=""><% include timetable2.ejs %></p>
       </div>
-      <button type="button" class="btn btn-default" onclick="ClearAll();" name="button">Clear All</button>
-      <button type="button" class="btn btn-default" onclick="autoAssign();" name="button">Allot Automatically</button>
    </div>
    <div class="modal fade instructions" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
       <div class="modal-dialog modal-lg" role="document">
@@ -59,7 +60,7 @@
                <p>
                <ol>
                   <li>Select the year of students.</li>
-                  <li>Select the slots in timetable for which you need to find free students(You canc select multiple slots. Students free in all the selected slots will be displayed).</li>
+                  <li>Select the slots in timetable for which you need to find free students(You can select multiple slots. Students free in all the selected slots will be displayed).</li>
                </ol>
                </p>
             </div>
