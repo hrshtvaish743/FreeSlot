@@ -64,7 +64,8 @@ function handleChange(checkbox) {
         var num = 1;
         $('.tableContainer').show();
         jQuery.each(FreeStudents, function(reg_no, name) {
-            $('#TableBody').append("<tr class=\"" + reg_no + "\"><td class=\"col-xs-2\">" + num + "</td><td class=\"col-xs-8\"><a id=\"" + reg_no + "\" onclick=\"substitute(this.id)\" style=\"cursor:pointer;\">" + name + "</a></td><td class=\"col-xs-2\">" + reg_no + "</td></tr>");
+            $('#TableBody').append("<tr class=\"" + reg_no + "\"><td class=\"col-xs-2\">" + num + "</td><td class=\"col-xs-8 clip\"><a id=\"" + reg_no + "\" onclick=\"substitute(this.id)\" style=\"cursor:pointer;\">" + name + "</a></td><td class=\"col-xs-2 clip\">" + reg_no + "</td></tr>");
+            $('#copy-div').append(name + "&nbsp;" + reg_no + "<br>")
             num++;
         });
     } else {
@@ -75,7 +76,8 @@ function handleChange(checkbox) {
         var num = 1;
         $('.tableContainer').show();
         jQuery.each(FreeStudents, function(reg_no, name) {
-            $('#TableBody').append("<tr class=\"" + reg_no + "\"><td class=\"col-xs-2\">" + num + "</td><td class=\"col-xs-8\"><a id=\"" + reg_no + "\" onclick=\"substitute(this.id)\" style=\"cursor:pointer;\">" + name + "</a></td><td class=\"col-xs-2\">" + reg_no + "</td></tr>");
+            $('#TableBody').append("<tr class=\"" + reg_no + "\"><td class=\"col-xs-2\">" + num + "</td><td class=\"col-xs-8 clip\"><a id=\"" + reg_no + "\" onclick=\"substitute(this.id)\" style=\"cursor:pointer;\">" + name + "</a></td><td class=\"col-xs-2 clip\">" + reg_no + "</td></tr>");
+            $('#copy-div').append(name + "&nbsp;" + reg_no + "<br>")
             num++;
         });
     }
@@ -145,4 +147,13 @@ $(document).ready(function() {
     });
 });
 
-new Clipboard('.btn');
+var clipboard = new Clipboard('#copy-btn');
+clipboard.on('success', function(e) {
+    console.info('Action:', e.action);
+    console.info('Text:', e.text);
+    console.info('Trigger:', e.trigger);
+
+
+
+    e.clearSelection();
+});

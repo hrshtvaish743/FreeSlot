@@ -88,6 +88,7 @@
                 $('.tableContainer').show();
                 jQuery.each(Free, function(reg_no, name) {
                     $('#TableBody').append("<tr class=\"" + reg_no + "\"><td class=\"col-xs-2\">" + num + "</td><td class=\"col-xs-8\"><a id=\"" + reg_no + "\" onclick=\"substitute(this.id)\" style=\"cursor:pointer;\">" + name + "</a></td><td class=\"col-xs-2\">" + reg_no + "</td></tr>");
+                    $('#copy-div').append(name + "&nbsp;" + reg_no + "<br>")
                     num++;
                 });
             }
@@ -356,4 +357,10 @@
                 $table.find('tbody').prepend($('<tr class="no-result text-center"><td colspan="' + $table.find('.filters th').length + '">No result found</td></tr>'));
             }
         });
+    });
+
+
+    var clipboard = new Clipboard('#copy-btn');
+    clipboard.on('success', function(e) {
+        e.clearSelection();
     });

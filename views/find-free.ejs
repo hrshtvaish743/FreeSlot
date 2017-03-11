@@ -37,7 +37,7 @@
          </table>
          <div class="panel-heading text-center">
             <div>
-              <button class="btn" data-clipboard-target="#TableBody">
+              <button id="copy-btn" class="btn" data-clipboard-target="#copy-div">
                   Copy to Clipboard&nbsp;<i class="fa fa-clipboard" aria-hidden="true"></i>
               </button>
             </div>
@@ -70,6 +70,7 @@
          </div>
       </div>
    </div>
+   <div id="copy-div"></div>
    <hr>
    <% include footer.ejs %>
    <script type="text/javascript" src="/javascripts/find-free.js"></script>
