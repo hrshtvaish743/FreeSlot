@@ -165,6 +165,8 @@ module.exports = function(app, passport) {
             res.render('allot.ejs');
         } else if (req.params.action == 'display') {
             res.render('display.ejs');
+        } else if (req.params.action == 'find-free') {
+            res.render('find-free.ejs');
         } else res.redirect('/admin/home');
     });
 

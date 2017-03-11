@@ -1,62 +1,63 @@
 <% include header.ejs %>
-<body>
-	<% include navbar.ejs %>
-<div class="container">
-	<div class="page-header text-center">
-		<h1><strong><%= user.local.club %>'s</strong> Admin Panel</h1>
-		<h1><span class="glyphicon glyphicon-home"></span>  Welcome <strong><%= user.local.name %></strong></h1>
-	</div>
-</div>
-	<div class="container">
-		<div class="row">
-			<div class="well">
-					<div class="modal-body row">
-						<div class="col-md-8">
-							<p>
-								List of your Club/Chapter's students who have updated their Timetable.
-							</p>
-							<div class="">
-		             <table class="table table-fixed">
-		                <thead>
-		                   <tr class="">
-		                      <th class="col-xs-2 col-md-2">#</th>
-		                      <th class="col-xs-8 col-md-6">Name</th>
-		                      <th class="col-xs-2 col-md-4">Register Number</th>
-		                   </tr>
-
-		                </thead>
-		                <tbody id="TableBody">
+	<body>
+		<% include navbar.ejs %>
+			<div class="container">
+				<div class="page-header text-center">
+					<h1><strong><%= user.local.club %>'s</strong> Admin Panel</h1>
+					<h1><span class="glyphicon glyphicon-home"></span>  Welcome <strong><%= user.local.name %></strong></h1>
+				</div>
+			</div>
+			<div class="container">
+				<div class="row">
+					<div class="well">
+						<div class="modal-body row">
+							<div class="col-md-8">
+								<p>
+									List of your Club/Chapter's students who have updated their Timetable.
+								</p>
+								<div class="">
+									<table class="table table-fixed">
+										<thead>
+											<tr class="">
+												<th class="col-xs-2 col-md-4">#</th>
+												<th class="col-xs-8 col-md-6">Name</th>
+											</tr>
+										</thead>
+										<tbody id="TableBody">
 											<% n = 1;
 											students.forEach(function(student) { %>
-											 <tr>
-												 <td class="col-xs-2 col-md-2"><%= n %></td>
-												 <td class="col-xs-8 col-md-6"><%= student.name %></td>
-												 <td class="col-xs-2 col-md-4"><%= student.regno %></td>
-											 </tr>
-										 <% n++; }); %>
-		                </tbody>
-		             </table>
-		          </div>
-						</div>
-  					<div class="col-md-4">
+												<tr>
+													<td class="col-xs-4 col-md-4">
+														<%= n %>
+													</td>
+													<td class="col-xs-8 col-md-6">
+														<%= student.name %>
+													</td>
+												</tr>
+												<% n++; }); %>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="col-md-4">
 								<h3><span class="glyphicon glyphicon-wrench"></span> Actions</h3>
 								<p>
 									<a href="/admin/allot" class="btn btn-default" role="button">Desk Duties</a>
-							</p>
-							<p>
-								<a href="/admin/find-free" class="btn btn-default" role="button">Find Who's Free</a>
-							</p>
-							<p>
-								<a href="/admin/display" class="btn btn-default" role="button">Display Timetables</a>
-							</p>
-							<p>
-								<a href="/admin/delete" class="btn btn-default" role="button">Delete Data</a>
-							</p>
+								</p>
+								<p>
+									<a href="/admin/find-free" class="btn btn-default" role="button">Find Who's Free</a>
+								</p>
+								<p>
+									<a href="/admin/display" class="btn btn-default" role="button">Display Timetables</a>
+								</p>
+								<p>
+									<a href="/admin/delete" class="btn btn-default" role="button">Delete Data</a>
+								</p>
+							</div>
 						</div>
 					</div>
+				</div>
 			</div>
-		</div>
-	</div>
-	<% include footer.ejs %>
-</body>
-</html>
+			<% include footer.ejs %>
+	</body>
+	</html>

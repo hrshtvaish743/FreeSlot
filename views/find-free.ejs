@@ -1,0 +1,84 @@
+<% include header.ejs %>
+<body id="page-top" data-spy="scroll" data-target="navbar-fixed-top">
+   <% include navbar.ejs %>
+   <div class="container content-section text-center">
+      <h3><a href="#" data-toggle="modal" data-target=".instructions">Read Instructions on How to Use</a></h3>
+      <hr>
+   </div>
+   <div class="container">
+      <div class="col-md-4">
+         <h4>Year : </h4>
+         <select class="form-control" id="SelectYear" onchange="selectYear()">
+            <option value="" disabled selected style="display:none;"></option>
+         </select>
+      </div>
+   </div>
+   <div class="container tableContainer">
+      <div class="row">
+         <h4>Results are scrollable.</h4>
+         <div class="panel panel-default panel-primary filterable">
+            <div class="panel-heading">
+               <div>
+                  <h4 class="panel-title">
+                     Results
+                  </h4>
+               </div>
+               <div class="pull-right">Click to filter <span class="fa fa-hand-o-right"></span>&nbsp;<button class="btn btn-default btn-xs btn-filter"><span class="glyphicon glyphicon-filter"></span> Filter</button></div>
+            </div>
+            <table class="table table-fixed">
+               <thead>
+                  <tr class="filters">
+                     <th class="col-xs-2"><input type="text" class="form-control" placeholder="#" disabled></th>
+                     <th class="col-xs-8"><input type="text" class="form-control" placeholder="Name" disabled></th>
+                     <th class="col-xs-2"><input type="text" class="form-control" placeholder="Register Number" disabled></th>
+                  </tr>
+               </thead>
+               <tbody id="TableBody">
+               </tbody>
+            </table>
+         </div>
+      </div>
+   </div>
+   <div class="container text-center">
+      <h3>Building Slot TimeTable:</h3>
+      <h3 id="selectedSlot"></h3>
+      <div id="TT">
+         <p class=""><% include timetable2.ejs %></p>
+      </div>
+      <button type="button" class="btn btn-default" onclick="ClearAll();" name="button">Clear All</button>
+      <button type="button" class="btn btn-default" onclick="autoAssign();" name="button">Allot Automatically</button>
+   </div>
+   <div class="modal fade instructions" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+      <div class="modal-dialog modal-lg" role="document">
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+               <h4 class="modal-title">Instructions</h4>
+            </div>
+            <div class="modal-body">
+               <p>
+               <ol>
+                  <li>Select the day of the Week from the DropDown Menu.</li>
+                  <li>Select the Number of students that you want to allot in a particular slot in the box on right.</li>
+                  <li>Select the year of students.</li>
+                  <li>Click on the sequired slot in Building Timetable.</li>
+                  <li>If student(s) is/are free in that slot, their name(s) will appear in a list. Filter the list as required using filter option at the right top of the table</li>
+                  <li>Click on the desired Name and their name will get Appended to the Selected slot in Timetable.</li>
+                  <li>If you want to delete the current Allotment of that particular slot then Click on that slot again.</li>
+                  <li>If you change the day after alloting some slots, all the slots will get cleared automatically.</li>
+                  <li>You can also use the Clear All button below the timetable to clear entire timetable.</li>
+                  <li><strong>Automatic allotment:</strong> You can now automatically allot upto 2 persons in each of the instructional slots by clicking on the automatic allot button below the timetable. </li>
+               </ol>
+               </p>
+            </div>
+            <div class="modal-footer">
+               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+         </div>
+      </div>
+   </div>
+   <hr>
+   <% include footer.ejs %>
+   <script type="text/javascript" src="/javascripts/find-free.js"></script>
+</body>
+</html>
