@@ -363,4 +363,6 @@
     var clipboard = new Clipboard('#copy-btn');
     clipboard.on('success', function(e) {
         e.clearSelection();
+        $('#copy-btn').html('Copied!');
+        $('#copy-div').html('');
     });

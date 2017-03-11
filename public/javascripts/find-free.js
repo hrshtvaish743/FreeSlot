@@ -149,11 +149,7 @@ $(document).ready(function() {
 
 var clipboard = new Clipboard('#copy-btn');
 clipboard.on('success', function(e) {
-    console.info('Action:', e.action);
-    console.info('Text:', e.text);
-    console.info('Trigger:', e.trigger);
-
-
-
     e.clearSelection();
+    $('#copy-btn').html('Copied!');
+    $('#copy-div').html('');
 });
