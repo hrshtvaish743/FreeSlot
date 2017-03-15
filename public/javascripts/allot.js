@@ -86,6 +86,7 @@
                 $('#TableBody').html('');
                 var num = 1;
                 $('.tableContainer').show();
+                $('#copy-div').html('');
                 jQuery.each(Free, function(reg_no, name) {
                     $('#TableBody').append("<tr class=\"" + reg_no + "\"><td class=\"col-xs-2\">" + num + "</td><td class=\"col-xs-8\"><a id=\"" + reg_no + "\" onclick=\"substitute(this.id)\" style=\"cursor:pointer;\">" + name + "</a></td><td class=\"col-xs-2\">" + reg_no + "</td></tr>");
                     $('#copy-div').append(name + "&nbsp;" + reg_no + "<br>")
