@@ -430,6 +430,11 @@ module.exports = function(app, passport) {
         }
     });
 
+    /*const
+    app.get('/studcheck', function(res, req) {
+
+    })*/
+
     app.get('/check', function(req, res) {
       student.find({}, function(err, data) {
         if(err) throw err;

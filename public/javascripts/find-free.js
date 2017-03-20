@@ -20,6 +20,7 @@ $(document).ready(function(next) {
 });
 
 function SplitYears(list) {
+    Years["All"] = [];
     for (var i = 0; i < list.length; i++) {
         if (!Years[list[i].regno.slice(0, 2)]) {
             var year = list[i].regno.slice(0, 2);
@@ -30,7 +31,9 @@ function SplitYears(list) {
             var year = list[i].regno.slice(0, 2);
             Years[year].push(list[i]);
         }
+        Years["All"].push(list[i]);
     }
+    $('#SelectYear').append("<option value=\"All\" id=\"year_all\">All</option>");
 }
 
 function compare(a, b) {
