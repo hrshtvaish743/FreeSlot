@@ -22,6 +22,7 @@ mongoose.connect(configDB.url, function(err) {
       if(err) throw err;
     });
 });
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 
 
 var app = express();
