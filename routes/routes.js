@@ -496,16 +496,24 @@ module.exports = function(app, passport) {
     });
 
 
-    app.get('/check', function(req, res) {
-      student.find({}, function(err, data) {
+    app.get('/check/:club', function(req, res) {
+      Club.findOne({'loginID' : req.params.club}, function(err, club) {
         if(err) throw err;
-        var info = [];
-        for(i = 0; i<data.length; i++) {
-          if(data[i].freeslots.length == 60)
-            info.push(data[i]);
+        if(!club) {
+          res.send('No Club/chapter found');
+        } else {
+          student.find({'clubID' : req.params.club}, function(err, data) {
+            if(err) throw err;
+            var info = '';
+            for(i = 0; i<data.length; i++) {
+              if(!data[i].email)
+                info += data[i].name + '\n<br>'
+            }
+            res.send(info);
+          });
         }
-        res.send(info);
-      });
+      })
+
     });
 };
 
