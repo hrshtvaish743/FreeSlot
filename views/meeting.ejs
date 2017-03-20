@@ -1,6 +1,10 @@
 <% include header.ejs %>
 <body>
 	<% include navbar.ejs %>
+<div class="container content-section text-center">
+   <h3><a href="#" data-toggle="modal" data-target=".instructions">Read Instructions on How to Use</a></h3>
+   <hr>
+</div>
 <div class="container">
 	<div class="page-header text-center">
 		<h1><strong><%= user.local.club %>'s</strong> Admin Panel</h1>
@@ -12,7 +16,7 @@
 				<div class="modal-body row">
 						<div class="container">
 						    <h1>Call a Meeting</h1>
-                <h4>An email will be sent to all the selected students to inform the about meeting.</h4>
+                <h4>An email will be sent to all the selected students to inform them about meeting.</h4><br>
 							<div class="row">
 						      <div class="col-md-9 personal-info">
 										<% if (message.length > 0) { %>
@@ -80,6 +84,31 @@
 			</div>
 		</div>
 	</div>
+  <div class="modal fade instructions" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+     <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+           <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Instructions</h4>
+           </div>
+           <div class="modal-body">
+              <p>
+              <ol>
+                 <li>Select the year of students.</li>
+                 <li>Fill in the required details about the meeting.</li>
+                 <li>Click the call button.</li>
+                 <li>An email will be sent to all the selected year students and confirmation of email sent will be displayed on this page.</li>
+                 <li>Please check the mail status for all students.</li>
+                 <li>If some one has not updated his/her email address, then his/her name will appear in red.Please ask all your students to update their email address.</li>
+              </ol>
+              </p>
+           </div>
+           <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+           </div>
+        </div>
+     </div>
+  </div>
 	<% include footer.ejs %>
   <script type="text/javascript" src="/javascripts/meeting.js"></script>
 </body>
