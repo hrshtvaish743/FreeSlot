@@ -7,7 +7,8 @@ var tempSchema = mongoose.Schema({
     dob: String,
     mobile: String,
     club_id : String,
-    name : String
+    name : String,
+    email : String
 
 });
 

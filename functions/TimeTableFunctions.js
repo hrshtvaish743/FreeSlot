@@ -17,7 +17,7 @@ const path = require('path');
 
 module.exports = {
     Login: function(req, res, clubName) {
-        if (!req.body.registerNo || !req.body.DOB || !req.body.phoneNo || !clubName) {
+        if (!req.body.registerNo || !req.body.DOB || !req.body.phoneNo || !clubName ||!req.body.email) {
             res.render('form.ejs', {
                 name: clubName,
                 id: req.params.id,
@@ -29,6 +29,7 @@ module.exports = {
             newTemp.dob = req.body.DOB;
             newTemp.mobile = req.body.phoneNo;
             newTemp.club_id = req.params.id;
+            newTemp.email = req.body.email;
             const data = {
                 reg_no: req.body.registerNo.toUpperCase(),
                 dob: req.body.DOB,
@@ -128,6 +129,7 @@ module.exports = {
             newStud.regno = response.reg_no.toUpperCase();
             newStud.freeslots = NumberedFreeSlots;
             newStud.clubID = req.params.id;
+            newStud.email = student.email;
 
             Student.find({
                 'regno': response.reg_no,

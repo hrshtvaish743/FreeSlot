@@ -10,7 +10,8 @@ var studSchema = new Schema({
     freeslots: [Number],
     clubID: String,
     created_at: Date,
-    updated_at: Date
+    updated_at: Date,
+    email : String
 });
 
 var student = mongoose.model('StudentData', studSchema);

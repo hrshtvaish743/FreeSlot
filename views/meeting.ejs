@@ -1,0 +1,86 @@
+<% include header.ejs %>
+<body>
+	<% include navbar.ejs %>
+<div class="container">
+	<div class="page-header text-center">
+		<h1><strong><%= user.local.club %>'s</strong> Admin Panel</h1>
+	</div>
+</div>
+	<div class="container">
+		<div class="row">
+			<div class="well">
+				<div class="modal-body row">
+						<div class="container">
+						    <h1>Call a Meeting</h1>
+                <h4>An email will be sent to all the selected students to inform the about meeting.</h4>
+							<div class="row">
+						      <div class="col-md-9 personal-info">
+										<% if (message.length > 0) { %>
+						        <div class="alert alert-info alert-dismissable">
+						          <a class="panel-close close" data-dismiss="alert">×</a>
+						          <i class="fa fa-coffee"></i>
+						          <%= message %>
+						        </div>
+										<% } %>
+                    <div class="alert alert-info alert-dismissable" id="response">
+						        </div>
+
+						        <form id="" class="form-horizontal" role="form" method="post" onsubmit="return(CallMeeting());">
+						          <div class="form-group">
+						            <label class="col-lg-3 control-label">Call Meeting for:</label>
+						            <div class="col-lg-8">
+						              <select class="form-control" id="SelectYear" onchange="selectYear()">
+                              <option value="" disabled selected style="display:none;"></option>
+                          </select>
+						            </div>
+						          </div>
+						          <div class="form-group">
+						            <label class="col-lg-3 control-label">Called By(Name):</label>
+						            <div class="col-lg-8">
+						              <input class="form-control" id="name" type="text" required>
+						            </div>
+						          </div>
+											<div class="form-group">
+												<label class="col-md-3 control-label">Venue:</label>
+												<div class="col-md-8">
+													<input class="form-control" id="venue" type="text" required>
+												</div>
+											</div>
+											<div class="form-group">
+						            <label class="col-md-3 control-label">Date:</label>
+						            <div class="col-md-8">
+						              <input class="form-control" id="date" type="date" required>
+						            </div>
+						          </div>
+						          <div class="form-group">
+						            <label class="col-md-3 control-label">Time:</label>
+						            <div class="col-md-8">
+						              <input class="form-control" id="time" type="text" required>
+						            </div>
+						          </div>
+						          <div class="form-group">
+						            <label class="col-md-3 control-label">Message:</label>
+						            <div class="col-md-8">
+						              <textarea class="form-control" id="message" type="textbox" required></textarea>
+						            </div>
+						          </div>
+						          <div class="form-group">
+						            <label class="col-md-3 control-label"></label>
+						            <div class="col-md-8">
+						              <input type="submit" class="btn btn-primary" value="Call">
+						              <span></span>
+						            </div>
+						          </div>
+						        </form>
+						      </div>
+						  </div>
+						</div>
+						<hr>
+					</div>
+			</div>
+		</div>
+	</div>
+	<% include footer.ejs %>
+  <script type="text/javascript" src="/javascripts/meeting.js"></script>
+</body>
+</html>
