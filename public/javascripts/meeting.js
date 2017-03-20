@@ -76,8 +76,6 @@ function CallMeeting() {
         }
     });
   }
+  $(':input','#MeetingForm').not(':button, :submit, :reset, :hidden').val('').removeAttr('checked').removeAttr('selected');
   return false;
-  /*data = {};
-  data.regno =
-  */
 }
