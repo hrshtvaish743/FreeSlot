@@ -81,15 +81,7 @@ module.exports = function(passport) {
                     newClub.verified = false;
 
                     // save the user
-                    newClub.save(function(err) {
-                        if (err)
-                            throw err;
-                    });
-                    newUser.save(function(err) {
-                        if (err)
-                            throw err;
-                        return done(null, newUser);
-                    });
+
                     var transporter = nodemailer.createTransport({
                         service: 'Gmail',
                         auth: {
@@ -113,22 +105,32 @@ module.exports = function(passport) {
                             throw err;
                         } else {
                             console.log('Message sent to user: ' + info.response);
+                            text = req.body.club + " was just registered on FreeSlot by " + req.body.name + " " + req.body.RepRegno + " using " + email;
+                            var mailOptions = {
+                                from: 'The FreeSlot App', // sender address
+                                to: config.email, // list of receivers
+                                subject: 'New Registration!', // Subject line
+                                text: text
+                            };
+                            transporter.sendMail(mailOptions, function(error, info) {
+                                if (error) {
+                                    throw err;
+                                } else {
+                                    console.log('Message sent to admin: ' + info.response);
+                                    newClub.save(function(err) {
+                                        if (err)
+                                            throw err;
+                                    });
+                                    newUser.save(function(err) {
+                                        if (err)
+                                            throw err;
+                                        return done(null, newUser);
+                                    });
+                                };
+                            });
                         };
                     });
-                    text = req.body.club + " was just registered on FreeSlot by " + req.body.name + " " + req.body.RepRegno + " using " + email;
-                    var mailOptions = {
-                        from: 'The FreeSlot App', // sender address
-                        to: config.email, // list of receivers
-                        subject: 'New Registration!', // Subject line
-                        text: text
-                    };
-                    transporter.sendMail(mailOptions, function(error, info) {
-                        if (error) {
-                            throw err;
-                        } else {
-                            console.log('Message sent to admin: ' + info.response);
-                        };
-                    });
+
                 }
             });
         }));

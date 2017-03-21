@@ -64,8 +64,9 @@ module.exports = {
                 } else {
                     newTemp.save(function(err) {
                         if (err) throw err;
+                        res.redirect('/student/' + req.params.id + '/' + req.body.registerNo + '/refresh');
                     });
-                    res.redirect('/student/' + req.params.id + '/' + req.body.registerNo + '/refresh');
+
                 }
             };
             Login.get(data, onGet);
