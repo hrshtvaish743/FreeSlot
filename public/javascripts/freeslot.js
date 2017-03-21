@@ -2,7 +2,7 @@ var slot;
 var day = undefined;
 var prevSlot = undefined;
 var ck_email = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
-var ck_regno = /^1[123456][bmBM][abceimnpsvABCEIMNPSV][abcdefihlmtsABCDEFIHLMTS]\d{4}$/;
+var ck_regno = /^1[123456][a-zA-Z]{3}\d{4}$/;
 var ck_phone = /^\d{10}$/;
 var ck_password = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
 var ck_dob = /^\d{8}$/;

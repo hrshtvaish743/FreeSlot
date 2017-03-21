@@ -506,8 +506,11 @@ module.exports = function(app, passport) {
             if(err) throw err;
             var info = '';
             for(i = 0; i<data.length; i++) {
-              if(!data[i].email)
-                info += data[i].name + '\n<br>'
+              if(data[i].email){
+                info += '<p style="color:green;">' + data[i].name + ' - Email Updated</p>';
+              } else {
+                info += '<p style="color:red;">' + data[i].name + ' - Email Not Updated</p>';
+              }
             }
             res.send(info);
           });
