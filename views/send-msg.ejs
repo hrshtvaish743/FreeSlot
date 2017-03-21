@@ -1,0 +1,170 @@
+<% include header.ejs %>
+<body>
+	<% include navbar.ejs %>
+<div class="container content-section text-center">
+   <h3><a href="#" data-toggle="modal" data-target=".instructions">Read Instructions on How to Use</a></h3>
+   <hr>
+</div>
+<div class="container">
+	<div class="page-header text-center">
+		<h1><strong><%= user.local.club %>'s</strong> Admin Panel</h1>
+	</div>
+</div>
+	<div class="container">
+		<div class="row">
+			<div class="well">
+				<div class="modal-body row">
+						<div class="container">
+						    <h1>Call a Meeting</h1>
+                <h4>An email will be sent to all the selected students to inform them about meeting.</h4><br>
+							<div class="row">
+						      <div class="col-md-9 personal-info">
+                    <div class="alert alert-info alert-dismissable" id="response">
+						        </div>
+
+						        <form id="MessageForm" class="form-horizontal" role="form" method="post" onsubmit="return(CallMeeting());">
+						          <div class="form-group">
+						            <label class="col-lg-3 control-label">Send message to:</label>
+						            <div class="col-lg-8">
+						              <select class="form-control" id="SelectYear" onchange="selectYear()">
+                              <option value="" disabled selected style="display:none;"></option>
+                          </select>
+						            </div>
+						          </div>
+						          <div class="form-group">
+						            <label class="col-lg-3 control-label">Message by:</label>
+						            <div class="col-lg-8">
+						              <input class="form-control" id="name" type="text" required>
+						            </div>
+						          </div>
+						          <div class="form-group">
+						            <label class="col-md-3 control-label">Message:</label>
+						            <div class="col-md-8">
+						              <textarea class="form-control" id="message" type="textbox" required></textarea>
+						            </div>
+						          </div>
+						          <div class="form-group">
+						            <label class="col-md-3 control-label"></label>
+						            <div class="col-md-8">
+						              <input type="submit" class="btn btn-primary" value="Send">
+						              <span></span>
+						            </div>
+						          </div>
+						        </form>
+						      </div>
+						  </div>
+						</div>
+						<hr>
+					</div>
+			</div>
+		</div>
+	</div>
+  <div class="modal fade instructions" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+     <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+           <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Instructions</h4>
+           </div>
+           <div class="modal-body">
+              <p>
+              <ol>
+                 <li>Select the year of students.</li>
+                 <li>Fill in the required details about the message.</li>
+                 <li>Click the send button.</li>
+                 <li>An email will be sent to all the selected year students and confirmation of email sent will be displayed on this page.</li>
+                 <li>Please check the mail status for all students.</li>
+                 <li>If some one has not updated his/her email address, then his/her name will appear in red.Please ask all your students to update their email address.</li>
+              </ol>
+              </p>
+           </div>
+           <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+           </div>
+        </div>
+     </div>
+  </div>
+	<% include footer.ejs %>
+  <script>
+  var list;
+  var SelectedSlots = [];
+  var Years = [];
+  var SelectedYear = undefined;
+
+  // AJAX query to get all Timetable data from server
+  $(document).ready(function(next) {
+    $('#response').hide();
+      $.ajax({
+          type: 'GET',
+          contentType: 'application/json',
+          url: '/get-data',
+          success: function(data) {
+              list = data;
+              list.sort(compare);
+              SplitYears(list);
+              console.log("Data Received!");
+          }
+      });
+  });
+
+  function SplitYears(list) {
+      Years["All"] = [];
+      for (var i = 0; i < list.length; i++) {
+          if (!Years[list[i].regno.slice(0, 2)]) {
+              var year = list[i].regno.slice(0, 2);
+              Years[year] = [];
+              Years[year].push(list[i]);
+              $('#SelectYear').append("<option value=\"" + year + "\" id=\"year_" + year + "\">" + year + "XXXXXX</option>");
+          } else {
+              var year = list[i].regno.slice(0, 2);
+              Years[year].push(list[i]);
+          }
+          Years["All"].push(list[i]);
+      }
+      $('#SelectYear').append("<option value=\"All\" id=\"year_all\">All</option>");
+  }
+
+  function compare(a, b) {
+      if (a.regno > b.regno)
+          return -1;
+      if (a.regno < b.regno)
+          return 1;
+      return 0;
+  }
+
+  function selectYear() {
+      var selected = document.getElementById('SelectYear');
+      SelectedYear = selected.options[selected.selectedIndex].value;
+  }
+
+  function CallMeeting() {
+    var list = Years[SelectedYear];
+    data = {};
+    data.name = $('#name').val();
+    data.message = $('#message').val();
+    $('#response').show();
+    for(i = 0; i<list.length; i++) {
+      data.regno = list[i].regno;
+      $.ajax({
+          type: 'POST',
+          contentType: 'application/json',
+          url: '/admin/send-message',
+          data: JSON.stringify(data),
+          success: function(resp) {
+              if(resp.status != 1) {
+                var content = '<h4 style="color:red;">Mail Status for ' + resp.name + ' : ' + resp.message + '<br></h4>';
+              } else {
+                var content = '<h4>Mail Status for ' + resp.name + ' : ' + resp.message + '<br></h4>';
+              }
+
+              $('#response').append(content);
+          }
+      });
+    }
+    $(':input','#MessageForm').not(':button, :submit, :reset, :hidden').val('').removeAttr('checked').removeAttr('selected');
+    return false;
+  }
+
+  </script>
+</body>
+</html>

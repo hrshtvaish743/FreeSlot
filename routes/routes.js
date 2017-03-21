@@ -174,6 +174,10 @@ module.exports = function(app, passport) {
               user : req.user,
               message : req.flash('meetingMessage')
             });
+        } else if (req.params.action == 'send-message') {
+            res.render('send-msg.ejs', {
+              user : req.user
+            });
         } else res.redirect('/admin/home');
     });
 
@@ -228,7 +232,7 @@ module.exports = function(app, passport) {
                         to: stud.email,
                         from: 'FreeSlot',
                         subject: club.name + ' has called for a meeting!',
-                        text: 'Hello ' + stud.name + '!\n' + club.name + ' has called for a meeting.\n\n' +
+                        text: 'Hello ' + stud.name + ',\n' + club.name + ' has called for a meeting.\n\n' +
                         'Venue: ' + req.body.venue +
                         '\nDate: ' + req.body.date +
                         '\nTime: ' + req.body.time +
@@ -253,6 +257,61 @@ module.exports = function(app, passport) {
                 });
               }
             });
+        } else if(req.params.action == 'send-message') {
+          student.findOne({
+            'clubID': req.session.clubID,
+            'regno': req.body.regno
+          }, function(err, stud) {
+            if(err) throw err;
+            if(!stud) {
+              res.json({
+                status : 404,
+                message : 'Data Not Found!'
+              });
+            } else if(stud.email) {
+              Club.findOne({
+                'loginID' : req.session.clubID
+              }, function(err, club) {
+                if(err) throw err;
+                if(!club) {
+                  res.json({
+                    status : 404,
+                    message : 'Data Not Found!'
+                  });
+                } else {
+                  var smtpTransport = nodemailer.createTransport({
+                      service: 'Gmail',
+                      auth: {
+                          user: config.email,
+                          pass: config.password
+                      }
+                  });
+                  var mailOptions = {
+                      to: stud.email,
+                      from: 'FreeSlot',
+                      subject: 'Message from ' + club.name,
+                      text: 'Hello ' + stud.name + ',\nYou have a message from ' + club.name + '.' +
+                      '\n\nSent by: ' + req.body.name +
+                      '\n\nMessage: \n\n' + req.body.message +
+                      '\n\n\nThank You\nTeam FreeSlot'
+                  };
+                  smtpTransport.sendMail(mailOptions, function(err, info) {
+                      res.json({
+                        status : 1,
+                        message : 'Mail Sent!',
+                        name : stud.name
+                      });
+                  });
+                }
+              });
+            } else {
+              res.json({
+                status : 0,
+                message : 'Email address not updated!',
+                name : stud.name
+              });
+            }
+          });
         } else res.redirect('/admin/home');
     });
 
@@ -507,9 +566,9 @@ module.exports = function(app, passport) {
             var info = '';
             for(i = 0; i<data.length; i++) {
               if(data[i].email){
-                info += '<p style="color:green;">' + data[i].name + ' - Email Updated</p>';
+                info += '<p style="color:green;">' + data[i].regno + ' ' + data[i].name + ' - Email Updated</p>';
               } else {
-                info += '<p style="color:red;">' + data[i].name + ' - Email Not Updated</p>';
+                info += '<p style="color:red;">' + data[i].regno + ' ' + data[i].name + ' - Email Not Updated</p>';
               }
             }
             res.send(info);
