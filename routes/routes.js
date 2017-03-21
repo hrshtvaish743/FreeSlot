@@ -242,6 +242,7 @@ module.exports = function(app, passport) {
                             };
                             smtpTransport.sendMail(mailOptions, function(err, info) {
                                 if (err) {
+                                    console.log(err);
                                     res.json({
                                         status: 0,
                                         message: 'Some Error occurred!',
@@ -306,6 +307,7 @@ module.exports = function(app, passport) {
                             };
                             smtpTransport.sendMail(mailOptions, function(err, info) {
                                 if (err) {
+                                    console.log(err);
                                     res.json({
                                         status: 0,
                                         message: 'Some Error occurred!',
