@@ -246,13 +246,15 @@ module.exports = function(app, passport) {
                                     res.json({
                                         status: 0,
                                         message: 'Some Error occurred!',
-                                        name: stud.name
+                                        name: stud.name,
+                                        regno : stud.regno
                                     });
                                 } else {
                                     res.json({
                                         status: 1,
                                         message: 'Mail Sent!',
-                                        name: stud.name
+                                        name: stud.name,
+                                        regno : stud.regno
                                     });
                                 }
 
@@ -263,7 +265,8 @@ module.exports = function(app, passport) {
                     res.json({
                         status: 0,
                         message: 'Email address not updated!',
-                        name: stud.name
+                        name: stud.name,
+                        regno : stud.regno
                     });
                 }
             });
@@ -311,13 +314,15 @@ module.exports = function(app, passport) {
                                     res.json({
                                         status: 0,
                                         message: 'Some Error occurred!',
-                                        name: stud.name
+                                        name: stud.name,
+                                        regno : stud.regno
                                     });
                                 } else {
                                     res.json({
                                         status: 1,
                                         message: 'Mail Sent!',
-                                        name: stud.name
+                                        name: stud.name,
+                                        regno : stud.regno
                                     });
                                 }
                             });
@@ -327,7 +332,8 @@ module.exports = function(app, passport) {
                     res.json({
                         status: 0,
                         message: 'Email address not updated!',
-                        name: stud.name
+                        name: stud.name,
+                        regno : stud.regno
                     });
                 }
             });

@@ -22,7 +22,7 @@
                     <div class="alert alert-info alert-dismissable" id="response">
 						        </div>
 
-						        <form id="MessageForm" class="form-horizontal" role="form" method="post" onsubmit="return(CallMeeting());">
+						        <form id="MessageForm" class="form-horizontal" role="form" method="post" onsubmit="return(SendMessage());">
 						          <div class="form-group">
 						            <label class="col-lg-3 control-label">Send message to:</label>
 						            <div class="col-lg-8">
@@ -75,6 +75,7 @@
                  <li>An email will be sent to all the selected year students and confirmation of email sent will be displayed on this page.</li>
                  <li>Please check the mail status for all students.</li>
                  <li>If some one has not updated his/her email address, then his/her name will appear in red.Please ask all your students to update their email address.</li>
+								 <li>In case the email fails to send for few students, Please send again with the button next to their name. Some problem may occur sometimes.</li>
               </ol>
               </p>
            </div>
@@ -137,12 +138,14 @@
       SelectedYear = selected.options[selected.selectedIndex].value;
   }
 
-  function CallMeeting() {
+	sendAgain = [];
+	data = {};
+
+  function SendMessage() {
     var list = Years[SelectedYear];
-    data = {};
     data.name = $('#name').val();
     data.message = $('#message').val();
-    $('#response').show();
+    $('#response').show().html("");
     for(i = 0; i<list.length; i++) {
       data.regno = list[i].regno;
       $.ajax({
@@ -152,11 +155,13 @@
           data: JSON.stringify(data),
           success: function(resp) {
               if(resp.status != 1) {
-                var content = '<h4 style="color:red;">Mail Status for ' + resp.name + ' : ' + resp.message + '<br></h4>';
+                var content = '<h4 style="color:red;">Mail Status for '
+								 + resp.name + ' : ' + resp.message +
+								 '<a class="btn btn-default" role="button" id="'+ resp.regno +
+								 '" onclick=SendAgain(this.id);>Send Again</a><br></h4>';
               } else {
                 var content = '<h4>Mail Status for ' + resp.name + ' : ' + resp.message + '<br></h4>';
               }
-
               $('#response').append(content);
           }
       });
@@ -164,6 +169,28 @@
     $(':input','#MessageForm').not(':button, :submit, :reset, :hidden').val('').removeAttr('checked').removeAttr('selected');
     return false;
   }
+
+	function SendAgain(regno) {
+			data.regno = regno;
+			$.ajax({
+					type: 'POST',
+					contentType: 'application/json',
+					url: '/admin/send-message',
+					data: JSON.stringify(data),
+					success: function(resp) {
+							if(resp.status != 1) {
+								$('#' + regno).html('Not Sent! Send again');
+								console.log('Not sent to ' + regno);
+							} else {
+								$('#' + regno).html('Mail Sent!');
+								$('#' + regno).removeAttr('onclick');
+								console.log('Mail sent to ' + regno);
+							}
+
+					}
+			});
+		return false;
+	}
 
   </script>
 </body>

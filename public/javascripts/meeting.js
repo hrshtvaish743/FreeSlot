@@ -49,15 +49,16 @@ function selectYear() {
     SelectedYear = selected.options[selected.selectedIndex].value;
 }
 
+data = {};
+
 function CallMeeting() {
   var list = Years[SelectedYear];
-  data = {};
   data.name = $('#name').val();
   data.venue = $('#venue').val();
   data.time = $('#time').val();
   data.date = $('#date').val();
   data.message = $('#message').val();
-  $('#response').show();
+  $('#response').show().html("");
   for(i = 0; i<list.length; i++) {
     data.regno = list[i].regno;
     $.ajax({
@@ -67,7 +68,10 @@ function CallMeeting() {
         data: JSON.stringify(data),
         success: function(resp) {
             if(resp.status != 1) {
-              var content = '<h4 style="color:red;">Mail Status for ' + resp.name + ' : ' + resp.message + '<br></h4>';
+              var content = '<h4 style="color:red;">Mail Status for '
+               + resp.name + ' : ' + resp.message +
+               '<a class="btn btn-default" role="button" id="'+ resp.regno +
+               '" onclick=SendAgain(this.id);>Send Again</a><br></h4>';
             } else {
               var content = '<h4>Mail Status for ' + resp.name + ' : ' + resp.message + '<br></h4>';
             }
@@ -77,5 +81,27 @@ function CallMeeting() {
     });
   }
   $(':input','#MeetingForm').not(':button, :submit, :reset, :hidden').val('').removeAttr('checked').removeAttr('selected');
+  return false;
+}
+
+function SendAgain(regno) {
+    data.regno = regno;
+    $.ajax({
+        type: 'POST',
+        contentType: 'application/json',
+        url: '/admin/send-message',
+        data: JSON.stringify(data),
+        success: function(resp) {
+            if(resp.status != 1) {
+              $('#' + regno).html('Not Sent! Send again');
+              console.log('Not sent to ' + regno);
+            } else {
+              $('#' + regno).html('Mail Sent!');
+              $('#' + regno).removeAttr('onclick');
+              console.log('Mail sent to ' + regno);
+            }
+
+        }
+    });
   return false;
 }
