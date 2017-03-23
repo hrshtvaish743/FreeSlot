@@ -318,9 +318,9 @@ module.exports = function(app, passport) {
                                         regno : stud.regno
                                     });
                                 } else {
-                                    https.get('https://control.msg91.com/api/sendhttp.php?authkey=146100ABpiUitK58d3ca54&mobiles=9952552526&message=Test&sender=ABCDEF&route=4&country=91', function(res){
+                                    /*https.get('https://control.msg91.com/api/sendhttp.php?authkey=146100ABpiUitK58d3ca54&mobiles=9952552526&message=Test&sender=ABCDEF&route=4&country=91', function(res){
                                       console.log(res);
-                                    });
+                                    });*/
                                     res.json({
                                         status: 1,
                                         message: 'Mail Sent!',
