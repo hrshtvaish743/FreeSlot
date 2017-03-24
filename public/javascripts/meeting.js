@@ -96,7 +96,7 @@ function CallMeeting() {
         data.to = '';
     }
   }
-  data.mobiles = '7010694923';
+  data.mobiles = '';
   data.smstype = 'meeting';
   for(i = 0; i<listLength; i++) {
     if(list[i].phone){

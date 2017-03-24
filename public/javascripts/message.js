@@ -85,7 +85,7 @@ function SendMessage() {
                    '<br></h4>';
                 } else {
                   var content = '<h4>Mail Status  : ' + resp.message + '<br></h4>';
-                  $(':input','#MeetingForm').not(':button, :submit, :reset, :hidden').val('').removeAttr('checked').removeAttr('selected');
+                  $(':input','#MessageForm').not(':button, :submit, :reset, :hidden').val('').removeAttr('checked').removeAttr('selected');
                 }
                 $('#response').append(content);
             }
@@ -94,7 +94,7 @@ function SendMessage() {
         data.to = '';
     }
   }
-  data.mobiles = '7010694923';
+  data.mobiles = '';
   data.smstype = 'message';
   for(i = 0; i<listLength; i++) {
     if(list[i].phone){
