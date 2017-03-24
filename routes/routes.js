@@ -686,6 +686,7 @@ module.exports = function(app, passport) {
     });
 
     app.get('/add-details/:club/:regno', function(req, res) {
+      var regno = req.params.regno.toUpperCase();
       Club.findOne({
         'loginID' : req.params.club
       }, function(err, club) {
@@ -695,7 +696,7 @@ module.exports = function(app, passport) {
         else {
           student.findOne({
             'clubID' : req.params.club,
-            'regno' : req.params.regno
+            'regno' : regno
           },function(err, stud) {
             if(err) throw err;
             if(!stud) {
@@ -710,7 +711,9 @@ module.exports = function(app, passport) {
         }
       });
     });
+
     app.post('/add-details/:club/:regno', function(req, res) {
+      var regno = req.params.regno.toUpperCase();
       Club.findOne({
         'loginID' : req.params.club
       }, function(err, club) {
@@ -720,7 +723,7 @@ module.exports = function(app, passport) {
         else {
           student.findOne({
             'clubID' : req.params.club,
-            'regno' : req.params.regno
+            'regno' : regno
           },function(err, stud) {
             if(err) throw err;
             if(!stud) {
