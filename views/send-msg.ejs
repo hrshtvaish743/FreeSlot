@@ -138,59 +138,54 @@
       SelectedYear = selected.options[selected.selectedIndex].value;
   }
 
-	sendAgain = [];
 	data = {};
 
-  function SendMessage() {
-    var list = Years[SelectedYear];
-    data.name = $('#name').val();
+	function SendMessage() {
+	  var list = Years[SelectedYear];
+	  var count = 0,
+	      total = 0,
+	      listLength = list.length,
+	      RequestCount = 0;
+		data.name = $('#name').val();
     data.message = $('#message').val();
-    $('#response').show().html("");
-    for(i = 0; i<list.length; i++) {
-      data.regno = list[i].regno;
-      $.ajax({
-          type: 'POST',
-          contentType: 'application/json',
-          url: '/admin/send-message',
-          data: JSON.stringify(data),
-          success: function(resp) {
-              if(resp.status != 1) {
-                var content = '<h4 style="color:red;">Mail Status for '
-								 + resp.name + ' : ' + resp.message +
-								 '<a class="btn btn-default" role="button" id="'+ resp.regno +
-								 '" onclick=SendAgain(this.id);>Send Again</a><br></h4>';
-              } else {
-                var content = '<h4>Mail Status for ' + resp.name + ' : ' + resp.message + '<br></h4>';
-              }
-              $('#response').append(content);
-          }
-      });
-    }
-    $(':input','#MessageForm').not(':button, :submit, :reset, :hidden').val('').removeAttr('checked').removeAttr('selected');
-    return false;
-  }
-
-	function SendAgain(regno) {
-			data.regno = regno;
-			$.ajax({
-					type: 'POST',
-					contentType: 'application/json',
-					url: '/admin/send-message',
-					data: JSON.stringify(data),
-					success: function(resp) {
-							if(resp.status != 1) {
-								$('#' + regno).html('Not Sent! Send again');
-								console.log('Not sent to ' + regno);
-							} else {
-								$('#' + regno).html('Mail Sent!');
-								$('#' + regno).removeAttr('onclick');
-								console.log('Mail sent to ' + regno);
-							}
-
-					}
-			});
-		return false;
+	  data.to = '';
+	  $('#response').show().html("");
+	  for(i = 0; i<listLength; i++) {
+	    if(list[i].email){
+	      if(data.to == ''){
+	        data.to += list[i].email;
+	      } else {
+	          data.to += ',' + list[i].email;
+	      }
+	      count++;
+	      total++;
+	    }
+	    if(count == 20 || i == listLength - 1) {
+	        i++;
+					var cnt = count;
+	        $.ajax({
+	            type: 'POST',
+	            contentType: 'application/json',
+	            url: '/admin/send-message',
+	            data: JSON.stringify(data),
+	            success: function(resp) {
+	                if(resp.status != 1) {
+	                  var content = '<h4 style="color:red;">Mail Status  : ' + resp.message + ' Please try again later!'
+	                   '<br></h4>';
+	                } else {
+	                  var content = '<h4>Mail Status  : ' + resp.message + '<br></h4>';
+	                  $(':input','#MeetingForm').not(':button, :submit, :reset, :hidden').val('').removeAttr('checked').removeAttr('selected');
+	                }
+	                $('#response').append(content);
+	            }
+	        });
+	        count = 0;
+	        data.to = '';
+	    }
+	  }
+	  return false;
 	}
+
 
   </script>
 </body>

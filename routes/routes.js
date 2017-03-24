@@ -23,6 +23,14 @@ var BusySlotsFinal = new Map;
 var FreeSlots = new Map;
 var SECRET = process.env.FREESLOT_GOOGLE_SECRET;
 
+var smtpTransport = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+        user: config.email,
+        pass: config.password
+    }
+});
+
 
 
 module.exports = function(app, passport) {
@@ -200,78 +208,83 @@ module.exports = function(app, passport) {
                 }
             });
         } else if (req.params.action == 'mail-meeting') {
-            student.findOne({
-                'clubID': req.session.clubID,
-                'regno': req.body.regno
-            }, function(err, stud) {
-                if (err) throw err;
-                if (!stud) {
-                    res.json({
-                        status: 404,
-                        message: 'Data Not Found!'
-                    });
-                } else if (stud.email) {
-                    Club.findOne({
-                        'loginID': req.session.clubID
-                    }, function(err, club) {
-                        if (err) throw err;
-                        if (!club) {
-                            res.json({
-                                status: 404,
-                                message: 'Data Not Found!'
-                            });
-                        } else {
-                            var smtpTransport = nodemailer.createTransport({
-                                service: 'Gmail',
-                                auth: {
-                                    user: config.email,
-                                    pass: config.password
-                                }
-                            });
-                            var mailOptions = {
-                                to: stud.email,
-                                from: 'FreeSlot',
-                                subject: club.name + ' has called for a meeting!',
-                                text: 'Hello ' + stud.name + ',\n' + club.name + ' has called for a meeting.\n\n' +
-                                    'Venue: ' + req.body.venue +
-                                    '\nDate: ' + req.body.date +
-                                    '\nTime: ' + req.body.time +
-                                    '\n\nThe meeting is called by ' + req.body.name +
-                                    '\n\nMessage from the caller: ' + req.body.message +
-                                    '\n\n\nThank You\nTeam FreeSlot'
-                            };
-                            smtpTransport.sendMail(mailOptions, function(err, info) {
-                                if (err) {
-                                    console.log(err);
-                                    res.json({
-                                        status: 0,
-                                        message: 'Some Error occurred!',
-                                        name: stud.name,
-                                        regno : stud.regno
-                                    });
-                                } else {
-                                    res.json({
-                                        status: 1,
-                                        message: 'Mail Sent!',
-                                        name: stud.name,
-                                        regno : stud.regno
-                                    });
-                                }
+          Club.findOne({
+            'loginID': req.session.clubID
+          }, function(err, club) {
+              if (err) throw err;
+              if (!club) {
+                  res.json({
+                      status: 404,
+                      message: 'Data Not Found!'
+                  });
+              } else {
+                  var mailOptions = {
+                      to: req.body.to,
+                      from: 'FreeSlot',
+                      subject: club.name + ' has called for a meeting!',
+                      text: 'Hi there,\n' + club.name + ' has called for a meeting.\n\n' +
+                          'Venue: ' + req.body.venue +
+                          '\nDate: ' + req.body.date +
+                          '\nTime: ' + req.body.time +
+                          '\n\nThe meeting is called by ' + req.body.name +
+                          '\n\nMessage from the caller: ' + req.body.message +
+                          '\n\n\nThank You\nTeam FreeSlot'
+                  };
+                  smtpTransport.sendMail(mailOptions, function(err, info) {
+                      if (err) {
+                          console.log(err);
+                          res.json({
+                              status: 0,
+                              message: 'Some Error occurred!'
+                          });
+                      } else {
+                          res.json({
+                              status: 1,
+                              message: 'Mail Sent!'
+                          });
+                      }
 
-                            });
-                        }
-                    });
-                } else {
-                    res.json({
-                        status: 0,
-                        message: 'Email address not updated!',
-                        name: stud.name,
-                        regno : stud.regno
-                    });
-                }
-            });
+                  });
+              }
+          });
         } else if (req.params.action == 'send-message') {
-            student.findOne({
+          Club.findOne({
+            'loginID': req.session.clubID
+          }, function(err, club) {
+              if (err) throw err;
+              if (!club) {
+                  res.json({
+                      status: 404,
+                      message: 'Data Not Found!'
+                  });
+              } else {
+                var mailOptions = {
+                    to: req.body.to,
+                    from: 'FreeSlot',
+                    subject: 'Message from ' + club.name,
+                    text: 'Hi there,\nYou have a message from ' + club.name + '.' +
+                        '\n\nSent by: ' + req.body.name +
+                        '\n\nMessage: \n\n' + req.body.message +
+                        '\n\n\nThank You\nTeam FreeSlot'
+                };
+                  smtpTransport.sendMail(mailOptions, function(err, info) {
+                      if (err) {
+                          console.log(err);
+                          res.json({
+                              status: 0,
+                              message: 'Some Error occurred!'
+                          });
+                      } else {
+                          res.json({
+                              status: 1,
+                              message: 'Mail Sent!'
+                          });
+                      }
+
+                  });
+              }
+          });
+            /*student.findOne({
                 'clubID': req.session.clubID,
                 'regno': req.body.regno
             }, function(err, stud) {
@@ -292,13 +305,7 @@ module.exports = function(app, passport) {
                                 message: 'Data Not Found!'
                             });
                         } else {
-                            var smtpTransport = nodemailer.createTransport({
-                                service: 'Gmail',
-                                auth: {
-                                    user: config.email,
-                                    pass: config.password
-                                }
-                            });
+
                             var mailOptions = {
                                 to: stud.email,
                                 from: 'FreeSlot',
@@ -318,10 +325,14 @@ module.exports = function(app, passport) {
                                         regno : stud.regno
                                     });
                                 } else {
-                                    /*https.get('https://control.msg91.com/api/sendhttp.php?authkey=146100ABpiUitK58d3ca54&mobiles=9952552526&message=Test&sender=ABCDEF&route=4&country=91', function(res){
-                                      console.log(res);
+                                  /*var text = 'Msg from ' + club.name +
+                                      '\nSent by: ' + req.body.name +
+                                      '\nMessage: ' + req.body.message +
+                                      '\nThank You\nTeam FreeSlot';
+                                    https.get('https://control.msg91.com/api/sendhttp.php?authkey=146100ABpiUitK58d3ca54&mobiles=9790236095&message=' +encodeURIComponent(text) +'&sender=FRESLT&route=4&country=91&response=json', function(res){
+
                                     });*/
-                                    res.json({
+                                  /*  res.json({
                                         status: 1,
                                         message: 'Mail Sent!',
                                         name: stud.name,
@@ -339,7 +350,7 @@ module.exports = function(app, passport) {
                         regno : stud.regno
                     });
                 }
-            });
+            });*/
         } else res.redirect('/admin/home');
     });
 

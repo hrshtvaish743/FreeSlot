@@ -53,34 +53,49 @@ data = {};
 
 function CallMeeting() {
   var list = Years[SelectedYear];
+  var count = 0,
+      total = 0,
+      listLength = list.length,
+      RequestCount = 0;
   data.name = $('#name').val();
   data.venue = $('#venue').val();
   data.time = $('#time').val();
   data.date = $('#date').val();
   data.message = $('#message').val();
+  data.to = '';
   $('#response').show().html("");
-  for(i = 0; i<list.length; i++) {
-    data.regno = list[i].regno;
-    $.ajax({
-        type: 'POST',
-        contentType: 'application/json',
-        url: '/admin/mail-meeting',
-        data: JSON.stringify(data),
-        success: function(resp) {
-            if(resp.status != 1) {
-              var content = '<h4 style="color:red;">Mail Status for '
-               + resp.name + ' : ' + resp.message +
-               '<a class="btn btn-default" role="button" id="'+ resp.regno +
-               '" onclick=SendAgain(this.id);>Send Again</a><br></h4>';
-            } else {
-              var content = '<h4>Mail Status for ' + resp.name + ' : ' + resp.message + '<br></h4>';
+  for(i = 0; i<listLength; i++) {
+    if(list[i].email){
+      if(data.to == ''){
+        data.to += list[i].email;
+      } else {
+          data.to += ',' + list[i].email;
+      }
+      count++;
+      total++;
+    }
+    if(count == 20 || i == listLength - 1) {
+        i++;
+        $.ajax({
+            type: 'POST',
+            contentType: 'application/json',
+            url: '/admin/mail-meeting',
+            data: JSON.stringify(data),
+            success: function(resp) {
+                if(resp.status != 1) {
+                  var content = '<h4 style="color:red;">Mail Status for : ' + resp.message + ' Please try again later!'
+                   '<br></h4>';
+                } else {
+                  var content = '<h4>Mail Status : ' + resp.message + '<br></h4>';
+                  $(':input','#MeetingForm').not(':button, :submit, :reset, :hidden').val('').removeAttr('checked').removeAttr('selected');
+                }
+                $('#response').append(content);
             }
-
-            $('#response').append(content);
-        }
-    });
+        });
+        count = 0;
+        data.to = '';
+    }
   }
-  $(':input','#MeetingForm').not(':button, :submit, :reset, :hidden').val('').removeAttr('checked').removeAttr('selected');
   return false;
 }
 
