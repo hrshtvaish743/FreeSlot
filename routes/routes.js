@@ -733,7 +733,8 @@ module.exports = function(app, passport) {
         if(!club)
           res.render('notfound.ejs');
         else {
-          res.redirect('/add-details/' + req.params.club + '/' + req.body.regno);
+          var regno = req.body.regno.toUpperCase();
+          res.redirect('/add-details/' + req.params.club + '/' + regno);
         }
       });
     });
