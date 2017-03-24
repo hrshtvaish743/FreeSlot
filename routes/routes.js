@@ -712,6 +712,32 @@ module.exports = function(app, passport) {
       });
     });
 
+    app.get('/add-details/:club/', function(req, res) {
+      Club.findOne({
+        'loginID' : req.params.club
+      }, function(err, club) {
+        if(err) throw err;
+        if(!club)
+          res.render('notfound.ejs');
+        else {
+          res.render('search');
+        }
+      });
+    });
+
+    app.post('/add-details/:club/', function(req, res) {
+      Club.findOne({
+        'loginID' : req.params.club
+      }, function(err, club) {
+        if(err) throw err;
+        if(!club)
+          res.render('notfound.ejs');
+        else {
+          res.redirect('/add-details/' + req.params.club + '/' + req.body.regno);
+        }
+      });
+    });
+
     app.post('/add-details/:club/:regno', function(req, res) {
       var regno = req.params.regno.toUpperCase();
       Club.findOne({
