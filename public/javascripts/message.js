@@ -51,16 +51,13 @@ function selectYear() {
 
 data = {};
 
-function CallMeeting() {
+function SendMessage() {
   var list = Years[SelectedYear];
   var count = 0,
       total = 0,
       listLength = list.length,
       RequestCount = 0;
   data.name = $('#name').val();
-  data.venue = $('#venue').val();
-  data.time = $('#time').val();
-  data.date = $('#date').val();
   data.message = $('#message').val();
   data.to = '';
   $('#response').show().html("");
@@ -76,17 +73,18 @@ function CallMeeting() {
     }
     if(count == 20 || i == listLength - 1) {
         i++;
+        var cnt = count;
         $.ajax({
             type: 'POST',
             contentType: 'application/json',
-            url: '/admin/mail-meeting',
+            url: '/admin/send-message',
             data: JSON.stringify(data),
             success: function(resp) {
                 if(resp.status != 1) {
-                  var content = '<h4 style="color:red;">Mail Status for : ' + resp.message + ' Please try again later!'
+                  var content = '<h4 style="color:red;">Mail Status  : ' + resp.message + ' Please try again later!'
                    '<br></h4>';
                 } else {
-                  var content = '<h4>Mail Status : ' + resp.message + '<br></h4>';
+                  var content = '<h4>Mail Status  : ' + resp.message + '<br></h4>';
                   $(':input','#MeetingForm').not(':button, :submit, :reset, :hidden').val('').removeAttr('checked').removeAttr('selected');
                 }
                 $('#response').append(content);
@@ -97,7 +95,7 @@ function CallMeeting() {
     }
   }
   data.mobiles = '7010694923';
-  data.smstype = 'meeting';
+  data.smstype = 'message';
   for(i = 0; i<listLength; i++) {
     if(list[i].phone){
       if(data.mobiles == ''){

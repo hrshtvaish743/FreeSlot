@@ -11,7 +11,8 @@ var studSchema = new Schema({
     clubID: String,
     created_at: Date,
     updated_at: Date,
-    email : String
+    email : String,
+    phone : String
 });
 
 var student = mongoose.model('StudentData', studSchema);

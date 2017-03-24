@@ -186,6 +186,16 @@ module.exports = function(app, passport) {
             res.render('send-msg.ejs', {
                 user: req.user
             });
+        } else if (req.params.action == 'add-phone') {
+            student.find({
+                'clubID': req.session.clubID
+            }, function(err, students) {
+                if (err) throw err;
+                res.render('addphone.ejs', {
+                    students: students,
+                    user: req.user // get the user out of session and pass to template
+                });
+            });
         } else res.redirect('/admin/home');
     });
 
@@ -351,6 +361,58 @@ module.exports = function(app, passport) {
                     });
                 }
             });*/
+        } else if (req.params.action == 'send-sms') {
+            Club.findOne({
+              'loginID': req.session.clubID
+            }, function(err, club) {
+                if (err) throw err;
+                if (!club) {
+                    res.json({
+                        status: 404,
+                        message: 'Data Not Found!'
+                    });
+                } else {
+                  if(req.body.smstype == 'meeting'){
+                    var text = 'Hi there,\n' + club.name + ' has called for a meeting.\n' +
+                        'Venue: ' + req.body.venue +
+                        '\nDate: ' + req.body.date +
+                        '\nTime: ' + req.body.time +
+                        '\nCalled by: ' + req.body.name +
+                        '\nMessage: ' + req.body.message +
+                        '\n\nThank You\nTeam FreeSlot';
+                    https.get('https://control.msg91.com/api/sendhttp.php?authkey=146100ABpiUitK58d3ca54&mobiles=' + req.body.mobiles + '&message=' + encodeURIComponent(text) +'&sender=FRESLT&route=4&country=91&response=json', function(resp){
+                      res.end();
+                    });
+                  } else if (req.body.smstype == 'message') {
+                    var text = 'Message from ' + club.name +
+                        '\nSent by: ' + req.body.name +
+                        '\nMessage: ' + req.body.message +
+                        '\n\nThank You\nTeam FreeSlot';
+                    https.get('https://control.msg91.com/api/sendhttp.php?authkey=146100ABpiUitK58d3ca54&mobiles=' + req.body.mobiles + '&message=' + encodeURIComponent(text) +'&sender=FRESLT&route=4&country=91&response=json', function(resp){
+                      res.end();
+                    });
+                  }
+                }
+            });
+        } else if (req.params.action == 'add-phone') {
+            student.findOne({
+              'regno' : req.body.regno,
+              'clubID' : req.session.clubID
+            }, function(err, stud) {
+                if(err) throw err;
+                if(!stud) {
+                  res.send('Not found');
+                } else {
+                  stud.phone = req.body.phone;
+                  stud.save(function(err) {
+                    if(err){
+                      res.send('Not Saved!');
+                    } else {
+                      res.send('Saved');
+                    }
+                  });
+                }
+            });
         } else res.redirect('/admin/home');
     });
 
@@ -429,7 +491,6 @@ module.exports = function(app, passport) {
                           res.send('Club and user Deleted!');
                         }
                     });
-
                 }
             });
         } else if (req.params.action == 'change-password') {
@@ -623,6 +684,76 @@ module.exports = function(app, passport) {
         })
 
     });
+
+    app.get('/add-details/:club/:regno', function(req, res) {
+      Club.findOne({
+        'loginID' : req.params.club
+      }, function(err, club) {
+        if(err) throw err;
+        if(!club)
+          res.render('notfound.ejs');
+        else {
+          student.findOne({
+            'clubID' : req.params.club,
+            'regno' : req.params.regno
+          },function(err, stud) {
+            if(err) throw err;
+            if(!stud) {
+              res.render('notfound');
+            } else {
+              res.render('add-details', {
+                student : stud,
+                message : ""
+              });
+            }
+          });
+        }
+      });
+    });
+    app.post('/add-details/:club/:regno', function(req, res) {
+      Club.findOne({
+        'loginID' : req.params.club
+      }, function(err, club) {
+        if(err) throw err;
+        if(!club)
+          res.render('notfound.ejs');
+        else {
+          student.findOne({
+            'clubID' : req.params.club,
+            'regno' : req.params.regno
+          },function(err, stud) {
+            if(err) throw err;
+            if(!stud) {
+              res.render('notfound');
+            } else if(req.body.phone || req.body.email) {
+              if(req.body.phone)
+                stud.phone = req.body.phone;
+              if(req.body.email)
+                stud.email = req.body.email;
+              stud.save(function(err) {
+                if(err) {
+                  res.render('add-details', {
+                    student : stud,
+                    message : "Some Error occurred!"
+                  });
+                } else {
+                  res.render('add-details', {
+                    student : stud,
+                    message : "Details Updated"
+                  });
+                }
+              });
+            } else {
+              res.render('add-details', {
+                student : stud,
+                message : "No Changes Made!"
+              });
+            }
+          });
+        }
+      })
+    });
+
 };
 
 // route middleware to make sure

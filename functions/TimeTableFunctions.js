@@ -30,6 +30,7 @@ module.exports = {
             newTemp.mobile = req.body.phoneNo;
             newTemp.club_id = req.params.id;
             newTemp.email = req.body.email;
+            newTemp.phone = req.body.localphoneNo;
             const data = {
                 reg_no: req.body.registerNo.toUpperCase(),
                 dob: req.body.DOB,
@@ -64,6 +65,7 @@ module.exports = {
                 } else {
                     newTemp.save(function(err) {
                         if (err) throw err;
+                        console.log(newTemp);
                         res.redirect('/student/' + req.params.id + '/' + req.body.registerNo + '/refresh');
                     });
 
@@ -131,6 +133,7 @@ module.exports = {
             newStud.freeslots = NumberedFreeSlots;
             newStud.clubID = req.params.id;
             newStud.email = student.email;
+            newStud.phone = student.phone;
 
             Student.find({
                 'regno': response.reg_no,
@@ -151,6 +154,7 @@ module.exports = {
                     deleteDoc(response.reg_no, req.params.id);
                     newStud.save(function(err) {
                         if (err) throw err;
+                        console.log(newStud);
                         console.log('Data updated!');
                         res.render('updated.ejs', {
                             name: student.name,

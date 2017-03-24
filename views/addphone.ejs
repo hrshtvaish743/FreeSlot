@@ -1,0 +1,44 @@
+<% include header.ejs %>
+<body>
+  <% include navbar.ejs %>
+  <div class="container">
+    <div class="page-header text-center">
+      <h1><span class="fa fa-anchor"></span> Welcome <strong><%= user.local.name %></strong></h1>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+      <h3><span class="fa fa-user"></span> Delete</h3>
+      <div class="modal-body row">
+        <div class="container">
+          <p>
+            List Of Your Club/Chapter's Students Who have updated their timetable.
+          </p>
+          <table>
+            <tbody>
+              <% students.forEach(function(student) {
+                  if(!student.phone) {
+                %>
+                <tr>
+                  <td class="col-md-3"><%= student.regno %>&nbsp;<%= student.name %></td>
+                  <td class="col-md-3" regno="<%= student.regno %>">
+                    <input type="phone" id="<%= student.regno %>" name="phone" placeholder="<%= student.phone %>">
+                    <button type="button" class="btn btn-default" onclick="AddPhone('<%= student.regno %>');" aria-label="Left Align">
+                      Add
+                    </button>
+                  </td>
+                </tr>
+                <%} }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+    <% include footer.ejs %>
+    <script>
+
+    </script>
+</body>
+</html>

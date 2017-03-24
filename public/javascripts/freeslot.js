@@ -26,6 +26,22 @@ function deleteData(id) {
     }
 }
 
+function AddPhone(id) {
+        var data = {};
+        data.regno = id;
+        data.phone = $('#' + id).val();
+        console.log(data);
+        $.ajax({
+            type: 'POST',
+            data: JSON.stringify(data),
+            contentType: 'application/json',
+            url: '/admin/add-phone',
+            success: function(data) {
+              $('#' + id).parent().html(data);
+            }
+        });
+}
+
 
 
 //Function to check validity
