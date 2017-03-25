@@ -17,7 +17,7 @@
           <table>
             <tbody>
               <% students.forEach(function(student) {
-                  if(student.phone) {
+                  if(!student.phone) {
                 %>
                 <tr>
                   <td class="col-md-3"><%= student.regno %>&nbsp;<%= student.name %></td>

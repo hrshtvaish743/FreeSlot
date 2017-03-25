@@ -373,7 +373,7 @@ module.exports = function(app, passport) {
                     });
                 } else {
                   if(req.body.smstype == 'meeting'){
-                    var text = 'Hi there,\n' + club.name + ' has called for a meeting.\n' +
+                    var text = 'Meeting called by ' + club.name + '.\n' +
                         'Venue: ' + req.body.venue +
                         '\nDate: ' + req.body.date +
                         '\nTime: ' + req.body.time +
